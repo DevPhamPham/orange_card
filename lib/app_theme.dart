@@ -23,12 +23,10 @@ class AppTheme {
     headline4: display1,
     headline5: headline,
     headline6: title,
-    subtitle2: subtitle,
-    bodyText2: body2,
+    subtitle2: subtitle, 
     bodyText1: body1,
     caption: caption,
   );
-
   static const TextStyle display1 = TextStyle( // h4 -> display1
     fontFamily: fontName,
     fontWeight: FontWeight.bold,
@@ -45,7 +43,20 @@ class AppTheme {
     letterSpacing: 0.27,
     color: darkerText,
   );
-
+  static const TextStyle title_appbar = TextStyle( // h5 -> headline
+    fontFamily: fontName,
+    fontWeight: FontWeight.bold,
+    fontSize: 20,
+    letterSpacing: 0.30,
+    color: white,
+  );
+    static const TextStyle title_tabbar = TextStyle( // h5 -> headline
+    fontFamily: fontName,
+    fontWeight: FontWeight.normal,
+    fontSize: 18,
+    letterSpacing: 0.27,
+    color: white,
+  );
   static const TextStyle title = TextStyle( // h6 -> title
     fontFamily: fontName,
     fontWeight: FontWeight.bold,

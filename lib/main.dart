@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 // import 'package:orange_card/ui/login_screen.dart';
 // import 'package:orange_card/app_theme.dart';
 
-import 'package:orange_card/ui/auth/Screens/Welcome/welcome_screen.dart';
 import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/ui/main/main_screen.dart';
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -42,7 +42,7 @@ class MyApp extends StatelessWidget {
               borderSide: BorderSide.none,
             ),
           )),
-      home: const WelcomeScreen(),
+      home: const MainScreen(),
     );
   }
 }
