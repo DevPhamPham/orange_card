@@ -10,29 +10,32 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Background(
-      child: SingleChildScrollView(
-        child: Responsive(
-          mobile: MobileSignupScreen(),
-          desktop: Row(
-            children: [
-              Expanded(
-                child: SignUpScreenTopImage(),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 450,
-                      child: SignUpForm(),
-                    ),
-                    SizedBox(height: defaultPadding / 2),
-                    // SocalSignUp()
-                  ],
+    return Scaffold(
+      resizeToAvoidBottomInset: true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
+      body: const Background(
+        child: SingleChildScrollView(
+          child: Responsive(
+            mobile: MobileSignupScreen(),
+            desktop: Row(
+              children: [
+                Expanded(
+                  child: SignUpScreenTopImage(),
                 ),
-              )
-            ],
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 450,
+                        child: SignUpForm(),
+                      ),
+                      SizedBox(height: defaultPadding / 2),
+                      // SocalSignUp()
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

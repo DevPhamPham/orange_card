@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/main/main_screen.dart';
+import 'package:orange_card/ui/auth/Screens/Welcome/welcome_screen.dart';
 
 void main() => runApp(const MyApp());
 
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
             ),
           )),
       home: const MainScreen(),
+      // home: const WelcomeScreen(),
     );
   }
 }
