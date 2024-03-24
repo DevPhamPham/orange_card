@@ -10,7 +10,9 @@ class LibraryPageAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       title: const Text('Library'),
-      backgroundColor: kPrimaryColor,
+      backgroundColor: Colors.white,
+      centerTitle: true,
+      
       titleTextStyle: AppTheme.title_appbar,
     );
   }
