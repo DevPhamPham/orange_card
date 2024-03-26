@@ -28,8 +28,8 @@ class _NavBarWidgetState extends State<NavBarWidget> {
       ),
       child: SafeArea(
         child: Container(
-          padding: const EdgeInsets.all(12),
-          margin: const EdgeInsets.symmetric(horizontal: 10),
+          padding: const EdgeInsets.all(10),
+          margin: const EdgeInsets.symmetric(horizontal: 10,vertical: 5),
           decoration: const BoxDecoration(
             color: kPrimaryColor,
             borderRadius: BorderRadius.all(Radius.circular(12)),
@@ -46,13 +46,8 @@ class _NavBarWidgetState extends State<NavBarWidget> {
               color: Colors.white,
               width: 1,
             ),
-            tabShadow: [
-              BoxShadow(
-                color: const Color.fromARGB(255, 146, 19, 146).withOpacity(0.5),
-                blurRadius: 4,
-              )
-            ],
-            curve: Curves.easeOutExpo,
+            
+            // curve: Curves.easeOutExpo,
             duration: const Duration(milliseconds: 200),
             gap: 8,
             color: Colors.white,

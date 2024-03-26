@@ -10,34 +10,41 @@ class LibraryPageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: LibraryPageAppBar(),
-      body: DefaultTabController(
-        length: 2, // Specify the number of tabs
-        child: Scaffold(
-          appBar: TabBar(
-            indicatorSize: TabBarIndicatorSize
-                .label, // Đặt kích thước của thanh chỉ báo bằng kích thước của nhãn
-            indicatorWeight: 4, // Đặt độ dày của thanh chỉ báo
-            tabs: [
-              Tab(
-                text: 'Topics',
-                
+    return Scaffold(
+      appBar: const LibraryPageAppBar(),
+      body: Container(
+        color: Colors.blue, // Set the background color here
+        child: DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: TabBar(
+              indicatorWeight: 4,
+              tabs: const [
+                Tab(
+                  text: 'Topics',
+                ),
+                Tab(
+                  text: 'Folders',
+                ),
+              ],
+              labelColor: Colors.white,
+              labelStyle: AppTheme.title_tabbar,
+              unselectedLabelColor: kPrimaryColor,
+              indicatorColor: kPrimaryColor,
+              indicator: BoxDecoration(
+                color: kPrimaryColor,
+                borderRadius: BorderRadius.circular(10),
               ),
-              Tab(
-                text: 'Folders',
-              ),
-            ],
-            labelColor: kPrimaryColor,
-            labelStyle: AppTheme.title_tabbar,
-            unselectedLabelColor: Colors.grey,
-            indicatorColor: kPrimaryColor,
-          ),
-          body: TabBarView(
-            children: [
-              TopicScreen(key : null),
-              FolderScreen(key: null),
-            ],
+              indicatorPadding: const EdgeInsets.only(left: 20, right: 20),
+              indicatorSize: TabBarIndicatorSize.tab,
+              padding: const EdgeInsets.only(left: 20, right: 20,bottom: 5,top: 5),
+            ),
+            body: const TabBarView(
+              children: [
+                TopicScreen(key: null),
+                FolderScreen(key: null),
+              ],
+            ),
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orange_card/ui/auth/constants.dart';
 
 class AppTheme {
   AppTheme._();
@@ -48,7 +49,7 @@ class AppTheme {
     fontWeight: FontWeight.bold,
     fontSize: 20,
     letterSpacing: 0.30,
-    color: white,
+    color: kPrimaryColor,
   );
     static const TextStyle title_tabbar = TextStyle( // h5 -> headline
     fontFamily: fontName,

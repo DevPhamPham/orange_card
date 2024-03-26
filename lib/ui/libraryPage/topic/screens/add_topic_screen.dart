@@ -18,7 +18,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
   @override
   void initState() {
     super.initState();
-    _words = [Word(id: '1', english: '', vietnamese: '')];
+    _words = [Word(id: '1', english: '', vietnamese: '', type: '', created_at: DateTime.now().microsecondsSinceEpoch)];
   }
 
   void _removeWordItem(int index) {
@@ -93,7 +93,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
                   _words.add(Word(
                     id: (_words.length + 1).toString(),
                     english: '',
-                    vietnamese: '',
+                    vietnamese: '', created_at:  DateTime.now().microsecondsSinceEpoch, type: '',
                   ));
                 });
               },
