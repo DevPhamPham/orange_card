@@ -43,8 +43,8 @@ class MyApp extends StatelessWidget {
               borderSide: BorderSide.none,
             ),
           )),
-      home: const MainScreen(),
-      // home: const WelcomeScreen(),
+      // home: const MainScreen(),
+      home: const WelcomeScreen(),
     );
   }
 }
