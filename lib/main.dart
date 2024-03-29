@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
-// import 'package:orange_card/resources/repository.dart';
-// import 'package:orange_card/ui/login_screen.dart';
-// import 'package:orange_card/app_theme.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'package:orange_card/ui/auth/constants.dart';
-import 'package:orange_card/ui/main/main_screen.dart';
-import 'package:orange_card/ui/auth/Screens/Welcome/welcome_screen.dart';
+import 'ui/auth/auth_gate.dart';
 
-void main() => runApp(const MyApp());
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -43,8 +48,7 @@ class MyApp extends StatelessWidget {
               borderSide: BorderSide.none,
             ),
           )),
-      home: const MainScreen(),
-      // home: const WelcomeScreen(),
+      home: const AuthGate(),
     );
   }
 }

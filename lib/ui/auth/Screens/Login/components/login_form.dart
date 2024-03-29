@@ -1,24 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/ui/auth/auth_gate.dart';
+import '../../ResetPassword/reset_password.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
 import '../../Signup/signup_screen.dart';
 
-class LoginForm extends StatelessWidget {
-  const LoginForm({
-    Key? key,
-  }) : super(key: key);
+class LoginForm extends StatefulWidget {
+  const LoginForm({Key? key}) : super(key: key);
+
+  @override
+  _LoginFormState createState() => _LoginFormState();
+}
+
+class _LoginFormState extends State<LoginForm> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
+  TextEditingController _passwordTextController = TextEditingController();
+  TextEditingController _emailTextController = TextEditingController();
+
+  // Hàm validator để kiểm tra định dạng email
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter your email';
+    }
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Form(
+      key: _formKey,
       child: Column(
         children: [
           TextFormField(
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.next,
             cursorColor: kPrimaryColor,
-            onSaved: (email) {},
+            controller: _emailTextController,
             decoration: const InputDecoration(
               hintText: "Your email",
               prefixIcon: Padding(
@@ -26,25 +49,81 @@ class LoginForm extends StatelessWidget {
                 child: Icon(Icons.person),
               ),
             ),
+            validator: _validateEmail, // Sử dụng hàm validator mới
           ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: defaultPadding),
             child: TextFormField(
+              controller: _passwordTextController,
               textInputAction: TextInputAction.done,
-              obscureText: true,
+              obscureText: _obscurePassword,
               cursorColor: kPrimaryColor,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Your password",
                 prefixIcon: Padding(
                   padding: EdgeInsets.all(defaultPadding),
                   child: Icon(Icons.lock),
                 ),
+                suffixIcon: IconButton(
+                  icon: Icon(_obscurePassword
+                      ? Icons.visibility
+                      : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your password';
+                }
+                return null;
+              },
             ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ResetPassword())),
+                child: Text(
+                  "Forgot password?",
+                  style: TextStyle(color: kPrimaryColor),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: defaultPadding),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              if (_formKey.currentState!.validate()) {
+                FirebaseAuth.instance
+                    .signInWithEmailAndPassword(
+                        email: _emailTextController.text,
+                        password: _passwordTextController.text)
+                    .then((value) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AuthGate()));
+                }).onError((error, stackTrace) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Login failed. Please check your email and password.',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: Colors.red, // Màu nền
+                      behavior: SnackBarBehavior
+                          .floating, // Hiển thị SnackBar ở dạng floating
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                });
+              }
+            },
             child: Text(
               "Login".toUpperCase(),
             ),
