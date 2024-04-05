@@ -18,7 +18,7 @@ class _ReturnScreenState extends State<ReturnScreen> {
           padding: const EdgeInsets.all(24.0),
           child: ElevatedButton(
             child: Text("Đăng nhập lại"),
-            onPressed: () {
+            onPressed: () async {
               FirebaseAuth.instance.signOut().then((value) {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => LoginScreen()));

@@ -12,8 +12,8 @@ class LoginScreenTopImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const Text(
-          "LOGIN",
+        Text(
+          "LOGIN TO ORANGE CARD".toUpperCase(),
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: defaultPadding * 2),

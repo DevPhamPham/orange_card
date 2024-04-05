@@ -24,8 +24,7 @@ class _SignUpFormState extends State<SignUpForm> {
       return 'Please enter your email';
     }
     // Regular expression for email validation
-    String emailPattern =
-        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
+    String emailPattern = r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$';
     RegExp regex = RegExp(emailPattern);
     if (!regex.hasMatch(value)) {
       return 'Please enter a valid email address';
@@ -112,18 +111,20 @@ class _SignUpFormState extends State<SignUpForm> {
                     .createUserWithEmailAndPassword(
                         email: _emailTextController.text,
                         password: _passwordTextController.text)
-                    .then((value) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      'Đăng ký thành công, vui lòng đăng nhập lại',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    .then((value) async {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'Đăng ký thành công, vui lòng đăng nhập lại',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      backgroundColor: Colors.green, // Màu nền
+                      behavior: SnackBarBehavior
+                          .floating, // Hiển thị SnackBar ở dạng floating
                     ),
-                    backgroundColor: Colors.green, // Màu nền
-                    behavior: SnackBarBehavior
-                        .floating, // Hiển thị SnackBar ở dạng floating
-                  ),
-                );
+                  );
+                  await FirebaseAuth.instance.signOut();
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => ReturnScreen()));
                 }).onError((error, stackTrace) {
