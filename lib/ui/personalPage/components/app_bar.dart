@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 
-
-class PersionalPageAppBar extends StatelessWidget implements PreferredSizeWidget {
+class PersionalPageAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
   const PersionalPageAppBar({Key? key}) : super(key: key);
 
   @override
@@ -11,7 +10,15 @@ class PersionalPageAppBar extends StatelessWidget implements PreferredSizeWidget
     return AppBar(
       title: const Text('Persional'),
       backgroundColor: kPrimaryColor,
-      titleTextStyle: AppTheme.title_appbar,
+      titleTextStyle: TextStyle(
+        // h5 -> headline
+        fontFamily: "WorkSans",
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        letterSpacing: 0.30,
+        color: Colors.white,
+      ),
+      centerTitle: true,
     );
   }
 
