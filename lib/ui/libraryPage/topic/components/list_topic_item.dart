@@ -1,77 +1,91 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/topic.dart';
+import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/topicViewmodel.dart';
+import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
-import 'package:orange_card/ui/message/sucess_message.dart';
+import 'package:orange_card/resources/models/user.dart';
 
 class ListTopicItem extends StatefulWidget {
   final TopicViewModel viewModel;
   final List<Topic> topics;
 
-  const ListTopicItem({super.key, required this.viewModel, required this.topics});
+  ListTopicItem({
+    Key? key,
+    required this.viewModel,
+    required this.topics,
+  }) : super(key: key);
+
   @override
-  // ignore: library_private_types_in_public_api
   _ListTopicItemState createState() => _ListTopicItemState();
 }
 
 class _ListTopicItemState extends State<ListTopicItem> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: _buildDayContainers(widget.viewModel.fakeTopics, context),
-    );
-  }
-
-  List<Widget> _buildDayContainers(List<Topic> topics, BuildContext context) {
-    List<Widget> dayContainers = [];
-    Map<String, List<Topic>> groupedTopicsByDay = widget.viewModel.groupedTopicsByDay(topics);
-    groupedTopicsByDay.forEach((day, topics) {
-      dayContainers.add(
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 8.0),
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                day,
-                style: const TextStyle(
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold,
+    return ListView.builder(
+      itemCount: widget.topics.length,
+      itemBuilder: (context, index) {
+        Topic topic = widget.topics[index];
+        return GestureDetector(
+          onTap: () async {
+            UserCurrent user = UserCurrent(
+                username: FirebaseAuth.instance.currentUser!.email.toString(),
+                avatar: "");
+            print(user);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => TopicDetail(
+                  topic: topic,
+                  user: user,
                 ),
               ),
-              const SizedBox(height: 8.0),
-              Column(
-                children: topics.map((topic) {
-                  return TopicCardItem(
-                    topic: topic,
-                    onDelete: (topic) {
-                      setState(() {
-                        bool delete = widget.viewModel.deleteTopic(topic);
-                        if (delete) {
-                          MessageUtils.showSuccessMessage(context,"Delete Topic ${topic.title}");
-                        }else{
-                          MessageUtils.showFailureMessage(context,"Delete Topic ${topic.title} Fail");
-                        }
-                      });
-                    },
-                    onEdit: (topic) {
-                      setState(() {
-                        widget.viewModel.updateTopic(topic);
-                      });
-                    },
-                  );
-                }).toList(),
+            );
+          },
+          child: Dismissible(
+            key: Key(topic.id.toString()),
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: const Icon(
+                Icons.delete,
+                color: Colors.white,
               ),
-            ],
+            ),
+            direction: DismissDirection.endToStart,
+            onDismissed: (direction) {
+              setState(() {
+                widget.topics.remove(topic);
+                widget.viewModel.deleteTopic(topic);
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text("Deleted ${topic.title}"),
+                  action: SnackBarAction(
+                    label: "UNDO",
+                    onPressed: () {
+                      setState(() {
+                        widget.topics.insert(index, topic);
+                      });
+                    },
+                  ),
+                ),
+              );
+            },
+            child: TopicCardItem(
+              topic: topic,
+              onEdit: (topic) {
+                setState(() {
+                  widget.viewModel.updateTopic(topic);
+                });
+              },
+            ),
           ),
-        ),
-      );
-    });
-    return dayContainers;
+        );
+      },
+    );
   }
 }
