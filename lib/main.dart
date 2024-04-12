@@ -5,7 +5,6 @@ import 'firebase_options.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'ui/auth/auth_gate.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -24,6 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Orange Card',
       theme: ThemeData(
+          useMaterial3: false,
           primaryColor: kPrimaryColor,
           scaffoldBackgroundColor: Colors.white,
           elevatedButtonTheme: ElevatedButtonThemeData(

@@ -23,7 +23,8 @@ class _TopicScreenState extends State<TopicScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListTopic(viewModel: _topicViewModel), // Pass ViewModel to ListTopic
+      body:
+          ListTopic(viewModel: _topicViewModel), // Pass ViewModel to ListTopic
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final List? listTopicData = await showDialog<List>(
@@ -32,7 +33,8 @@ class _TopicScreenState extends State<TopicScreen> {
           );
           if (listTopicData != null) {
             setState(() {
-              _topicViewModel.addTopic(listTopicData[0],listTopicData[1],listTopicData[2]); // Use ViewModel method
+              _topicViewModel.addTopic(listTopicData[0], listTopicData[1],
+                  listTopicData[2]); // Use ViewModel method
             });
           }
         },

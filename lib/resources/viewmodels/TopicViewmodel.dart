@@ -1,26 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:orange_card/resources/models/word.dart';
+import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
 import '../models/topic.dart';
 
 class TopicViewModel extends ChangeNotifier {
-  final List<Topic> _fakeTopics = [];
-  late List<Topic> _filteredTopics = []; // List to store filtered topics
+  late List<Topic> _fakeTopics = [];
+  late List<Topic> _filteredTopics = [];
 
-  List<Topic> get fakeTopics => List.unmodifiable(_fakeTopics);
-  List<Topic> get filteredTopics => List.unmodifiable(_filteredTopics);
-
+  List<Topic> get fakeTopics => _fakeTopics;
+  List<Topic> get filteredTopics => _filteredTopics;
   TopicViewModel() {
     _generateFakeTopics();
   }
 
   void _generateFakeTopics() {
-    int numberOfDays = 10;
+    int numberOfDays = 3;
     int topicsPerDay = 2;
 
     for (int i = 0; i < numberOfDays; i++) {
       for (int j = 0; j < topicsPerDay; j++) {
-        List<Word> words = []; // Initialize words list
+        WordViewModel wordViewModel = WordViewModel();
+        List<Word> words = wordViewModel.words;
+        print(words.length);
         _fakeTopics.add(
           Topic(
             words: words,
@@ -85,7 +87,6 @@ class TopicViewModel extends ChangeNotifier {
 
   void _filterTopics(String query) {
     _filteredTopics = _fakeTopics.where((topic) {
-      // Convert both the query and topic title to lowercase for case-insensitive comparison
       final lowerCaseQuery = query.toLowerCase();
       final lowerCaseTitle = topic.title.toLowerCase();
       return lowerCaseTitle.contains(lowerCaseQuery);
