@@ -16,7 +16,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
+      resizeToAvoidBottomInset:
+          true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
       body: Background(
         child: SingleChildScrollView(
           child: Responsive(
@@ -53,8 +54,8 @@ class MobileLoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: const Column(
+    return const SingleChildScrollView(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
           LoginScreenTopImage(),
