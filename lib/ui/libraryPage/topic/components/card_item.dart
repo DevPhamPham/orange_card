@@ -7,21 +7,22 @@ import 'package:orange_card/ui/libraryPage/topic/components/dialog_edit_topic.da
 class TopicCardItem extends StatelessWidget {
   final Topic topic;
   final Function(Topic)? onEdit;
-  final Function(Topic)? onDelete;
 
   const TopicCardItem({
-    Key? key,
+    super.key,
     required this.topic,
     this.onEdit,
-    this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 4.0,
+      color: Colors.white,
+      shadowColor: kPrimaryColorBlur,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
+        side: const BorderSide(color: kPrimaryColor, width: 2),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -30,19 +31,18 @@ class TopicCardItem extends StatelessWidget {
           children: [
             Expanded(
               child: SizedBox(
-                height: 80, // Set the desired height for the card
+                height: 80,
                 child: Row(
                   children: [
                     const SizedBox(
-                      width: 40, // Set the desired width for the icon container
+                      width: 40,
                       child: Icon(
-                        Icons.topic, // Use your desired topic icon
+                        Icons.topic,
                         size: 30.0,
-                        color: kPrimaryColor, // Change the color as needed
+                        color: kPrimaryColor,
                       ),
                     ),
-                    const SizedBox(
-                        width: 8.0), // Add space between icon and text
+                    const SizedBox(width: 8.0),
                     Expanded(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -88,8 +88,6 @@ class TopicCardItem extends StatelessWidget {
                   if (topicUpdated != null) {
                     onEdit!(topicUpdated);
                   }
-                } else if (value == 1 && onDelete != null) {
-                  onDelete!(topic);
                 }
               },
               itemBuilder: (context) => [
@@ -97,11 +95,6 @@ class TopicCardItem extends StatelessWidget {
                   const PopupMenuItem<int>(
                     value: 0,
                     child: Text('Edit', style: TextStyle(color: Colors.black)),
-                  ),
-                if (onDelete != null)
-                  const PopupMenuItem<int>(
-                    value: 1,
-                    child: Text('Delete', style: TextStyle(color: Colors.black)),
                   ),
               ],
             ),

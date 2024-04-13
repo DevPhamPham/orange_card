@@ -4,8 +4,9 @@ class Word {
   late String vietnamese;
   final int created_at;
   late String type;
-
+  late bool learnt;
   Word({
+    required this.learnt,
     required this.id,
     required this.created_at,
     required this.type,
@@ -13,18 +14,15 @@ class Word {
     required this.vietnamese,
   });
 
-  Word copyWith({
-    String? english,
-    String? vietnamese,
-    String? type,
-  }) {
+  Word copyWith(
+      {String? english, String? vietnamese, String? type, bool? learnt}) {
     return Word(
-      id: this.id,
-      created_at: this.created_at,
-      type: type ?? this.type,
-      english: english ?? this.english,
-      vietnamese: vietnamese ?? this.vietnamese,
-    );
+        id: this.id,
+        created_at: this.created_at,
+        type: type ?? this.type,
+        english: english ?? this.english,
+        vietnamese: vietnamese ?? this.vietnamese,
+        learnt: learnt ?? this.learnt);
   }
 
   factory Word.fromJson(Map<String, dynamic> json) {
@@ -34,6 +32,7 @@ class Word {
       type: json['type'],
       english: json['english'],
       vietnamese: json['vietnamese'],
+      learnt: json['learnt'],
     );
   }
 
