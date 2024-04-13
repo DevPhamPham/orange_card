@@ -10,31 +10,33 @@ class ResetPassword extends StatelessWidget {
 
     void _resetPassword() {
       String email = _emailTextController.text.trim();
-      FirebaseAuth.instance.sendPasswordResetEmail(email: email)
-        .then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Password reset email sent to $email',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Colors.green, // Màu nền
-              behavior: SnackBarBehavior.floating, // Hiển thị SnackBar ở dạng floating
+      FirebaseAuth.instance.sendPasswordResetEmail(email: email).then((value) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Vui lòng check lại mail $email',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          );
-          Navigator.pop(context); // Quay lại trang trước đó
-        }).catchError((error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Failed to send password reset email: $error',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              backgroundColor: Colors.red, // Màu nền
-              behavior: SnackBarBehavior.floating, // Hiển thị SnackBar ở dạng floating
+            backgroundColor: Colors.green, // Màu nền
+            behavior:
+                SnackBarBehavior.floating, // Hiển thị SnackBar ở dạng floating
+            duration: Duration(seconds: 5), // Hiển thị SnackBar trong 5 giây
+          ),
+        );
+        Navigator.pop(context); // Quay lại trang trước đó
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to send password reset email: $error',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          );
-        });
+            backgroundColor: Colors.red, // Màu nền
+            behavior:
+                SnackBarBehavior.floating, // Hiển thị SnackBar ở dạng floating
+          ),
+        );
+      });
     }
 
     return Scaffold(
@@ -52,6 +54,7 @@ class ResetPassword extends StatelessWidget {
               decoration: InputDecoration(
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email),
+                helperText: 'Vui lòng nhập lại Email/Please re-enter Email',
               ),
             ),
             SizedBox(height: 20),
