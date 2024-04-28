@@ -49,6 +49,7 @@ dependencies:
   firebase_storage:
   cloud_firestore:
   image_picker:
+  date_format:
 dev_dependencies:
   flutter_test:
     sdk: flutter

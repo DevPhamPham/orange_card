@@ -4,13 +4,14 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+  - Get info user: 
+      mẫu lấy user trong đường dẫn <b>\orange_card\lib\ui\personalPage\components\profile.dart</b>
 
-A few resources to get you started if this is your first Flutter project:
+          import 'package:firebase_auth/firebase_auth.dart';
+          final FirebaseAuth _auth = FirebaseAuth.instance;
+            final user = _auth.currentUser;
+          _displayName = user?.displayName ?? '';
+          _preDisplayName = _displayName;
+          _email = user?.email ?? '';
+          _avatarUrl = '';
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
