@@ -49,7 +49,7 @@ class TopicCardItem extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            topic.title,
+                            topic.title.toString(),
                             style: const TextStyle(
                               fontSize: 16.0,
                               fontWeight: FontWeight.bold,
@@ -57,7 +57,7 @@ class TopicCardItem extends StatelessWidget {
                           ),
                           const SizedBox(height: 4.0),
                           Text(
-                            'Time: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(topic.creationTime))}',
+                            'Time: ${DateFormat('dd/MM/yyyy').format(DateTime.fromMillisecondsSinceEpoch(topic.creationTime!))}',
                             style: const TextStyle(
                               fontSize: 12.0,
                               color: Colors.grey,

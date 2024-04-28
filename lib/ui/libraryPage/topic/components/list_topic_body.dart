@@ -48,7 +48,7 @@ class _ListTopicState extends State<ListTopic> {
               padding: const EdgeInsets.all(10.0),
               child: ListTopicItem(
                 viewModel: widget.viewModel,
-                topics: widget.viewModel.fakeTopics,
+                topics: widget.viewModel.topics,
               )),
         ),
       ],

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-
 import 'package:orange_card/ui/auth/constants.dart';
 import 'ui/auth/auth_gate.dart';
 

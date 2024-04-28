@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../resources/models/topic.dart';
 
-
 class EditTopicDialog extends StatefulWidget {
   final Topic topic;
 
@@ -63,8 +62,6 @@ class _EditTopicDialogState extends State<EditTopicDialog> {
                     String title = _titleController.text;
                     if (title.isNotEmpty) {
                       // Create a new Topic object with the updated title
-                      Topic updatedTopic = widget.topic.copyWith(title: title);
-                      Navigator.pop(context, updatedTopic);
                     }
                   },
                   child: const Text('Update'),

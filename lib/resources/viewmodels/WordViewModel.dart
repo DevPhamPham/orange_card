@@ -8,7 +8,6 @@ class WordViewModel extends ChangeNotifier {
   WordViewModel() {
     fetchWords();
   }
-  // Method to add a word
   void addWord(Word word) {
     _words.add(word);
   }
@@ -27,28 +26,6 @@ class WordViewModel extends ChangeNotifier {
   }
 
   void fetchWords() {
-    _words = [
-      Word(
-          id: '1',
-          created_at: 123456789,
-          type: 'Noun',
-          english: 'Book',
-          vietnamese: 'Sách',
-          learnt: true),
-      Word(
-          id: '2',
-          created_at: 123456789,
-          type: 'Verb',
-          english: 'Run',
-          vietnamese: 'Chạy',
-          learnt: true),
-      Word(
-          id: '3',
-          created_at: 123456789,
-          type: 'Adjective',
-          english: 'Beautiful',
-          vietnamese: 'Đẹp',
-          learnt: false),
-    ];
+    _words = [];
   }
 }

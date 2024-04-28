@@ -1,105 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:orange_card/resources/models/word.dart';
-import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
+import 'package:orange_card/resources/repositories/topicRepository.dart';
+import 'package:orange_card/resources/utils/enum.dart';
 import '../models/topic.dart';
+import '../models/word.dart';
 
 class TopicViewModel extends ChangeNotifier {
-  late List<Topic> _fakeTopics = [];
-  late List<Topic> _filteredTopics = [];
+  final TopicRepository _topicRepository = TopicRepository();
+  final List<Topic> _topics = [];
+  final List<Topic> _filteredTopics = [];
 
-  List<Topic> get fakeTopics => _fakeTopics;
-  List<Topic> get filteredTopics => _filteredTopics;
+  List<Topic> get topics => List.unmodifiable(_topics);
+  List<Topic> get filteredTopics => List.unmodifiable(_filteredTopics);
+
   TopicViewModel() {
-    _generateFakeTopics();
+    _loadTopics();
   }
 
-  void _generateFakeTopics() {
-    int numberOfDays = 3;
-    int topicsPerDay = 2;
-
-    for (int i = 0; i < numberOfDays; i++) {
-      for (int j = 0; j < topicsPerDay; j++) {
-        WordViewModel wordViewModel = WordViewModel();
-        List<Word> words = wordViewModel.words;
-        print(words.length);
-        _fakeTopics.add(
-          Topic(
-            words: words,
-            id: 'topic_${i * topicsPerDay + j}',
-            title: 'Topic ${i * topicsPerDay + j}',
-            creationTime:
-                DateTime.now().millisecondsSinceEpoch - (i * 86400000),
-            numberOfChildren: 5,
-            learnedWords: (i + 1) * 100,
-            view: 0,
-          ),
-        );
-      }
-    }
-  }
-
-  void addTopic(String title, String description, List<Word> words) {
-    _fakeTopics.add(
-      Topic(
-        id: '${_fakeTopics.length + 1}',
-        title: title,
-        creationTime: DateTime.now().millisecondsSinceEpoch,
-        numberOfChildren: 0,
-        learnedWords: 0,
-        view: 0,
-        words: words,
-      ),
-    );
+  Future<void> _loadTopics() async {
+    _topics.clear();
+    _filteredTopics.clear();
+    final topics = _topicRepository.getAllTopics();
+    _topics.addAll(topics as Iterable<Topic>);
+    _filteredTopics.addAll(topics as Iterable<Topic>);
     notifyListeners();
   }
 
-  bool deleteTopic(Topic topic) {
-    if (_fakeTopics.contains(topic)) {
-      _fakeTopics.remove(topic);
-      notifyListeners();
-      return true;
-    }
-    return false;
+  void addTopic(
+      String title, List<Word> words, String description, bool mode) async {
+    final topic = Topic(
+      title: title,
+      creationTime: DateTime.now().millisecondsSinceEpoch,
+      numberOfChildren: words.length,
+      learnedWords: 0,
+      status: mode ? "Public" : "Private",
+      views: 0,
+      updateTime: DateTime.now().millisecondsSinceEpoch,
+    );
+    await _topicRepository.addTopic(topic, words);
+    _loadTopics();
   }
 
-  void updateTopic(Topic topic) {
-    int index = _fakeTopics.indexWhere((element) => element.id == topic.id);
-    if (index != -1) {
-      _fakeTopics[index] = topic;
-      notifyListeners();
-    }
+  Future<void> deleteTopic(Topic topic) async {
+    await _topicRepository.deleteTopic(topic.id!);
+    _loadTopics();
+  }
+
+  Future<void> updateTopic(Topic topic) async {
+    await _topicRepository.updateTopic(topic);
+    _loadTopics();
   }
 
   Map<String, List<Topic>> groupedTopicsByDay(List<Topic> topics) {
-    Map<String, List<Topic>> groupedTopicsByDay = {};
-    for (var topic in topics) {
-      DateTime dateTime =
-          DateTime.fromMillisecondsSinceEpoch(topic.creationTime);
-      String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
-      if (!groupedTopicsByDay.containsKey(formattedDate)) {
-        groupedTopicsByDay[formattedDate] = [];
-      }
+    final Map<String, List<Topic>> groupedTopicsByDay = {};
+    for (final topic in topics) {
+      final dateTime = DateTime.fromMillisecondsSinceEpoch(topic.creationTime!);
+      final formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
+      groupedTopicsByDay.putIfAbsent(formattedDate, () => []);
       groupedTopicsByDay[formattedDate]?.add(topic);
     }
     return groupedTopicsByDay;
-  }
-
-  void _filterTopics(String query) {
-    _filteredTopics = _fakeTopics.where((topic) {
-      final lowerCaseQuery = query.toLowerCase();
-      final lowerCaseTitle = topic.title.toLowerCase();
-      return lowerCaseTitle.contains(lowerCaseQuery);
-    }).toList();
-    notifyListeners();
-  }
-
-  void filterTopics(String query) {
-    if (query.isNotEmpty) {
-      _filterTopics(query);
-    } else {
-      _filteredTopics.clear();
-      notifyListeners();
-    }
   }
 }

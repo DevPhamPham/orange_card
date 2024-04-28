@@ -27,7 +27,7 @@ class _TopicDetailState extends State<TopicDetail> {
   @override
   void initState() {
     super.initState();
-    setLearntWord();
+    // setLearntWord();
     // Add initialization code here
   }
 
@@ -104,13 +104,13 @@ class _TopicDetailState extends State<TopicDetail> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.topic.title,
+                            widget.topic.title!,
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 5),
                           Text(
-                            'Created at: ${DateFormat('HH:mm - dd/MM/yyyy').format(DateTime.fromMicrosecondsSinceEpoch(widget.topic.creationTime))}',
+                            'Created at: ${DateFormat('HH:mm - dd/MM/yyyy').format(DateTime.fromMicrosecondsSinceEpoch(widget.topic.creationTime!))}',
                           ),
                           Text("Username: ${widget.user.username}"),
                         ],
@@ -123,10 +123,10 @@ class _TopicDetailState extends State<TopicDetail> {
                         animation: true,
                         animationDuration: 800,
                         lineWidth: 5.0,
-                        percent: learnt / widget.topic.words.length,
-                        center: learnt != widget.topic.words.length
+                        percent: learnt / widget.topic.numberOfChildren!,
+                        center: learnt != widget.topic.numberOfChildren
                             ? Text(
-                                "$learnt/${widget.topic.words.length}",
+                                "$learnt/${widget.topic.numberOfChildren}",
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 18),
                               )
@@ -140,7 +140,7 @@ class _TopicDetailState extends State<TopicDetail> {
                         circularStrokeCap: CircularStrokeCap.butt,
                         backgroundColor:
                             const Color.fromARGB(188, 218, 218, 218),
-                        progressColor: learnt != widget.topic.words.length
+                        progressColor: learnt != widget.topic.numberOfChildren
                             ? const Color.fromARGB(255, 255, 123, 0)
                             : const Color.fromARGB(255, 110, 255, 115),
                       ),
@@ -206,32 +206,32 @@ class _TopicDetailState extends State<TopicDetail> {
             ),
           ),
           const SizedBox(height: 5),
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.topic.words.length,
-              itemBuilder: (context, index) {
-                final word = widget.topic.words[index];
-                return WordItem(
-                  word: word,
-                  backgroundColor: index % 2 == 0
-                      ? const Color.fromARGB(134, 245, 193, 145)
-                      : Colors.white,
-                );
-              },
-            ),
-          ),
+          // Expanded(
+          //   child: ListView.builder(
+          //     itemCount: widget.topic.numberOfChildren,
+          //     itemBuilder: (context, index) {
+          //       final word = widget.topic.words[index];
+          //       return WordItem(
+          //         word: word,
+          //         backgroundColor: index % 2 == 0
+          //             ? const Color.fromARGB(134, 245, 193, 145)
+          //             : Colors.white,
+          //       );
+          //     },
+          //   ),
+          // ),
         ],
       ),
     );
   }
 
-  void setLearntWord() {
-    for (Word word in widget.topic.words) {
-      if (word.learnt) {
-        learnt += 1;
-      }
-    }
-  }
+  // void setLearntWord() {
+  //   for (Word word in widget.topic.words) {
+  //     if (word.learnt) {
+  //       learnt += 1;
+  //     }
+  //   }
+  // }
 }
 
 class UserCard {

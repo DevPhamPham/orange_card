@@ -30,7 +30,7 @@ class _WordItemState extends State<WordItem> {
             children: [
               Expanded(
                   child: Text(
-                widget.word.english,
+                widget.word.english.toString(),
               )),
               Expanded(
                   child: Text(

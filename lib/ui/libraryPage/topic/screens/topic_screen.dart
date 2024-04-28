@@ -27,16 +27,10 @@ class _TopicScreenState extends State<TopicScreen> {
           ListTopic(viewModel: _topicViewModel), // Pass ViewModel to ListTopic
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final List? listTopicData = await showDialog<List>(
+          await showDialog<List>(
             context: context,
             builder: (_) => const AddTopicScreen(),
           );
-          if (listTopicData != null) {
-            setState(() {
-              _topicViewModel.addTopic(listTopicData[0], listTopicData[1],
-                  listTopicData[2]); // Use ViewModel method
-            });
-          }
         },
         backgroundColor: kPrimaryColor,
         foregroundColor: Colors.white,

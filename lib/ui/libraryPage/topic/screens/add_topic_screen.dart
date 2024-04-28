@@ -1,5 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:orange_card/resources/models/word.dart';
+import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/add_word_item.dart';
 
@@ -14,7 +17,11 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
   late List<Word> _words;
   String _topicName = '';
   String _description = '';
+  final TopicViewModel _topicViewModel = TopicViewModel();
   final _formKey = GlobalKey<FormState>();
+  bool light = true;
+  String _mode = "Public";
+
   @override
   void initState() {
     super.initState();
@@ -24,8 +31,10 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
           english: '',
           vietnamese: '',
           type: '',
-          created_at: DateTime.now().microsecondsSinceEpoch,
-          learnt: false),
+          createdAt: DateTime.now().microsecondsSinceEpoch,
+          learnt: false,
+          updatedAt: 0,
+          markedUser: {}),
     ];
   }
 
@@ -59,23 +68,51 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                onChanged: (value) {
-                  _topicName = value;
-                },
-                decoration: const InputDecoration(
-                    labelText: 'Tên',
-                    fillColor: Colors.white,
-                    labelStyle: TextStyle(color: kPrimaryColor),
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: kPrimaryColor))),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Vui lòng nhập tên';
-                  }
-                  return null;
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      onChanged: (value) {
+                        _topicName = value;
+                      },
+                      decoration: const InputDecoration(
+                          labelText: 'Tên',
+                          fillColor: Colors.white,
+                          labelStyle: TextStyle(color: kPrimaryColor),
+                          border: OutlineInputBorder(),
+                          focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: kPrimaryColor))),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Vui lòng nhập tên';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Switch(
+                          value: light,
+                          activeColor: Colors.orange,
+                          onChanged: (bool value) {
+                            setState(() {
+                              light = value;
+                              if (value) {
+                                setState(() {
+                                  _mode = "Public";
+                                });
+                              } else {
+                                setState(() {
+                                  _mode = "Private";
+                                });
+                              }
+                            });
+                          }),
+                      Text(_mode)
+                    ],
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -123,9 +160,11 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
                         id: (_words.length + 1).toString(),
                         english: '',
                         vietnamese: '',
-                        created_at: DateTime.now().microsecondsSinceEpoch,
+                        createdAt: DateTime.now().microsecondsSinceEpoch,
                         type: '',
-                        learnt: false));
+                        learnt: false,
+                        updatedAt: 0,
+                        markedUser: {}));
                   });
                 },
                 child: const Text('Thêm từ'),
@@ -134,12 +173,10 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    print('Topic Name: $_topicName');
-                    print('Description: $_description');
-                    for (var word in _words) {
-                      print(word.english);
-                    }
-                    Navigator.pop(context, [_topicName, _description, _words]);
+                    _topicViewModel.addTopic(
+                        _topicName, _words, _description, light);
+
+                    Navigator.pop(context);
                   }
                 },
                 child: const Text('Lưu'),

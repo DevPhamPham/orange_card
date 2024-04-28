@@ -33,7 +33,6 @@ class _ListTopicItemState extends State<ListTopicItem> {
             UserCurrent user = UserCurrent(
                 username: FirebaseAuth.instance.currentUser!.email.toString(),
                 avatar: "");
-            print(user);
             Navigator.push(
               context,
               MaterialPageRoute(
