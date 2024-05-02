@@ -1,12 +1,14 @@
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:orange_card/resources/utils/enum.dart';
+
 class Word {
   String? id;
   String? english;
   String vietnamese;
   int createdAt;
   int updatedAt;
-  String type;
   String? imageUrl;
-  bool learnt;
+  STATUS learnt;
   Map<String, dynamic> markedUser;
 
   Word({
@@ -15,7 +17,6 @@ class Word {
     required this.vietnamese,
     required this.createdAt,
     required this.updatedAt,
-    required this.type,
     this.imageUrl,
     required this.learnt,
     required this.markedUser,
@@ -29,7 +30,7 @@ class Word {
     int? updatedAt,
     String? type,
     String? imageUrl,
-    bool? learnt,
+    STATUS? learnt,
     Map<String, dynamic>? markedUser,
   }) {
     return Word(
@@ -38,7 +39,6 @@ class Word {
       vietnamese: vietnamese ?? this.vietnamese,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
-      type: type ?? this.type,
       imageUrl: imageUrl ?? this.imageUrl,
       learnt: learnt ?? this.learnt,
       markedUser: markedUser ?? this.markedUser,
@@ -52,9 +52,9 @@ class Word {
       vietnamese: map['vietnamese'],
       createdAt: map['createdAt'],
       updatedAt: map['updatedAt'],
-      type: map['type'] ?? '',
       imageUrl: map['imageUrl'],
-      learnt: map['learnt'] ?? false,
+      learnt: EnumToString.fromString(STATUS.values, map['learnt']) ??
+          STATUS.NOT_LEARN,
       markedUser: map['markedUser'] ?? {},
     );
   }
@@ -66,9 +66,8 @@ class Word {
       'vietnamese': vietnamese,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
-      'type': type,
       'imageUrl': imageUrl,
-      'learnt': learnt,
+      'learnt': EnumToString.convertToString(learnt),
       'markedUser': markedUser,
     };
   }

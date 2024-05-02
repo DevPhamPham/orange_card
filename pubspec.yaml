@@ -45,10 +45,13 @@ dependencies:
   firebase_auth: ^4.17.8
   firebase_ui_auth: ^1.13.1
   percent_indicator: ^4.0.1
+  provider: ^5.0.0
+  flutter_tts: ^3.1.0
 
   firebase_storage:
   cloud_firestore:
   image_picker:
+  enum_to_string: ^2.0.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

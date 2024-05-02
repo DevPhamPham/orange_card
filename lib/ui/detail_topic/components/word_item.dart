@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
+import 'package:orange_card/resources/services/TTSService.dart';
 
 class WordItem extends StatefulWidget {
   final Word word;
@@ -12,6 +13,7 @@ class WordItem extends StatefulWidget {
 }
 
 class _WordItemState extends State<WordItem> {
+  final TTSService textToSpeechService = TTSService();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,10 +36,6 @@ class _WordItemState extends State<WordItem> {
               )),
               Expanded(
                   child: Text(
-                widget.word.type,
-              )),
-              Expanded(
-                  child: Text(
                 widget.word.vietnamese,
               ))
             ],
@@ -54,7 +52,9 @@ class _WordItemState extends State<WordItem> {
               ),
               Expanded(
                 child: IconButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await textToSpeechService.speak(widget.word.english!);
+                  },
                   icon: const Icon(Icons.volume_down),
                   iconSize: 20,
                 ),

@@ -17,7 +17,6 @@ class _EditTopicDialogState extends State<EditTopicDialog> {
   @override
   void initState() {
     super.initState();
-    // Initialize the controller with the initial value of the topic's title
     _titleController = TextEditingController(text: widget.topic.title);
   }
 
@@ -55,16 +54,14 @@ class _EditTopicDialogState extends State<EditTopicDialog> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: const Text('Cancel'),
+                  child: const Text('Hủy'),
                 ),
                 TextButton(
                   onPressed: () {
                     String title = _titleController.text;
-                    if (title.isNotEmpty) {
-                      // Create a new Topic object with the updated title
-                    }
+                    if (title.isNotEmpty) {}
                   },
-                  child: const Text('Update'),
+                  child: const Text('Cập nhập'),
                 ),
               ],
             ),

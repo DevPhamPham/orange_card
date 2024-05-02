@@ -23,7 +23,6 @@ class _AddWordItemState extends State<AddWordItem> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String _english;
   late String _vietnamese;
-  late String _type = "Noun";
   @override
   void initState() {
     super.initState();
@@ -130,37 +129,6 @@ class _AddWordItemState extends State<AddWordItem> {
                 onChanged: (value) {
                   widget.onUpdateWord(widget.word.copyWith(vietnamese: value));
                 },
-              ),
-              const SizedBox(height: 12),
-              Container(
-                margin: const EdgeInsets.only(right: 100),
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey), // Add border
-                  borderRadius: BorderRadius.circular(8.0), // Add border radius
-                ),
-                child: DropdownButton<String>(
-                  value: _type,
-                  focusColor: kPrimaryColor,
-                  icon: const Icon(
-                    Icons.menu,
-                    color: Colors.orange,
-                  ),
-                  style: const TextStyle(color: kPrimaryColor),
-                  items: <String>['Verb', 'Noun', 'Adjective', 'Adverb']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _type = newValue!;
-                      widget.onUpdateWord(widget.word.copyWith(type: newValue));
-                    });
-                  },
-                ),
               ),
             ],
           ),

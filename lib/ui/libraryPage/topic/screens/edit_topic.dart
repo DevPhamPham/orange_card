@@ -1,42 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
+import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/add_word_item.dart';
+import 'package:orange_card/ui/message/sucess_message.dart';
 
-import '../../../../resources/viewmodels/TopicViewmodel.dart';
-import '../../../message/sucess_message.dart';
-
-class AddTopicScreen extends StatefulWidget {
-  const AddTopicScreen({Key? key}) : super(key: key);
+class EditTopic extends StatefulWidget {
+  final Topic topic;
+  final List<Word> words;
+  final TopicViewModel topicViewModel;
+  const EditTopic(
+      {super.key,
+      required this.topic,
+      required this.words,
+      required this.topicViewModel});
 
   @override
-  State<AddTopicScreen> createState() => _AddTopicScreenState();
+  State<EditTopic> createState() => _EditTopicState();
 }
 
-class _AddTopicScreenState extends State<AddTopicScreen> {
+class _EditTopicState extends State<EditTopic> {
   late List<Word> _words;
   String _topicName = '';
-  String _description = '';
-  final TopicViewModel _topicViewModel = TopicViewModel();
   final _formKey = GlobalKey<FormState>();
   bool _isPublic = true;
 
   @override
   void initState() {
     super.initState();
-    _words = [createEmptyWord()];
-  }
-
-  Word createEmptyWord() {
-    return Word(
-      english: '',
-      vietnamese: '',
-      createdAt: DateTime.now().microsecondsSinceEpoch,
-      learnt: STATUS.NOT_LEARN,
-      updatedAt: 0,
-      markedUser: {},
-    );
+    _words = List<Word>.from(widget.words);
+    _topicName = widget.topic.title ?? '';
+    _isPublic = widget.topic.status == STATUS.PUBLIC;
   }
 
   void removeWordItem(int index) {
@@ -51,11 +47,22 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
     });
   }
 
+  Word createEmptyWord() {
+    return Word(
+      english: '',
+      vietnamese: '',
+      createdAt: DateTime.now().microsecondsSinceEpoch,
+      learnt: STATUS.NOT_LEARN,
+      updatedAt: 0,
+      markedUser: {},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Add New Topic"),
+        title: const Text("Update Topic"),
         backgroundColor: kPrimaryColor,
         leading: GestureDetector(
           onTap: () {
@@ -98,6 +105,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
       children: [
         Expanded(
           child: TextFormField(
+            initialValue: _topicName,
             onChanged: (value) {
               _topicName = value;
             },
@@ -204,7 +212,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
         child: IconButton(
           onPressed: () async {
             if (_formKey.currentState!.validate()) {
-              await _addTopic();
+              await _updateTopic();
             }
           },
           constraints: const BoxConstraints.tightFor(width: 50, height: 50),
@@ -217,14 +225,19 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
     );
   }
 
-  Future<void> _addTopic() async {
-    await _topicViewModel.addTopic(
-      _topicName,
+  Future<void> _updateTopic() async {
+    await widget.topicViewModel.updateTopic(
+      Topic(
+        id: widget.topic.id,
+        title: _topicName,
+        user: widget.topic.user,
+        status: _isPublic ? STATUS.PUBLIC : STATUS.PRIVATE,
+        numberOfChildren: _words.length,
+        updateTime: DateTime.now().microsecondsSinceEpoch,
+      ),
       _words,
-      _description,
-      _isPublic,
     );
-    MessageUtils.showSuccessMessage(context, "Thêm thành công !");
+    MessageUtils.showSuccessMessage(context, "Cập nhật thành công !");
     Navigator.pop(context);
   }
 }
