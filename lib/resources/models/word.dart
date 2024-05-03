@@ -1,48 +1,74 @@
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:orange_card/resources/utils/enum.dart';
+
 class Word {
-  final String id;
-  late String english;
-  late String vietnamese;
-  final int created_at;
-  late String type;
-  late bool learnt;
+  String? id;
+  String? english;
+  String vietnamese;
+  int createdAt;
+  int updatedAt;
+  String? imageUrl;
+  STATUS learnt;
+  Map<String, dynamic> markedUser;
+
   Word({
-    required this.learnt,
-    required this.id,
-    required this.created_at,
-    required this.type,
-    required this.english,
+    this.id,
+    this.english,
     required this.vietnamese,
+    required this.createdAt,
+    required this.updatedAt,
+    this.imageUrl,
+    required this.learnt,
+    required this.markedUser,
   });
 
-  Word copyWith(
-      {String? english, String? vietnamese, String? type, bool? learnt}) {
+  Word copyWith({
+    String? id,
+    String? english,
+    String? vietnamese,
+    int? createdAt,
+    int? updatedAt,
+    String? type,
+    String? imageUrl,
+    STATUS? learnt,
+    Map<String, dynamic>? markedUser,
+  }) {
     return Word(
-        id: this.id,
-        created_at: this.created_at,
-        type: type ?? this.type,
-        english: english ?? this.english,
-        vietnamese: vietnamese ?? this.vietnamese,
-        learnt: learnt ?? this.learnt);
-  }
-
-  factory Word.fromJson(Map<String, dynamic> json) {
-    return Word(
-      id: json['id'],
-      created_at: json['created_at'],
-      type: json['type'],
-      english: json['english'],
-      vietnamese: json['vietnamese'],
-      learnt: json['learnt'],
+      id: id ?? this.id,
+      english: english ?? this.english,
+      vietnamese: vietnamese ?? this.vietnamese,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      imageUrl: imageUrl ?? this.imageUrl,
+      learnt: learnt ?? this.learnt,
+      markedUser: markedUser ?? this.markedUser,
     );
   }
 
-  Map<String, dynamic> toJson() {
+  factory Word.fromMap(Map<String, dynamic> map, String id) {
+    return Word(
+      id: id,
+      english: map['english'],
+      vietnamese: map['vietnamese'],
+      createdAt: map['createdAt'],
+      updatedAt: map['updatedAt'],
+      imageUrl: map['imageUrl'],
+      learnt: EnumToString.fromString(STATUS.values, map['learnt']) ??
+          STATUS.NOT_LEARN,
+      markedUser: map['markedUser'] ?? {},
+    );
+  }
+
+  Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'created_at': created_at,
-      'type': type,
       'english': english,
       'vietnamese': vietnamese,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'imageUrl': imageUrl,
+      'learnt': EnumToString.convertToString(learnt),
+      'markedUser': markedUser,
     };
   }
 }

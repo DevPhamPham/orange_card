@@ -1,39 +1,56 @@
-import 'package:orange_card/resources/models/word.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enum_to_string/enum_to_string.dart';
+import 'package:orange_card/resources/utils/enum.dart';
 
 class Topic {
-  final String id;
-  late final String title;
-  final int creationTime;
-  late int numberOfChildren;
-  late int learnedWords;
-  late int view;
-  late List<Word> words;
+  String? id;
+  String? title;
+  int? creationTime;
+  int? numberOfChildren;
+  int? learnedWords;
+  STATUS? status;
+  int? updateTime;
+  DocumentReference? user;
+  int? views;
 
-  Topic(
-      {required this.id,
-      required this.title,
-      required this.creationTime,
-      required this.numberOfChildren,
-      required this.learnedWords,
-      required this.view,
-      required this.words});
+  Topic({
+    this.id,
+    this.title,
+    this.creationTime,
+    this.numberOfChildren,
+    this.learnedWords,
+    this.status,
+    this.updateTime,
+    this.user,
+    this.views,
+  });
 
-  Topic copyWith({
-    String? id,
-    String? title,
-    int? creationTime,
-    int? numberOfChildren,
-    int? learnedWords,
-    int? view,
-  }) {
+  factory Topic.fromMap(Map<String, dynamic> map, String id) {
     return Topic(
-      words: words,
-      id: id ?? this.id,
-      title: title ?? this.title,
-      creationTime: creationTime ?? this.creationTime,
-      numberOfChildren: numberOfChildren ?? this.numberOfChildren,
-      learnedWords: learnedWords ?? this.learnedWords,
-      view: view ?? this.view,
+      id: id,
+      title: map['title'] ?? '',
+      creationTime: map['creationTime'] ?? 0,
+      numberOfChildren: map['numberOfChildren'] ?? 0,
+      learnedWords: map['learnedWords'] ?? 0,
+      status: map['status'] != null
+          ? EnumToString.fromString(STATUS.values, map['status'])
+          : null,
+      updateTime: map['updateTime'] ?? 0,
+      user: map['user'] as DocumentReference?,
+      views: map['views'] ?? 0,
     );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title ?? '',
+      'creationTime': creationTime ?? 0,
+      'numberOfChildren': numberOfChildren ?? 0,
+      'learnedWords': learnedWords ?? 0,
+      'status': status != null ? EnumToString.convertToString(status) : null,
+      'updateTime': updateTime ?? 0,
+      'user': user,
+      'views': views ?? 0,
+    };
   }
 }

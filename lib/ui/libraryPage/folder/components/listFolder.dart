@@ -97,7 +97,7 @@ class _ListFolderState extends State<ListFolder> {
           padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
           child: TextField(
             autofocus:
-                true, // Set to true if you want the search bar to have focus initially
+                false, // Set to true if you want the search bar to have focus initially
             decoration: InputDecoration(
               hintText: 'Search...',
               prefixIcon: const Icon(Icons.search),
