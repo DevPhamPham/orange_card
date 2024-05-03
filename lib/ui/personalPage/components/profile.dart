@@ -8,6 +8,8 @@ import 'package:orange_card/ui/auth/Screens/Login/login_screen.dart';
 import 'package:orange_card/ui/auth/Screens/ResetPassword/reset_password.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';
 import 'package:orange_card/ui/personalPage/components/change_password.dart';
+import 'package:date_format/date_format.dart';
+import 'package:orange_card/ui/auth/constants.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 // import 'dart:typed_data';
 
@@ -18,12 +20,15 @@ class ProfileScreen extends StatefulWidget {
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
   late String _displayName;
   late String _preDisplayName;
   late String _email;
   late String _avatarUrl; // Thêm biến để lưu URL ảnh đại diện
   late bool _isLoading = false;
+  late DateTime _creationTime = DateTime.now();
+  late TabController _tabController;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -34,14 +39,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     initializeData();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> initializeData() async {
     final user = _auth.currentUser;
+    // print(user);
     _displayName = user?.displayName ?? '';
     _preDisplayName = _displayName;
     _email = user?.email ?? '';
     _avatarUrl = '';
+    _creationTime = user?.metadata.creationTime ?? DateTime.now();
 
     try {
       final avatarFolder = _storage.ref('avatars');
@@ -179,222 +193,461 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  // Future<void> _changePassword() async {
-  //   // Hiển thị dialog nhập mật khẩu
-  //   showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       String oldPassword = '';
-  //       String newPassword = '';
-  //       String confirmPassword = '';
+  Future<void> _confirmLogout() async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false, // Không đóng dialog khi nhấn bên ngoài
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text('Are you sure you want to log out?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).maybePop(); // Đóng dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await _logout(); // Thực hiện hành động logout
+                Navigator.of(context).maybePop(); // Đóng dialog
+              },
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  //       return AlertDialog(
-  //         title: Text('Change Password'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             TextField(
-  //               obscureText: true,
-  //               decoration: InputDecoration(
-  //                 labelText: 'Old Password',
-  //                 filled: true,
-  //                 fillColor: Colors.white54,
-  //               ),
-  //               onChanged: (value) {
-  //                 oldPassword = value;
-  //               },
-  //             ),
-  //             SizedBox(height: 16),
-  //             TextField(
-  //               obscureText: true,
-  //               decoration: InputDecoration(
-  //                 labelText: 'New Password',
-  //                 filled: true,
-  //                 fillColor: Colors.white54,
-  //               ),
-  //               onChanged: (value) {
-  //                 newPassword = value;
-  //               },
-  //             ),
-  //             SizedBox(height: 16),
-  //             TextField(
-  //               obscureText: true,
-  //               decoration: InputDecoration(
-  //                 labelText: 'Confirm New Password',
-  //                 filled: true,
-  //                 fillColor: Colors.white54,
-  //               ),
-  //               onChanged: (value) {
-  //                 confirmPassword = value;
-  //               },
-  //             ),
-  //           ],
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.of(context).pop();
-  //             },
-  //             child: Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () async {
-  //               if (newPassword != confirmPassword) {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   SnackBar(
-  //                     content: Text('New passwords do not match'),
-  //                     backgroundColor: Colors.red,
-  //                   ),
-  //                 );
-  //                 return;
-  //               }
+  String formatCreationTime(DateTime creationTime) {
+    final formattedTime = formatDate(creationTime, [dd, '-', mm, '-', yyyy]);
+    return formattedTime;
+  }
 
-  //               try {
-  //                 final user = FirebaseAuth.instance.currentUser;
-  //                 if (user != null) {
-  //                   // Reauthenticate user before changing password
-  //                   AuthCredential credential = EmailAuthProvider.credential(
-  //                       email: user.email!, password: oldPassword);
-  //                   await user.reauthenticateWithCredential(credential);
+  void _confirmDeleteAccount() {
+    String enteredName = ''; // Tên mà người dùng nhập
 
-  //                   // Change password
-  //                   await user.updatePassword(newPassword);
-  //                   ScaffoldMessenger.of(context).showSnackBar(
-  //                     SnackBar(
-  //                       content: Text('Password changed successfully'),
-  //                       backgroundColor: Colors.green,
-  //                     ),
-  //                   );
-  //                   Navigator.of(context)
-  //                       .pop(); // Đóng dialog sau khi thay đổi mật khẩu
-  //                 }
-  //               } catch (e) {
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   SnackBar(
-  //                     content: Text('Failed to change password: $e'),
-  //                     backgroundColor: Colors.red,
-  //                   ),
-  //                 );
-  //               }
-  //             },
-  //             child: Text('Change Password'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Confirm Delete"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text("Please enter your name in the following box to delete"),
+              SizedBox(height: 16.0),
+              TextFormField(
+                decoration: InputDecoration(
+                  labelText: 'Enter $_displayName to delete',
+                ),
+                onChanged: (value) {
+                  enteredName = value;
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Kiểm tra nếu tên nhập vào khớp với _displayName thì mới thực hiện xóa tài khoản
+                if (enteredName == _displayName) {
+                  Navigator.of(context).pop(); // Ẩn dialog nhập tên
+                  _deleteAccount();
+                } else {
+                  // Hiển thị thông báo lỗi
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text('Invalid name. Please enter your name correctly.'),
+                    duration: Duration(seconds: 3),
+                  ));
+                }
+              },
+              child: Text(
+                "Delete",
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteAccount() async {
+    final user = _auth.currentUser;
+    if (user != null) {
+      try {
+        // Xóa ảnh đại diện từ Firebase Storage
+        if (_avatarUrl.isNotEmpty) {
+          final defaultAvatarPath = "assets/images/default_avatar.jpg";
+          if (_avatarUrl != defaultAvatarPath) {
+            // Trích xuất tên file từ URL
+            final fileName = _avatarUrl.split('/').last;
+
+            // Tham chiếu đến file trong thư mục 'avatars'
+            final firebase_storage.Reference avatarRef =
+                _storage.ref('avatars').child(user.uid).child(fileName);
+
+            // Xóa file từ Firebase Storage
+            await avatarRef.delete();
+          }
+        }
+
+        // Xóa tài khoản người dùng từ Firebase Authentication
+        await user.delete();
+
+        // Xóa tài khoản người dùng từ Firestore
+        await _firestore.collection('users').doc(user.uid).delete();
+
+        // Hiển thị thông báo thành công và chuyển về màn hình đăng nhập
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Success"),
+              content: Text("Your account has been deleted."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Ẩn dialog thông báo
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(),
+                      ),
+                    );
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } catch (e) {
+        print("Error deleting account: $e");
+        // Hiển thị thông báo lỗi nếu xảy ra lỗi
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Error"),
+              content:
+                  Text("Failed to delete account. Please try again later."),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    } else {
+      print("Current user is null");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  if (!_isLoading) {
+                    _updateAvatar();
+                  }
+                },
+                child: Stack(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: _avatarUrl.isNotEmpty
+                          ? Image.network(_avatarUrl).image
+                          : AssetImage(
+                              "assets/images/default_avatar.jpg",
+                            ),
+                    ),
+                    if (_isLoading)
+                      Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        labelText:
+                            _displayName.isEmpty ? 'Display Name' : 'Your Name',
+                        suffixIcon: IconButton(
+                          icon: _displayName != _preDisplayName
+                              ? const Icon(Icons.update, color: Colors.green)
+                              : const Icon(Icons.check, color: Colors.green),
+                          onPressed: _displayName.isNotEmpty &&
+                                  _displayName != _preDisplayName
+                              ? _updateDisplayName
+                              : null,
+                        ),
+                      ),
+                      initialValue:
+                          _displayName.isNotEmpty ? _displayName : null,
+                      onChanged: (value) {
+                        setState(() {
+                          _displayName = value;
+                        });
+                      },
+                    ),
+                  ),
+                ],
+              ),
+
+              // TabBar for profile sections
+              TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                indicatorColor: kPrimaryColor,
+                tabs: const [
+                  Tab(text: 'Informations'),
+                  Tab(text: 'Settings'),
+                  Tab(text: 'Achievements'),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        // TabBarView to display corresponding content
+        Expanded(
+          child: TabBarView(
+            controller: _tabController,
+            children: [
+              // Thông tin tab
+              SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16.0),
+                      Row(
+                        children: [
+                          Icon(Icons.mail), // Icon label text
+                          const SizedBox(
+                            width: 8.0,
+                          ), // Khoảng cách giữa icon và nội dung email
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey,
+                                  ), // Border dưới cho email
+                                ),
+                              ),
+                              child: TextFormField(
+                                readOnly: true,
+                                initialValue:
+                                    _email, // Giá trị ban đầu của email
+                                decoration: InputDecoration(
+                                  labelText:
+                                      'Email', // Label text cho TextFormField
+                                  filled: false, // Không sử dụng màu nền
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today), // Icon label text
+                          const SizedBox(
+                            width: 8.0,
+                          ), // Khoảng cách giữa icon và nội dung email
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
+                              child: TextFormField(
+                                readOnly: true,
+                                initialValue:
+                                    formatCreationTime(_creationTime), // data
+                                decoration: InputDecoration(
+                                  labelText:
+                                      'Creation time', // Label text cho TextFormField
+                                  filled: false, // Không sử dụng màu nền
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Cài đặt tab
+              SingleChildScrollView(
+                child: Container(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ProfileItem(
+                        title: 'Forget Password',
+                        icon: Icons.lock,
+                        onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ResetPassword(),
+                          ),
+                        ),
+                      ),
+                      ProfileItem(
+                        title: 'Change Password',
+                        icon: Icons.lock_open,
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return ChangePasswordDialog();
+                            },
+                          );
+                        },
+                      ),
+                      
+                    
+
+                      const SizedBox(height: 16.0),
+                      Text(
+                        'Danger Zone',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10.0),
+                        height: 2.0,
+                        color:
+                            Colors.red, // Màu sắc của ranh giới "danger zone"
+                      ),
+                      ProfileItem(
+                        title: 'Logout',
+                        icon: Icons.logout,
+                        onPressed: _confirmLogout,
+                      ),
+                      ProfileItem(
+                        title: 'Delete Account',
+                        icon: Icons.delete,
+                        onPressed: _confirmDeleteAccount,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Thành tựu tab
+              SingleChildScrollView(
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Thành tựu',
+                          style: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 24),
+                        _buildAchievementCard(
+                          title: 'Personal achievements',
+                          content: [
+                            'Flutter: 15 / 30 topics',
+                            'Firebase: 10 / 25 topics',
+                            'Dart: 20 / 40 topics',
+                          ],
+                        ),
+                        SizedBox(height: 24),
+                        _buildAchievementCard(
+                          title: 'Community Achievements',
+                          content: [
+                            'Rank tổng thể: Top 10%',
+                            'Flutter: #3',
+                            'Firebase: #5',
+                            'Dart: #1',
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+Widget _buildAchievementCard(
+    {required String title, required List<String> content}) {
+  return Card(
+    elevation: 4,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12.0),
+    ),
+    child: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () {
-              if (!_isLoading) {
-                _updateAvatar();
-              }
-            },
-            child: Stack(
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: _avatarUrl.isNotEmpty
-                      ? Image.network(_avatarUrl).image
-                      : AssetImage(
-                          "assets/images/default_avatar.jpg",
-                        ), // Ảnh mặc định khi không có ảnh đại diện
-                ),
-                if (_isLoading)
-                  Center(
-                    child: CircularProgressIndicator(),
-                  ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 16.0),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    labelText:
-                        _displayName.isEmpty ? 'Display Name' : 'Your Name',
-                    suffixIcon: IconButton(
-                      icon: _displayName != _preDisplayName
-                          ? const Icon(Icons.update, color: Colors.green)
-                          : const Icon(Icons.check, color: Colors.green),
-                      onPressed: _displayName.isNotEmpty &&
-                              _displayName != _preDisplayName
-                          ? _updateDisplayName
-                          : null,
-                    ),
-                  ),
-                  initialValue: _displayName.isNotEmpty ? _displayName : null,
-                  onChanged: (value) {
-                    setState(() {
-                      _displayName = value;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16.0),
           Text(
-            _email,
-            style: const TextStyle(fontSize: 18),
+            title,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 16.0),
-          ProfileItem(
-            title: 'Forget Password',
-            icon: Icons.lock,
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => ResetPassword())),
+          Divider(color: Colors.grey[300], thickness: 1, height: 24),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: content.map((item) => Text(item)).toList(),
           ),
-ProfileItem(
-  title: 'Change Password',
-  icon: Icons.lock_open,
-  onPressed: () {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ChangePasswordDialog();
-      },
-    );
-  },
-),
-
-          ProfileItem(
-            title: 'Achievement',
-            icon: Icons.star,
-            onPressed: () {
-              // Do something for achievement
-            },
-          ),
-          ProfileItem(
-            title: 'Settings',
-            icon: Icons.settings,
-            onPressed: () {
-              // Do something for settings
-            },
-          ),
-          const SizedBox(height: 16.0),
-          ProfileItem(
-            title: 'Logout',
-            icon: Icons.logout,
-            onPressed: _logout,
-          ),
-          // Thêm các mục hồ sơ khác ở đây (thành tựu, nâng cấp, vv.)
         ],
       ),
-    );
-  }
+    ),
+  );
 }
 
 class ProfileItem extends StatelessWidget {

@@ -52,6 +52,7 @@ dependencies:
   cloud_firestore:
   image_picker:
   enum_to_string: ^2.0.1
+  date_format:
 dev_dependencies:
   flutter_test:
     sdk: flutter
