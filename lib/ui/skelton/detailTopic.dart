@@ -1,8 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:orange_card/ui/auth/constants.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class DetailTopicSkeletonLoading extends StatelessWidget {
   const DetailTopicSkeletonLoading({super.key});

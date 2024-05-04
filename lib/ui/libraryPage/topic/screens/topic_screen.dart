@@ -6,7 +6,7 @@ import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/add_topic_screen.dart';
-import 'package:orange_card/ui/skelton/index.dart';
+import 'package:orange_card/ui/skelton/topic.dart';
 import 'package:provider/provider.dart';
 import '../../../../resources/viewmodels/TopicViewmodel.dart';
 import '../../../message/sucess_message.dart';
@@ -40,6 +40,7 @@ class _TopicScreenState extends State<TopicScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await _navigateToAddTopicScreen(context);
+          await setdata();
           setState(() {});
         },
         backgroundColor: kPrimaryColor,

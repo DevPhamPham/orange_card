@@ -30,7 +30,7 @@ class _LibraryPageScreenState extends State<LibraryPageScreen>
   @override
   void initState() {
     super.initState();
-    final viewModel = Provider.of<TopicViewModel>(context, listen: false);
+    Provider.of<TopicViewModel>(context, listen: false);
     _tabController =
         TabController(length: _listTab.length, vsync: this, initialIndex: 0);
   }

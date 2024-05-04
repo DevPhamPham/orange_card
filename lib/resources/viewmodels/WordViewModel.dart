@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/repositories/wordRepository.dart';
@@ -53,5 +54,18 @@ class WordViewModel extends ChangeNotifier {
     } catch (e) {
       print('Error deleting word: $e');
     }
+  }
+
+  Future<void> markWord(String topicId, String wordId, bool marked) async {
+    try {
+      await _wordRepository.updateWordMark(topicId, wordId, marked);
+      notifyListeners();
+    } catch (e) {
+      print('Error deleting word: $e');
+    }
+  }
+
+  bool checkMarked(List<String> userList) {
+    return userList.contains(FirebaseAuth.instance.currentUser!.uid);
   }
 }

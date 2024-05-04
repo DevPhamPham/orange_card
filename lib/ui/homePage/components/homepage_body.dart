@@ -21,7 +21,7 @@ class _HomePageBodyState extends State<HomePageBody> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Study",
                 style: TextStyle(
                   fontSize: 20,
@@ -29,7 +29,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                 ),
               ),
               listMenu(),
-              Text(
+              const Text(
                 "Recommended for you",
                 style: TextStyle(
                   fontSize: 20,
@@ -37,7 +37,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                 ),
               ),
               topics(),
-              Text(
+              const Text(
                 "Every day a new word",
                 style: TextStyle(
                   fontSize: 20,
@@ -45,7 +45,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                 ),
               ),
               newWord(),
-              Text(
+              const Text(
                 "Leaderboard",
                 style: TextStyle(
                   fontSize: 20,
@@ -56,7 +56,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                 children: [
                   ranks(),
                   myRanks(),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                 ],
               )
             ],
@@ -69,7 +69,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   Container ranks() {
     return Container(
       margin: const EdgeInsets.only(top: 15, bottom: 0),
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.transparent,
       ),
       child: Stack(
@@ -101,7 +101,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                   crossAxisAlignment:
                       CrossAxisAlignment.center, // Canh chỉnh theo chiều dọc
                   children: [
-                    SizedBox(height: 30), // Điều chỉnh khoảng cách top
+                    const SizedBox(height: 30), // Điều chỉnh khoảng cách top
                     _buildAvatarCircle(
                         "User 1", "https://via.placeholder.com/150"),
                   ],
@@ -124,7 +124,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                   crossAxisAlignment:
                       CrossAxisAlignment.center, // Canh chỉnh theo chiều dọc
                   children: [
-                    SizedBox(height: 60), // Điều chỉnh khoảng cách top
+                    const SizedBox(height: 60), // Điều chỉnh khoảng cách top
                     _buildAvatarCircle(
                         "User 3", "https://via.placeholder.com/150"),
                   ],
@@ -144,10 +144,10 @@ class _HomePageBodyState extends State<HomePageBody> {
           radius: 40, // Đường kính hình tròn
           backgroundImage: NetworkImage(imageUrl),
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         Text(
           name,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.bold,
           ),
@@ -160,11 +160,11 @@ class _HomePageBodyState extends State<HomePageBody> {
     return Column(
       children: [
         _buildRankCard("User 1", "https://via.placeholder.com/150", 4),
-        SizedBox(height: 10), // Khoảng cách giữa các card
+        const SizedBox(height: 10), // Khoảng cách giữa các card
         _buildRankCard("User 2", "https://via.placeholder.com/150", 5),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _buildRankCard("User 3", "https://via.placeholder.com/150", 6),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         _buildRankCard("You", "https://via.placeholder.com/150", 100),
       ],
     );
@@ -181,14 +181,14 @@ class _HomePageBodyState extends State<HomePageBody> {
         height: 200,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Color.fromARGB(255, 74, 56, 40), // Nền đen
+          color: const Color.fromARGB(255, 74, 56, 40), // Nền đen
           borderRadius: BorderRadius.circular(20.0),
           boxShadow: [
             BoxShadow(
               color: Colors.grey.withOpacity(0.5), // Màu shadow
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(0, 2), // Di chuyển shadow
+              offset: const Offset(0, 2), // Di chuyển shadow
             ),
           ],
         ),
@@ -199,12 +199,12 @@ class _HomePageBodyState extends State<HomePageBody> {
               radius: 30,
               backgroundImage: NetworkImage(imageUrl),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               name,
-              style: TextStyle(color: Colors.white), // Chữ trắng
+              style: const TextStyle(color: Colors.white), // Chữ trắng
             ),
-            Spacer(), // Đẩy về cuối container
+            const Spacer(), // Đẩy về cuối container
             Container(
               width: double.infinity, // Đảm bảo vòng tròn lấp đầy width
               alignment: Alignment.center,
@@ -213,7 +213,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                 backgroundColor: Colors.blue,
                 child: Text(
                   rank.toString(),
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                   ),
@@ -235,9 +235,9 @@ class _HomePageBodyState extends State<HomePageBody> {
           Expanded(
             child: Card(
               shape: RoundedRectangleBorder(
-                side: BorderSide(
+                side: const BorderSide(
                   width: 1,
-                  color: const Color.fromARGB(255, 123, 123, 123),
+                  color: Color.fromARGB(255, 123, 123, 123),
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -273,7 +273,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue, // Màu nền của nút
                         ),
-                        child: Row(
+                        child: const Row(
                           mainAxisSize: MainAxisSize
                               .min, // Kích thước của Row phụ thuộc vào nội dung
                           children: [
@@ -323,14 +323,14 @@ class _HomePageBodyState extends State<HomePageBody> {
                         fit: BoxFit.cover,
                       ),
                     ),
-                    child: Stack(
+                    child: const Stack(
                       children: [
                         Positioned(
                           top: 20,
                           left: 20,
                           child: Text(
                             "Topic Name",
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
                               fontSize: 20,
@@ -345,7 +345,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                             children: [
                               Text(
                                 '10 thuật ngữ',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 15,
                                 ),
@@ -353,15 +353,15 @@ class _HomePageBodyState extends State<HomePageBody> {
                               SizedBox(height: 5),
                               Row(
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.account_circle,
                                     color: Colors.white,
                                     size: 18,
                                   ),
-                                  const SizedBox(width: 5),
+                                  SizedBox(width: 5),
                                   Text(
                                     "creator",
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 15,
                                     ),
