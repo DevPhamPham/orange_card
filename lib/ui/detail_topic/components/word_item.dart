@@ -1,12 +1,21 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/TTSService.dart';
+import 'package:orange_card/resources/utils/enum.dart';
+import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
 
 class WordItem extends StatefulWidget {
   final Word word;
+  final bool Auth;
   final Color backgroundColor;
+  final String TopicId;
   const WordItem(
-      {super.key, required this.word, required this.backgroundColor});
+      {super.key,
+      required this.word,
+      required this.backgroundColor,
+      required this.Auth,
+      required this.TopicId});
 
   @override
   State<WordItem> createState() => _WordItemState();
@@ -14,6 +23,13 @@ class WordItem extends StatefulWidget {
 
 class _WordItemState extends State<WordItem> {
   final TTSService textToSpeechService = TTSService();
+  late bool marked = false;
+  @override
+  void initState() {
+    marked = WordViewModel().checkMarked(widget.word.userMarked);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -45,9 +61,29 @@ class _WordItemState extends State<WordItem> {
             children: [
               Expanded(
                 child: IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.favorite),
-                  iconSize: 20,
+                  onPressed: () async {
+                    bool isMarked =
+                        WordViewModel().checkMarked(widget.word.userMarked);
+                    if (isMarked) {
+                      await WordViewModel().markWord(
+                        widget.TopicId,
+                        widget.word.id!,
+                        false, // Unmark the word
+                      );
+                    } else {
+                      await WordViewModel().markWord(
+                        widget.TopicId,
+                        widget.word.id!,
+                        true, // Mark the word
+                      );
+                    }
+                    setState(() {
+                      marked = !marked;
+                    });
+                  },
+                  icon: Icon(
+                    marked ? Icons.star : Icons.star_border,
+                  ),
                 ),
               ),
               Expanded(

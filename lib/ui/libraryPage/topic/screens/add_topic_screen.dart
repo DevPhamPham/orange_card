@@ -1,5 +1,7 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
+import 'package:orange_card/resources/services/CSVService.dart';
 import 'package:orange_card/resources/utils/enum.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/add_word_item.dart';
@@ -15,7 +17,7 @@ class AddTopicScreen extends StatefulWidget {
 }
 
 class _AddTopicScreenState extends State<AddTopicScreen> {
-  late List<Word> _words;
+  late List<Word> _words = [createEmptyWord()];
   String _topicName = '';
   String _description = '';
   final TopicViewModel _topicViewModel = TopicViewModel();
@@ -25,18 +27,17 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
   @override
   void initState() {
     super.initState();
-    _words = [createEmptyWord()];
   }
 
   Word createEmptyWord() {
     return Word(
-      english: '',
-      vietnamese: '',
-      createdAt: DateTime.now().microsecondsSinceEpoch,
-      learnt: STATUS.NOT_LEARN,
-      updatedAt: 0,
-      markedUser: {},
-    );
+        english: '',
+        vietnamese: '',
+        userMarked: [],
+        createdAt: DateTime.now().microsecondsSinceEpoch,
+        learnt: STATUS.NOT_LEARN,
+        updatedAt: DateTime.now().microsecondsSinceEpoch,
+        marked: STATUS.NOT_MARKED);
   }
 
   void removeWordItem(int index) {
@@ -183,7 +184,10 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
           color: kPrimaryColor,
         ),
         child: IconButton(
-          onPressed: () {},
+          onPressed: () async {
+            _words += await _FilePicker();
+            setState(() {});
+          },
           constraints: const BoxConstraints.tightFor(width: 50, height: 50),
           icon: const Icon(
             Icons.file_upload,
@@ -226,5 +230,15 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
     );
     MessageUtils.showSuccessMessage(context, "Thêm thành công !");
     Navigator.pop(context);
+  }
+
+  Future<List<Word>> _FilePicker() async {
+    final file = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['csv'],
+    );
+    List<Word> words = await CSVService().loadCSV(file!);
+    return words;
   }
 }

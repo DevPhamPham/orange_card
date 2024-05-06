@@ -1,3 +1,4 @@
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/word.dart';
@@ -49,12 +50,13 @@ class _EditTopicState extends State<EditTopic> {
 
   Word createEmptyWord() {
     return Word(
+      userMarked: [],
       english: '',
       vietnamese: '',
       createdAt: DateTime.now().microsecondsSinceEpoch,
       learnt: STATUS.NOT_LEARN,
-      updatedAt: 0,
-      markedUser: {},
+      updatedAt: DateTime.now().microsecondsSinceEpoch,
+      marked: STATUS.NOT_MARKED,
     );
   }
 
@@ -228,13 +230,14 @@ class _EditTopicState extends State<EditTopic> {
   Future<void> _updateTopic() async {
     await widget.topicViewModel.updateTopic(
       Topic(
-        id: widget.topic.id,
-        title: _topicName,
-        user: widget.topic.user,
-        status: _isPublic ? STATUS.PUBLIC : STATUS.PRIVATE,
-        numberOfChildren: _words.length,
-        updateTime: DateTime.now().microsecondsSinceEpoch,
-      ),
+          id: widget.topic.id,
+          title: _topicName,
+          user: widget.topic.user,
+          creationTime: widget.topic.creationTime,
+          status: _isPublic ? STATUS.PUBLIC : STATUS.PRIVATE,
+          numberOfChildren: _words.length,
+          updateTime: DateTime.now().microsecondsSinceEpoch,
+          views: widget.topic.views),
       _words,
     );
     MessageUtils.showSuccessMessage(context, "Cập nhật thành công !");

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
-import 'package:orange_card/ui/auth/constants.dart';
 
 class HomePageAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomePageAppBar({Key? key}) : super(key: key);

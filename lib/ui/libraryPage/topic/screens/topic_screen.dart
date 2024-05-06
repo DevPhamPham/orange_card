@@ -40,6 +40,7 @@ class _TopicScreenState extends State<TopicScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await _navigateToAddTopicScreen(context);
+          await setdata();
           setState(() {});
         },
         backgroundColor: kPrimaryColor,
