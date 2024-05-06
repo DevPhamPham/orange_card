@@ -20,6 +20,11 @@ class AppTheme {
   static const Color spacer = Color(0xFFF2F2F2);
   static const String fontName = 'WorkSans';
 
+  static const kPrimaryColor = Color.fromARGB(255, 243, 130, 60);
+  static const kPrimaryColorBlur = Color.fromARGB(199, 252, 218, 197);
+  static const kPrimaryLightColor = Color(0xFFF1E6FF);
+  static const kDangerColor = Colors.redAccent;
+
   static const TextTheme textTheme = TextTheme(
     headline4: display1,
     headline5: headline,
