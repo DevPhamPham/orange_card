@@ -23,11 +23,10 @@ class _AddWordItemState extends State<AddWordItem> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String _english;
   late String _vietnamese;
-  late String _type = "Noun";
   @override
   void initState() {
     super.initState();
-    _english = widget.word.english;
+    _english = widget.word.english!;
     _vietnamese = widget.word.vietnamese;
   }
 
@@ -50,38 +49,35 @@ class _AddWordItemState extends State<AddWordItem> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              widget.number == null
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Conditionally render a Container if widget.number is not null
-                        Container(
-                          width: 30,
-                          height: 30,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: kPrimaryColor,
-                          ),
-                          child: Center(
-                            child: Text(
-                              widget.number
-                                  .toString(), // Render the number inside the Container
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ), // Render an empty Container if widget.number is not null
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          color: Colors.red,
-                          onPressed: widget.onDelete,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: kPrimaryColor,
+                    ),
+                    child: Center(
+                      child: Text(
+                        widget.number
+                            .toString(), // Render the number inside the Container
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    )
-                  : Row(),
+                      ),
+                    ),
+                  ), // Render an empty Container if widget.number is not null
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    color: Colors.red,
+                    onPressed: widget.onDelete,
+                  ),
+                ],
+              ),
               TextFormField(
                 initialValue: _english,
                 decoration: const InputDecoration(
@@ -131,41 +127,8 @@ class _AddWordItemState extends State<AddWordItem> {
                   _vietnamese = value!;
                 },
                 onChanged: (value) {
-                  print("change $value");
-
                   widget.onUpdateWord(widget.word.copyWith(vietnamese: value));
                 },
-              ),
-              const SizedBox(height: 12),
-              Container(
-                margin: const EdgeInsets.only(right: 100),
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey), // Add border
-                  borderRadius: BorderRadius.circular(8.0), // Add border radius
-                ),
-                child: DropdownButton<String>(
-                  value: _type,
-                  focusColor: kPrimaryColor,
-                  icon: const Icon(
-                    Icons.menu,
-                    color: Colors.orange,
-                  ),
-                  style: const TextStyle(color: kPrimaryColor),
-                  items: <String>['Verb', 'Noun', 'Adjective', 'Adverb']
-                      .map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      _type = newValue!;
-                      widget.onUpdateWord(widget.word.copyWith(type: newValue));
-                    });
-                  },
-                ),
               ),
             ],
           ),

@@ -1,54 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
+import 'package:orange_card/resources/repositories/wordRepository.dart';
 
 class WordViewModel extends ChangeNotifier {
+  final WordRepository _wordRepository = WordRepository();
   List<Word> _words = [];
-
   List<Word> get words => _words;
-  WordViewModel() {
-    fetchWords();
-  }
-  // Method to add a word
-  void addWord(Word word) {
-    _words.add(word);
-  }
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
-  // Method to update a word
-  void updateWord(Word updatedWord) {
-    final index = _words.indexWhere((word) => word.id == updatedWord.id);
-    if (index != -1) {
-      _words[index] = updatedWord;
+  Future<void> fetchWords(String id) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _words = await _wordRepository.getAllWords(id);
+    } catch (e) {
+      print('Error fetching words: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  // Method to delete a word
-  void deleteWord(String id) {
-    _words.removeWhere((word) => word.id == id);
+  Future<void> addWord(Word word) async {
+    try {
+      await _wordRepository.addWord(word);
+      _words.add(word);
+      notifyListeners();
+    } catch (e) {
+      print('Error adding word: $e');
+    }
   }
 
-  void fetchWords() {
-    _words = [
-      Word(
-          id: '1',
-          created_at: 123456789,
-          type: 'Noun',
-          english: 'Book',
-          vietnamese: 'Sách',
-          learnt: true),
-      Word(
-          id: '2',
-          created_at: 123456789,
-          type: 'Verb',
-          english: 'Run',
-          vietnamese: 'Chạy',
-          learnt: true),
-      Word(
-          id: '3',
-          created_at: 123456789,
-          type: 'Adjective',
-          english: 'Beautiful',
-          vietnamese: 'Đẹp',
-          learnt: false),
-    ];
+  Future<void> updateWord(Word updatedWord) async {
+    try {
+      await _wordRepository.updateWord(updatedWord);
+      final index = _words.indexWhere((word) => word.id == updatedWord.id);
+      if (index != -1) {
+        _words[index] = updatedWord;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error updating word: $e');
+    }
+  }
+
+  Future<void> deleteWord(String id) async {
+    try {
+      await _wordRepository.deleteWord(id);
+      _words.removeWhere((word) => word.id == id);
+      notifyListeners();
+    } catch (e) {
+      print('Error deleting word: $e');
+    }
   }
 }

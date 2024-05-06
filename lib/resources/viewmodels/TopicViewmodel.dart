@@ -1,105 +1,102 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:orange_card/resources/models/word.dart';
-import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
+import 'package:orange_card/resources/repositories/topicRepository.dart';
+import 'package:orange_card/resources/repositories/wordRepository.dart';
+import 'package:orange_card/resources/utils/enum.dart';
 import '../models/topic.dart';
+import '../models/word.dart';
 
 class TopicViewModel extends ChangeNotifier {
-  late List<Topic> _fakeTopics = [];
-  late List<Topic> _filteredTopics = [];
+  final TopicRepository _topicRepository = TopicRepository();
+  final WordRepository _wordRepository = WordRepository();
+  List<Topic> _topics = [];
+  List<Topic> get topics => _topics;
+  List<Word> _words = [];
+  List<Word> get words => _words;
+  Topic get topic => _topic;
+  Topic _topic = Topic();
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+  String _isString = "Change";
+  String get test => _isString;
 
-  List<Topic> get fakeTopics => _fakeTopics;
-  List<Topic> get filteredTopics => _filteredTopics;
   TopicViewModel() {
-    _generateFakeTopics();
+    loadTopics();
   }
 
-  void _generateFakeTopics() {
-    int numberOfDays = 3;
-    int topicsPerDay = 2;
+  void clearTopic() {
+    _topic = Topic();
+    notifyListeners();
+  }
 
-    for (int i = 0; i < numberOfDays; i++) {
-      for (int j = 0; j < topicsPerDay; j++) {
-        WordViewModel wordViewModel = WordViewModel();
-        List<Word> words = wordViewModel.words;
-        print(words.length);
-        _fakeTopics.add(
-          Topic(
-            words: words,
-            id: 'topic_${i * topicsPerDay + j}',
-            title: 'Topic ${i * topicsPerDay + j}',
-            creationTime:
-                DateTime.now().millisecondsSinceEpoch - (i * 86400000),
-            numberOfChildren: 5,
-            learnedWords: (i + 1) * 100,
-            view: 0,
-          ),
-        );
-      }
+  Future<void> loadTopics() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _topics = await _topicRepository
+          .getAllTopicsByUserId(FirebaseAuth.instance.currentUser!.uid);
+    } catch (e) {
+      print('Error loading topics: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
-  void addTopic(String title, String description, List<Word> words) {
-    _fakeTopics.add(
-      Topic(
-        id: '${_fakeTopics.length + 1}',
+  Future<void> loadDetailTopics(String id) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _topic = await _topicRepository.getTopicByID(id);
+      _words = await _wordRepository.getAllWords(id);
+    } catch (e) {
+      print('Error loading topics: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+      print(_isLoading);
+    }
+  }
+
+  Future<void> addTopic(
+      String title, List<Word> words, String description, bool isPublic) async {
+    try {
+      final topic = Topic(
         title: title,
         creationTime: DateTime.now().millisecondsSinceEpoch,
-        numberOfChildren: 0,
+        numberOfChildren: words.length,
         learnedWords: 0,
-        view: 0,
-        words: words,
-      ),
-    );
-    notifyListeners();
-  }
-
-  bool deleteTopic(Topic topic) {
-    if (_fakeTopics.contains(topic)) {
-      _fakeTopics.remove(topic);
+        status: isPublic ? STATUS.PUBLIC : STATUS.PRIVATE,
+        views: 0,
+        updateTime: DateTime.now().millisecondsSinceEpoch,
+      );
+      await _topicRepository.addTopic(topic, words);
+      loadTopics();
       notifyListeners();
-      return true;
-    }
-    return false;
-  }
-
-  void updateTopic(Topic topic) {
-    int index = _fakeTopics.indexWhere((element) => element.id == topic.id);
-    if (index != -1) {
-      _fakeTopics[index] = topic;
-      notifyListeners();
+    } catch (e) {
+      print('Error adding topic: $e');
     }
   }
 
-  Map<String, List<Topic>> groupedTopicsByDay(List<Topic> topics) {
-    Map<String, List<Topic>> groupedTopicsByDay = {};
-    for (var topic in topics) {
-      DateTime dateTime =
-          DateTime.fromMillisecondsSinceEpoch(topic.creationTime);
-      String formattedDate = DateFormat('dd/MM/yyyy').format(dateTime);
-      if (!groupedTopicsByDay.containsKey(formattedDate)) {
-        groupedTopicsByDay[formattedDate] = [];
-      }
-      groupedTopicsByDay[formattedDate]?.add(topic);
-    }
-    return groupedTopicsByDay;
-  }
-
-  void _filterTopics(String query) {
-    _filteredTopics = _fakeTopics.where((topic) {
-      final lowerCaseQuery = query.toLowerCase();
-      final lowerCaseTitle = topic.title.toLowerCase();
-      return lowerCaseTitle.contains(lowerCaseQuery);
-    }).toList();
-    notifyListeners();
-  }
-
-  void filterTopics(String query) {
-    if (query.isNotEmpty) {
-      _filterTopics(query);
-    } else {
-      _filteredTopics.clear();
+  Future<void> deleteTopic(Topic topic) async {
+    try {
+      await _topicRepository.deleteTopic(topic.id!);
+      _topics.remove(topic);
+      loadTopics();
       notifyListeners();
+    } catch (e) {
+      print('Error deleting topic: $e');
+    }
+  }
+
+  Future<void> updateTopic(Topic topic, List<Word> words) async {
+    try {
+      await _topicRepository.updateTopic(topic, words);
+      loadTopics();
+      loadDetailTopics(topic.id!);
+      notifyListeners();
+    } catch (e) {
+      print('Error updating topic: $e');
     }
   }
 }
