@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/libraryPage/components/app_bar.dart';
@@ -17,7 +18,6 @@ class LibraryPageScreen extends StatefulWidget {
 class _LibraryPageScreenState extends State<LibraryPageScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  late TopicViewModel viewModel;
   final List<Tab> _listTab = [
     const Tab(
       text: 'Topics',
@@ -31,13 +31,15 @@ class _LibraryPageScreenState extends State<LibraryPageScreen>
   void initState() {
     super.initState();
     Provider.of<TopicViewModel>(context, listen: false);
+    Provider.of<FolderViewModel>(context, listen: false);
     _tabController =
         TabController(length: _listTab.length, vsync: this, initialIndex: 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<TopicViewModel>(context);
+    final topicViewModel = Provider.of<TopicViewModel>(context);
+    final folderViewModel = Provider.of<FolderViewModel>(context);
     return Scaffold(
       appBar: const LibraryPageAppBar(),
       body: Container(
@@ -76,12 +78,9 @@ class _LibraryPageScreenState extends State<LibraryPageScreen>
                 children: [
                   TopicScreen(
                     key: null,
-                    topicViewModel: viewModel,
+                    topicViewModel: topicViewModel,
                   ),
-                  FolderScreen(
-                    key: null,
-                    viewModel: viewModel,
-                  ),
+                  FolderScreen(key: null, folderViewModel: folderViewModel),
                 ],
               ),
             ),

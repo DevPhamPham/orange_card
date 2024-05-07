@@ -6,25 +6,27 @@ import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/dialog_edit_topic.dart';
 
-class TopicCardItem extends StatefulWidget {
+class TopicCardCommunityItem extends StatefulWidget {
   final Topic topic;
   final Function(Topic)? onEdit;
   final Function(Topic)? onDelete;
 
-  const TopicCardItem({
-    Key? key,
+  const TopicCardCommunityItem({
+    super.key,
     required this.topic,
     this.onEdit,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
-  _TopicCardItemState createState() => _TopicCardItemState();
+  __TopicCardCommunityItemState createState() =>
+      __TopicCardCommunityItemState();
 }
 
-class _TopicCardItemState extends State<TopicCardItem> {
+class __TopicCardCommunityItemState extends State<TopicCardCommunityItem> {
   String? _avatarUrl;
   String? _username;
+  bool? liked = false;
 
   @override
   void initState() {
@@ -113,34 +115,16 @@ class _TopicCardItemState extends State<TopicCardItem> {
                   ),
                 ),
               ),
-              PopupMenuButton<int>(
-                onSelected: (value) async {
-                  if (value == 0 && widget.onEdit != null) {
-                    final Topic? topicUpdated = await showDialog<Topic>(
-                      context: context,
-                      builder: (_) => EditTopicDialog(topic: widget.topic),
-                    );
-                    if (topicUpdated != null) {
-                      widget.onEdit!(topicUpdated);
-                    }
-                  } else if (value == 1 && widget.onDelete != null) {
-                    widget.onDelete!(widget.topic);
-                  }
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    liked = !liked!;
+                  });
                 },
-                itemBuilder: (context) => [
-                  if (widget.onEdit != null)
-                    const PopupMenuItem<int>(
-                      value: 0,
-                      child:
-                          Text('Edit', style: TextStyle(color: Colors.black)),
-                    ),
-                  if (widget.onDelete != null)
-                    const PopupMenuItem<int>(
-                      value: 1,
-                      child:
-                          Text('Delete', style: TextStyle(color: Colors.red)),
-                    ),
-                ],
+                icon: liked!
+                    ? const Icon(Icons.favorite)
+                    : const Icon(Icons.favorite_border),
+                color: Colors.orange,
               ),
             ],
           ),

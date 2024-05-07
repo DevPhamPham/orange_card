@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
@@ -71,6 +72,7 @@ class _TopicScreenState extends State<TopicScreen> {
                         username:
                             FirebaseAuth.instance.currentUser!.email.toString(),
                         avatar: "",
+                        topicIds: [],
                       );
                       await _navigateToTopicDetailScreen(
                           context, topic, currentUser);
@@ -100,13 +102,17 @@ class _TopicScreenState extends State<TopicScreen> {
       BuildContext context, Topic topic, UserCurrent user) async {
     final TopicViewModel topicViewModel =
         Provider.of<TopicViewModel>(context, listen: false);
+    final UserViewModel userViewModel =
+        Provider.of<UserViewModel>(context, listen: false);
+    UserCurrent? userCurrent =
+        await userViewModel.getUserByDocumentReference(topic.user);
     topicViewModel.clearTopic();
     topicViewModel.loadDetailTopics(topic.id!);
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => TopicDetail(
-            topic: topic, user: user, topicViewModel: topicViewModel),
+            topic: topic, user: userCurrent!, topicViewModel: topicViewModel),
       ),
     );
   }

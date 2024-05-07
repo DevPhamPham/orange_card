@@ -60,7 +60,7 @@ class _LoginFormState extends State<LoginForm> {
               cursorColor: kPrimaryColor,
               decoration: InputDecoration(
                 hintText: "Your password",
-                prefixIcon: Padding(
+                prefixIcon: const Padding(
                   padding: EdgeInsets.all(defaultPadding),
                   child: Icon(Icons.lock),
                 ),
@@ -87,9 +87,11 @@ class _LoginFormState extends State<LoginForm> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               TextButton(
-                onPressed: () => Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ResetPassword())),
-                child: Text(
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ResetPassword())),
+                child: const Text(
                   "Forgot password?",
                   style: TextStyle(color: kPrimaryColor),
                 ),
@@ -105,11 +107,13 @@ class _LoginFormState extends State<LoginForm> {
                         email: _emailTextController.text,
                         password: _passwordTextController.text)
                     .then((value) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => AuthGate()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const AuthGate()));
                 }).onError((error, stackTrace) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text(
                         'Login failed. Please check your email and password.',
                         style: TextStyle(

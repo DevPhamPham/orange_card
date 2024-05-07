@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 
 class AddFolderScreen extends StatefulWidget {
-  const AddFolderScreen({super.key});
-
+  const AddFolderScreen({super.key, required this.folderViewModel});
+  final FolderViewModel folderViewModel;
   @override
   State<AddFolderScreen> createState() => _AddFolderScreenState();
 }
@@ -28,12 +29,10 @@ class _AddFolderScreenState extends State<AddFolderScreen> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: () {
-            // Create the new folder
+          onPressed: () async {
             String folderName = _folderNameController.text;
-            // You can add your logic here to create the folder
-            print('Folder name: $folderName');
-            Navigator.of(context).pop(); // Close the dialog
+            widget.folderViewModel.addFolder(folderName);
+            Navigator.of(context).pop();
           },
           child: const Text('Create'),
         ),

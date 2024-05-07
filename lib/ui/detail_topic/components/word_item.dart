@@ -1,21 +1,21 @@
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/TTSService.dart';
-import 'package:orange_card/resources/utils/enum.dart';
 import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
+import 'package:orange_card/ui/auth/constants.dart';
 
 class WordItem extends StatefulWidget {
   final Word word;
   final bool Auth;
   final Color backgroundColor;
   final String TopicId;
-  const WordItem(
-      {super.key,
-      required this.word,
-      required this.backgroundColor,
-      required this.Auth,
-      required this.TopicId});
+  const WordItem({
+    Key? key,
+    required this.word,
+    required this.backgroundColor,
+    required this.Auth,
+    required this.TopicId,
+  });
 
   @override
   State<WordItem> createState() => _WordItemState();
@@ -24,6 +24,7 @@ class WordItem extends StatefulWidget {
 class _WordItemState extends State<WordItem> {
   final TTSService textToSpeechService = TTSService();
   late bool marked = false;
+
   @override
   void initState() {
     marked = WordViewModel().checkMarked(widget.word.userMarked);
@@ -33,69 +34,68 @@ class _WordItemState extends State<WordItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10),
-      decoration: BoxDecoration(
+      margin: EdgeInsets.only(bottom: 10),
+      child: Card(
+        elevation: 4,
+        shadowColor: widget.backgroundColor,
+        margin: const EdgeInsets.symmetric(horizontal: 10),
         color: widget.backgroundColor,
-        borderRadius: BorderRadius.circular(5),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ListTile(
-          title: Row(
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                  child: Text(
-                widget.word.english.toString(),
-              )),
-              Expanded(
-                  child: Text(
-                widget.word.vietnamese,
-              ))
-            ],
-          ),
-          trailing: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: IconButton(
-                  onPressed: () async {
-                    bool isMarked =
-                        WordViewModel().checkMarked(widget.word.userMarked);
-                    if (isMarked) {
-                      await WordViewModel().markWord(
-                        widget.TopicId,
-                        widget.word.id!,
-                        false, // Unmark the word
-                      );
-                    } else {
-                      await WordViewModel().markWord(
-                        widget.TopicId,
-                        widget.word.id!,
-                        true, // Mark the word
-                      );
-                    }
-                    setState(() {
-                      marked = !marked;
-                    });
-                  },
-                  icon: Icon(
-                    marked ? Icons.star : Icons.star_border,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            title: Row(
+              mainAxisSize: MainAxisSize.max,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: Text(widget.word.english.toString())),
+                Expanded(child: Text(widget.word.vietnamese)),
+              ],
+            ),
+            trailing: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Expanded(
+                  child: IconButton(
+                    onPressed: () async {
+                      bool isMarked =
+                          WordViewModel().checkMarked(widget.word.userMarked);
+                      if (isMarked) {
+                        await WordViewModel().markWord(
+                          widget.TopicId,
+                          widget.word.id!,
+                          false, // Unmark the word
+                        );
+                      } else {
+                        await WordViewModel().markWord(
+                          widget.TopicId,
+                          widget.word.id!,
+                          true, // Mark the word
+                        );
+                      }
+                      setState(() {
+                        marked = !marked;
+                      });
+                    },
+                    icon: Icon(
+                      marked ? Icons.star : Icons.star_border,
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: IconButton(
-                  onPressed: () async {
-                    await textToSpeechService.speak(widget.word.english!);
-                  },
-                  icon: const Icon(Icons.volume_down),
-                  iconSize: 20,
+                Expanded(
+                  child: IconButton(
+                    onPressed: () async {
+                      await textToSpeechService.speak(widget.word.english!);
+                    },
+                    icon: const Icon(Icons.volume_down),
+                    iconSize: 20,
+                  ),
                 ),
-              )
-            ],
+              ],
+            ),
           ),
         ),
       ),
