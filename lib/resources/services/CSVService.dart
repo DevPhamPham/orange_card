@@ -15,9 +15,9 @@ class CSVService {
   Future<String?> makeFile(
       BuildContext context, List<Word> words, String name) async {
     try {
-      // Check and request storage permission if not granted
       var status = await Permission.storage.status;
       if (!status.isGranted) {
+        await Permission.storage.request();
         var result = await Permission.manageExternalStorage.request();
         if (result != PermissionStatus.granted) {
           MessageUtils.showFailureMessage(context, "Permission denied");

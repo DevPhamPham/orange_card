@@ -10,7 +10,7 @@ import '../../../../resources/viewmodels/TopicViewmodel.dart';
 import '../../../message/sucess_message.dart';
 
 class AddTopicScreen extends StatefulWidget {
-  const AddTopicScreen({Key? key}) : super(key: key);
+  const AddTopicScreen({super.key});
 
   @override
   State<AddTopicScreen> createState() => _AddTopicScreenState();
@@ -19,7 +19,6 @@ class AddTopicScreen extends StatefulWidget {
 class _AddTopicScreenState extends State<AddTopicScreen> {
   late List<Word> _words = [createEmptyWord()];
   String _topicName = '';
-  String _description = '';
   final TopicViewModel _topicViewModel = TopicViewModel();
   final _formKey = GlobalKey<FormState>();
   bool _isPublic = true;
@@ -104,6 +103,9 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
             },
             decoration: const InputDecoration(
               labelText: 'Tên',
+              labelStyle: TextStyle(color: kPrimaryColor),
+              fillColor: Colors.white,
+              focusColor: kPrimaryColor,
               border: OutlineInputBorder(),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: kPrimaryColor),
@@ -225,7 +227,6 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
     await _topicViewModel.addTopic(
       _topicName,
       _words,
-      _description,
       _isPublic,
     );
     MessageUtils.showSuccessMessage(context, "Thêm thành công !");

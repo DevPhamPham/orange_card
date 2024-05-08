@@ -12,7 +12,8 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
+      resizeToAvoidBottomInset:
+          true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
       body: const Background(
         child: SingleChildScrollView(
           child: Responsive(

@@ -11,6 +11,10 @@ class TopicViewModel extends ChangeNotifier {
   final WordRepository _wordRepository = WordRepository();
   List<Topic> _topics = [];
   List<Topic> get topics => _topics;
+  List<Topic> _topicsPublic = [];
+  List<Topic> get topicsPublic => _topicsPublic;
+  List<Topic> _topcicsSaved = [];
+  List<Topic> get topcicsSaved => _topcicsSaved;
   List<Word> _words = [];
   List<Word> get words => _words;
   Topic get topic => _topic;
@@ -43,6 +47,33 @@ class TopicViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> loadTopicsPublic() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _topicsPublic = await _topicRepository.getTopicsPublic();
+    } catch (e) {
+      print('Error loading topics: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadTopicsSaved() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _topcicsSaved = await _topicRepository
+          .getAllTopicsByUserId(FirebaseAuth.instance.currentUser!.uid);
+    } catch (e) {
+      print('Error loading topics: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> loadDetailTopics(String id) async {
     try {
       _isLoading = true;
@@ -58,8 +89,7 @@ class TopicViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> addTopic(
-      String title, List<Word> words, String description, bool isPublic) async {
+  Future<void> addTopic(String title, List<Word> words, bool isPublic) async {
     try {
       final topic = Topic(
         title: title,
