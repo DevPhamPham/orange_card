@@ -22,7 +22,7 @@ class _HomePageBodyState extends State<HomePageBody> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Study",
+                "Study With Random Topic",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -30,7 +30,7 @@ class _HomePageBodyState extends State<HomePageBody> {
               ),
               listMenu(),
               const Text(
-                "Recommended for you",
+                "Recommended For You",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -38,7 +38,7 @@ class _HomePageBodyState extends State<HomePageBody> {
               ),
               topics(),
               const Text(
-                "Every day a new word",
+                "Every Day A New Word",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
