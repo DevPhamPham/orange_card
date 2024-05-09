@@ -15,7 +15,7 @@ class TopicDetailScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text(topicTitle),
           backgroundColor: AppTheme.kPrimaryColor,
-          bottom: TabBar(
+          bottom: const TabBar(
             labelColor: Colors.white, // Màu chữ cho tab được chọn
             unselectedLabelColor:
                 AppTheme.deactivatedText, // Màu chữ cho các tab không được chọn
@@ -40,9 +40,9 @@ class TopicDetailScreen extends StatelessWidget {
   Widget _buildTabContent(IconData icon, String label) {
     return Column(
       children: [
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         _buildLearningOption(icon, label),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         Expanded(
           child: ListView.builder(
             itemCount: 20, // Số lượng dữ liệu bảng xếp hạng
@@ -52,7 +52,7 @@ class TopicDetailScreen extends StatelessWidget {
                   child: Text((index + 1).toString()), // Hiển thị số hạng
                 ),
                 title: Text('User ${index + 1}'), // Tên người dùng
-                trailing: Text('100 points'), // Điểm số
+                trailing: const Text('100 points'), // Điểm số
               );
             },
           ),
@@ -61,55 +61,55 @@ class TopicDetailScreen extends StatelessWidget {
     );
   }
 
-Widget _buildLearningOption(IconData icon, String label) {
-  return GestureDetector(
-    onTap: () {
-      // Xử lý khi người dùng chọn cách học
-    },
-    child: ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 200), // Giới hạn chiều rộng
-      child: Material(
-        borderRadius: BorderRadius.circular(10),
-        color: AppTheme.kPrimaryLightColor,
-        child: InkWell(
-          onTap: () {
-            // Xử lý khi người dùng nhấn vào nút
-          },
+  Widget _buildLearningOption(IconData icon, String label) {
+    return GestureDetector(
+      onTap: () {
+        // Xử lý khi người dùng chọn cách học
+      },
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 200), // Giới hạn chiều rộng
+        child: Material(
           borderRadius: BorderRadius.circular(10),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: AppTheme.kPrimaryColor,
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                  ),
-                ),
-                SizedBox(width: 10),
-                Flexible(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontFamily: AppTheme.fontName,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Colors.black,
+          color: AppTheme.kPrimaryLightColor,
+          child: InkWell(
+            onTap: () {
+              // Xử lý khi người dùng nhấn vào nút
+            },
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: AppTheme.kPrimaryColor,
+                    child: Icon(
+                      icon,
+                      color: Colors.white,
                     ),
-                    overflow: TextOverflow.ellipsis, // Hiển thị dấu ... khi quá dài
-                    maxLines: 3, // Giới hạn số dòng
                   ),
-                ),
-              ],
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontFamily: AppTheme.fontName,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Colors.black,
+                      ),
+                      overflow:
+                          TextOverflow.ellipsis, // Hiển thị dấu ... khi quá dài
+                      maxLines: 3, // Giới hạn số dòng
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 }

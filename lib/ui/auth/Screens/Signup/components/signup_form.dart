@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/Screens/Return/return_screen.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
@@ -112,8 +113,9 @@ class _SignUpFormState extends State<SignUpForm> {
                         email: _emailTextController.text,
                         password: _passwordTextController.text)
                     .then((value) async {
+                  await UserRepository().create("", "", []);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text(
                         'Đăng ký thành công, vui lòng đăng nhập lại',
                         style: TextStyle(
@@ -125,8 +127,10 @@ class _SignUpFormState extends State<SignUpForm> {
                     ),
                   );
                   await FirebaseAuth.instance.signOut();
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => ReturnScreen()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const ReturnScreen()));
                 }).onError((error, stackTrace) {
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('${error}'),

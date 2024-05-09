@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
@@ -24,7 +26,9 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TopicViewModel()),
-        ChangeNotifierProvider(create: (_) => WordViewModel())
+        ChangeNotifierProvider(create: (_) => WordViewModel()),
+        ChangeNotifierProvider(create: (_) => UserViewModel()),
+        ChangeNotifierProvider(create: (_) => FolderViewModel()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -68,14 +68,12 @@ class TopicRepository {
     for (final topicDoc in snapshot.docs) {
       final topicId = topicDoc.id;
       final topicSnapshot = await _topicsCollection.doc(topicId).get();
-
       if (topicSnapshot.exists) {
         final topic = _fromSnapshot(topicSnapshot);
         topic.id = topicId;
         topics.add(topic);
       }
     }
-
     return topics;
   }
 
@@ -105,10 +103,8 @@ class TopicRepository {
     await _topicsCollection.doc(topicId).collection('ranks').add(user.toMap());
   }
 
-  Future<List<Topic>> getAllTopicsByUserIdAndStatus(
-      String userId, String status) async {
-    final snapshot =
-        await _usersCollection.doc(userId).collection('topics').get();
+  Future<List<Topic>> getTopicsPublic() async {
+    final snapshot = await _topicsCollection.get();
     final List<Topic> topics = [];
 
     for (final topicDoc in snapshot.docs) {
@@ -118,13 +114,38 @@ class TopicRepository {
       if (topicSnapshot.exists) {
         final topic = _fromSnapshot(topicSnapshot);
         topic.id = topicId;
-        if (topic.status == status) {
+        if (topic.status == STATUS.PUBLIC) {
           topics.add(topic);
         }
       }
     }
 
     return topics;
+  }
+
+  Future<List<Topic>> getTopicsSaved(String userId) async {
+    try {
+      final userDoc = await _usersCollection.doc(userId).get();
+      if (!userDoc.exists) {
+        return [];
+      }
+
+      final List<dynamic> topicIds = userDoc['topicIds'];
+
+      final List<Topic> savedTopics = [];
+      for (final topicId in topicIds) {
+        final topicDoc = await _topicsCollection.doc(topicId).get();
+        if (topicDoc.exists) {
+          final topic = _fromSnapshot(topicDoc);
+          topic.id = topicId;
+          savedTopics.add(topic);
+        }
+      }
+      return savedTopics;
+    } catch (e) {
+      print('Error fetching saved topics: $e');
+      return [];
+    }
   }
 
   Future<void> setStatusTopic(String status, String id) async {

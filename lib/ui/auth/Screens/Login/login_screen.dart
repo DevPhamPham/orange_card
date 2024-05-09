@@ -15,7 +15,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       resizeToAvoidBottomInset:
           true, // Đảm bảo giao diện tự động điều chỉnh khi bàn phím xuất hiện
       body: Background(

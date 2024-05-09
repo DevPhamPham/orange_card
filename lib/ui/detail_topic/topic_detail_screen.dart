@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:open_file/open_file.dart';
 import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/resources/models/topic.dart';
@@ -7,6 +6,7 @@ import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/resources/services/CSVService.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
 import 'package:orange_card/ui/auth/constants.dart';
 import 'package:orange_card/ui/detail_topic/components/word_item.dart';
@@ -34,10 +34,10 @@ class TopicDetail extends StatefulWidget {
 class _TopicDetailState extends State<TopicDetail> {
   late final TopicViewModel topicViewModel;
 
-  Future<void> setData() async {
-    topicViewModel = Provider.of<TopicViewModel>(context);
-    topicViewModel.loadDetailTopics(widget.topic.id!);
-  }
+  // Future<void> setData() async {
+  //   topicViewModel = Provider.of<TopicViewModel>(context);
+  //   topicViewModel.loadDetailTopics(widget.topic.id!);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +49,8 @@ class _TopicDetailState extends State<TopicDetail> {
       );
     });
     final topicViewModel = Provider.of<TopicViewModel>(context);
-    final userViewModel = UserRepository();
-    bool check = userViewModel.checkCurrentUser(widget.topic.user);
+    final userViewModel = UserViewModel();
+    bool auth = userViewModel.checkCurrentUser(widget.topic.user);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -68,13 +68,14 @@ class _TopicDetailState extends State<TopicDetail> {
             color: Colors.white,
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showBottomSheet(context, topicViewModel);
-        },
-        backgroundColor: kPrimaryColor,
-        child: const Icon(Icons.more_vert),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.more_vert_outlined),
+            onPressed: () {
+              _showBottomSheet(context, topicViewModel, auth);
+            },
+          ),
+        ],
       ),
       body: widget.topicViewModel.isLoading
           ? const DetailTopicSkeletonLoading()
@@ -96,10 +97,11 @@ class _TopicDetailState extends State<TopicDetail> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(
+                          SizedBox(
                             width: 80,
                             height: 80,
                             child: CircleAvatar(
+                              backgroundImage: NetworkImage(widget.user.avatar),
                               radius: 30,
                             ),
                           ),
@@ -116,11 +118,6 @@ class _TopicDetailState extends State<TopicDetail> {
                                   ),
                                 ),
                                 const SizedBox(height: 5),
-                                Text(
-                                  DateFormat('dd/MM/yyyy').format(
-                                      DateTime.fromMicrosecondsSinceEpoch(widget
-                                          .topicViewModel.topic.creationTime!)),
-                                ),
                                 Text(
                                   widget.user.username,
                                   style: const TextStyle(
@@ -315,29 +312,26 @@ class _TopicDetailState extends State<TopicDetail> {
                 ),
                 const SizedBox(height: 5),
                 Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(bottom: 80),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: widget.topicViewModel.words.length,
-                            itemBuilder: (context, index) {
-                              final word = widget.topicViewModel.words[index];
-                              return WordItem(
-                                Auth: check,
-                                word: word,
-                                backgroundColor: index % 2 == 0
-                                    ? const Color.fromARGB(197, 255, 213, 150)
-                                    : const Color.fromARGB(255, 255, 239, 224),
-                                TopicId: widget.topic.id!,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: widget.topicViewModel.words.length,
+                          itemBuilder: (context, index) {
+                            final word = widget.topicViewModel.words[index];
+                            return WordItem(
+                              Auth: auth,
+                              word: word,
+                              backgroundColor: index % 2 == 0
+                                  ? const Color.fromARGB(197, 255, 213, 150)
+                                  : const Color.fromARGB(255, 255, 239, 224),
+                              TopicId: widget.topic.id!,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -346,7 +340,8 @@ class _TopicDetailState extends State<TopicDetail> {
     );
   }
 
-  void _showBottomSheet(BuildContext context, TopicViewModel topicViewModel) {
+  void _showBottomSheet(
+      BuildContext context, TopicViewModel topicViewModel, bool auth) {
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
@@ -382,13 +377,7 @@ class _TopicDetailState extends State<TopicDetail> {
                           actions: <Widget>[
                             TextButton(
                               onPressed: () async {
-                                if (filename != null) {
-                                  await OpenFile.open(filename);
-                                } else {
-                                  // Error saving file, show error message
-                                  MessageUtils.showFailureMessage(
-                                      context, "Lỗi khi tải file");
-                                }
+                                await OpenFile.open(filename);
                                 Navigator.of(context).pop(); // Close the dialog
                               },
                               child: const Text('Mở File'),
@@ -409,29 +398,33 @@ class _TopicDetailState extends State<TopicDetail> {
                   }
                 },
               ),
-              _buildActionIconWithText(
-                icon: Icons.edit,
-                text: 'Chỉnh sửa',
-                onPressed: () async {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => EditTopic(
-                              topic: widget.topicViewModel.topic,
-                              words: widget.topicViewModel.words,
-                              topicViewModel: topicViewModel,
-                            )),
-                  );
-                  setState(() {});
-                },
-              ),
-              _buildActionIconWithText(
-                icon: Icons.create_new_folder,
-                text: 'Thêm vào Thư mục',
-                onPressed: () {
-                  // Add functionality for addfolder action
-                },
-              ),
+              auth
+                  ? _buildActionIconWithText(
+                      icon: Icons.edit,
+                      text: 'Chỉnh sửa',
+                      onPressed: () async {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditTopic(
+                                    topic: widget.topicViewModel.topic,
+                                    words: widget.topicViewModel.words,
+                                    topicViewModel: topicViewModel,
+                                  )),
+                        );
+                        setState(() {});
+                      },
+                    )
+                  : const SizedBox(),
+              auth
+                  ? _buildActionIconWithText(
+                      icon: Icons.create_new_folder,
+                      text: 'Thêm vào Thư mục',
+                      onPressed: () {
+                        // Add functionality for addfolder action
+                      },
+                    )
+                  : const SizedBox(),
             ],
           ),
         );
