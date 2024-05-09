@@ -4,7 +4,7 @@ import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/Screens/Return/return_screen.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
-import '../../../constants.dart';
+import '../../../../../constants/constants.dart';
 import '../../Login/login_screen.dart';
 
 class SignUpForm extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 
 class LibraryTabBar extends StatefulWidget {
   const LibraryTabBar({required Key key}) : super(key: key);

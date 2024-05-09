@@ -8,7 +8,7 @@ import 'package:orange_card/resources/services/CSVService.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_topic/components/word_item.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/edit_topic.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';

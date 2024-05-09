@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 
 class HomePageBody extends StatefulWidget {
   const HomePageBody({super.key});

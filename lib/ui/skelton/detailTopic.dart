@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 
 class DetailTopicSkeletonLoading extends StatelessWidget {
   const DetailTopicSkeletonLoading({super.key});

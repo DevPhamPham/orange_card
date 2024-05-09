@@ -4,7 +4,7 @@ import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/skelton/folder.dart';
 import 'package:provider/provider.dart';
 

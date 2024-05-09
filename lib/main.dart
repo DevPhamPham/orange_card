@@ -6,11 +6,13 @@ import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'ui/auth/auth_gate.dart';
+import 'package:orange_card/resources/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await NotificationService.initialize();;
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
