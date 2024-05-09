@@ -1,4 +1,4 @@
-./lib/ui/Quiz
+/lib/ui/Quiz/*
 
 # Miscellaneous
 *.class
