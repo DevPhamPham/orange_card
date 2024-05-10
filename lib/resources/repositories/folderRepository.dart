@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:orange_card/resources/models/folder.dart';
+import 'package:orange_card/resources/models/topic.dart';
+import 'package:orange_card/resources/repositories/topicRepository.dart';
 
 class FolderRepository {
   final CollectionReference _foldersCollection =
@@ -36,6 +38,26 @@ class FolderRepository {
     } catch (e) {
       print('Error updating folder: $e');
       // Handle error
+    }
+  }
+
+  Future<List<Topic>> getTopicInModel(List<String> topicId) async {
+    try {
+      List<Topic> list = [];
+      for (String id in topicId) {
+        try {
+          Topic topic = await TopicRepository().getTopicByID(id) as Topic;
+          if (topic != null) {
+            list.add(topic);
+          }
+        } catch (e) {
+          print("Error fetching topic with ID $id: $e");
+        }
+      }
+      return list;
+    } catch (e) {
+      print("Error fetching topics: $e");
+      return [];
     }
   }
 

@@ -17,6 +17,7 @@ class AuthGate extends StatelessWidget {
         }
         // Push MainScreen and remove all previous screens from the navigation stack
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const MainScreen()),
             (route) => false,

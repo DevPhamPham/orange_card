@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/ui/detail_folder/detail_folder_screen.dart';
 import 'package:orange_card/ui/libraryPage/folder/components/folder_carditem.dart';
 import 'package:orange_card/ui/libraryPage/folder/srceens/add_folder_screen.dart';
 import 'package:orange_card/ui/skelton/folder.dart';
@@ -85,7 +86,17 @@ class _FolderScreenState extends State<FolderScreen> {
                   final folder = widget.folderViewModel.folders[index];
                   return GestureDetector(
                     onTap: () async {
-                      // Handle folder tap
+                      await widget.folderViewModel
+                          .getTopicInModel(folder.topicIds);
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailFolder(
+                            folderViewModel: widget.folderViewModel,
+                            folder: folder,
+                          ),
+                        ),
+                      );
                     },
                     child: FolderCardItem(
                       folder: folder,
