@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
-import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/resources/services/CSVService.dart';
+import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_topic/components/word_item.dart';
+import 'package:orange_card/ui/libraryPage/folder/components/dialog_folder.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/edit_topic.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';
 import 'package:orange_card/ui/skelton/detailTopic.dart';
@@ -70,7 +72,7 @@ class _TopicDetailState extends State<TopicDetail> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert_outlined),
+            icon: const Icon(Icons.more_vert_outlined),
             onPressed: () {
               _showBottomSheet(context, topicViewModel, auth);
             },
@@ -420,8 +422,18 @@ class _TopicDetailState extends State<TopicDetail> {
                   ? _buildActionIconWithText(
                       icon: Icons.create_new_folder,
                       text: 'Thêm vào Thư mục',
-                      onPressed: () {
-                        // Add functionality for addfolder action
+                      onPressed: () async {
+                        final folderViewModel = Provider.of<FolderViewModel>(
+                            context,
+                            listen: false);
+                        await showDialog<Folder>(
+                          context: context,
+                          builder: (_) => FolderDialog(
+                            folders: folderViewModel.folders,
+                            topicId: widget.topic.id!,
+                            folderViewModel: folderViewModel,
+                          ),
+                        );
                       },
                     )
                   : const SizedBox(),

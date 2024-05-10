@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/folder.dart';
+import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/repositories/folderRepository.dart';
 
 class FolderViewModel extends ChangeNotifier {
   final FolderRepository _folderRepository = FolderRepository();
   List<Folder> _folders = [];
   List<Folder> get folders => _folders;
+  List<Topic> _topics = [];
+  List<Topic> get topics => _topics;
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
@@ -68,6 +71,17 @@ class FolderViewModel extends ChangeNotifier {
       loadFolders();
     } catch (e) {
       print('Error removing topic id from folder: $e');
+    }
+  }
+
+  Future<void> getTopicInModel(List<String> listTopicId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _topics = await _folderRepository.getTopicInModel(listTopicId);
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }
