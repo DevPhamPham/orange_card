@@ -4,7 +4,7 @@ import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/add_word_item.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';
 

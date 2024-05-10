@@ -9,9 +9,11 @@ import 'package:orange_card/ui/auth/Screens/ResetPassword/reset_password.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';
 import 'package:orange_card/ui/personalPage/components/change_password.dart';
 import 'package:date_format/date_format.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 // import 'dart:typed_data';
+import 'package:orange_card/resources/services/notification_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -35,11 +37,104 @@ class _ProfileScreenState extends State<ProfileScreen>
   final firebase_storage.FirebaseStorage _storage =
       firebase_storage.FirebaseStorage.instance;
 
+  bool _isNotificationOn = false;
+  late TimeOfDay _savedTime;
+  SharedPreferences? _prefs;
+
   @override
   void initState() {
     super.initState();
     initializeData();
     _tabController = TabController(length: 3, vsync: this);
+    WidgetsFlutterBinding.ensureInitialized();
+    setAndLoadSharedPreferences();
+  }
+
+  void setAndLoadSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    // Sau khi SharedPreferences được khởi tạo, ta cập nhật trạng thái
+    setState(() {
+      _isNotificationOn = _prefs!.getBool('notification_on') ?? false;
+    });
+    if (_isNotificationOn) {
+      final int? savedHour = _prefs!.getInt('notification_hour');
+      final int? savedMinute = _prefs!.getInt('notification_minute');
+      _savedTime = TimeOfDay(hour: savedHour ?? 0, minute: savedMinute ?? 0);
+
+      await _setScheduleNotification(_savedTime);
+    }
+  }
+
+  Future<void> _saveNotificationStatus(bool status, TimeOfDay saveTime) async {
+    if (_prefs != null) {
+      await _prefs!.setBool('notification_on', status);
+      await _prefs!.setInt('notification_hour', saveTime.hour);
+      await _prefs!.setInt('notification_minute', saveTime.minute);
+    } else {
+      // Xử lý khi _prefs là null
+      // Có thể hiển thị thông báo lỗi hoặc thực hiện hành động thích hợp
+    }
+  }
+
+  Future<bool> _setScheduleNotification(TimeOfDay time) async {
+    final now = DateTime.now();
+    final scheduleDate =
+        DateTime(now.year, now.month, now.day, time.hour, time.minute);
+
+    try {
+      await NotificationService.showScheduleNotification(
+        title: "HEY BUDDY",
+        body: "Let's start learning new vocabulary",
+        payload: 'payload',
+        scheduleDate: scheduleDate,
+      );
+      return true;
+    } catch (e) {
+      print(e.toString());
+    }
+    return false;
+  }
+
+  Future<void> _onSetNotification(bool isTurnOn, BuildContext context) async {
+    if (isTurnOn) {
+      final pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      );
+
+      if (pickedTime != null && mounted) {
+        final result = await _setScheduleNotification(pickedTime);
+
+        if (result) {
+          _saveNotificationStatus(true, pickedTime);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Notification set successfully!'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else {
+          _isNotificationOn =
+              false; // Cập nhật _isNotificationOn thành false ở đây
+          _saveNotificationStatus(false, TimeOfDay.now());
+          NotificationService.cancelNotification(id: 0);
+        }
+      } else {
+        setState(() {
+          _isNotificationOn =
+              false; // Cập nhật _isNotificationOn thành false ở đây
+        });
+        _saveNotificationStatus(false, TimeOfDay.now());
+        await NotificationService.cancelNotification();
+      }
+    } else {
+      setState(() {
+        _isNotificationOn =
+            false; // Cập nhật _isNotificationOn thành false ở đây
+      });
+      _saveNotificationStatus(false, TimeOfDay.now());
+      await NotificationService.cancelNotification();
+    }
   }
 
   @override
@@ -545,9 +640,25 @@ class _ProfileScreenState extends State<ProfileScreen>
                           );
                         },
                       ),
-                      
-                    
-
+                      ListTile(
+                        title: Text('Turn on Notification'),
+                        leading: Icon(Icons.notifications),
+                        subtitle: _isNotificationOn
+                            ? Text(
+                                'Remind at: ${_savedTime.format(context)}') // Hiển thị giá trị thời gian nhắc nhở khi _isNotificationOn là true
+                            : null, // Không hiển thị subtitle khi _isNotificationOn là false
+                        trailing: Switch(
+                          value: _isNotificationOn,
+                          onChanged: (value) {
+                            print(value);
+                            setState(() {
+                              _isNotificationOn = value;
+                              _onSetNotification(_isNotificationOn, context);
+                            });
+                          },
+                        ),
+                        onTap: () {},
+                      ),
                       const SizedBox(height: 16.0),
                       Text(
                         'Danger Zone',

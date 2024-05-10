@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 
 class TopicCardSkeleton extends StatelessWidget {
   @override

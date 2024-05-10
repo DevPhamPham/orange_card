@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/CSVService.dart';
 import 'package:orange_card/resources/utils/enum.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/add_word_item.dart';
 
 import '../../../../resources/viewmodels/TopicViewmodel.dart';

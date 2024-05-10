@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 
 class NavBarWidget extends StatefulWidget {
   final ValueChanged<int> onIndexChanged; // Define the onTabChange callback

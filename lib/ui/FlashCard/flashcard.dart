@@ -9,7 +9,7 @@ import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/ui/FlashCard/components/bottomSheet.dart';
 import 'package:orange_card/ui/FlashCard/components/cardItem.dart';
 import 'package:orange_card/ui/FlashCard/components/results.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
 class FlashCard extends StatefulWidget {
