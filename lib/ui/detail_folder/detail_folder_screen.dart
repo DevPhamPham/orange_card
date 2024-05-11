@@ -6,7 +6,7 @@ import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/add_topic_screen.dart';

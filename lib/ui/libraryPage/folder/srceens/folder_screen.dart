@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 
-import 'package:orange_card/ui/auth/constants.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_folder/detail_folder_screen.dart';
 
 import 'package:orange_card/ui/libraryPage/folder/components/folder_carditem.dart';
