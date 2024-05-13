@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:orange_card/bloc_provider_scope.dart';
+import 'package:orange_card/config/app_bloc_observer.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
@@ -9,13 +13,21 @@ import 'firebase_options.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'ui/auth/auth_gate.dart';
 import 'package:orange_card/resources/services/notification_service.dart';
+import 'injection_container.dart' as di;
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationService.initialize();;
+  Bloc.observer = AppBlocObserver();
+  await NotificationService.initialize();
+  ;
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await di.setUpServiceLocator();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 

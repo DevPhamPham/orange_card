@@ -3,17 +3,28 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/constants/constants.dart';
+import 'package:orange_card/injection_container.dart';
 import 'package:orange_card/resources/models/QuizEntity.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/ui/Quiz/game_quiz_summary_page.dart';
+import 'package:orange_card/widgets/error_page.dart';
+import 'package:orange_card/widgets/loading_indicator.dart';
 import 'package:orange_card/widgets/pushable_button.dart';
 import 'package:orange_card/widgets/select_option_tile.dart';
+import 'package:orange_card/widgets/status_bar.dart';
 import 'package:orange_card/widgets/text.dart';
 import 'package:orange_card/widgets/timer_count_down.dart';
 import 'package:orange_card/widgets/gap.dart';
 
+import 'package:orange_card/ui/Quiz/cubits/game_quiz_cubit.dart';
 
 class GameQuizPage extends StatefulWidget {
   final TopicViewModel topicViewModel;
@@ -38,7 +49,8 @@ class _GameQuizPageState extends State<GameQuizPage> {
   @override
   void initState() {
     super.initState();
-    timeDuration = 20 * widget.words.length; // Example time duration
+    timeDuration = AppValueConst.timeForQuiz *
+        widget.words.length; // Example time duration
     quizs = List<QuizEntity>.generate(
       widget.words.length,
       (index) {
@@ -71,28 +83,30 @@ class _GameQuizPageState extends State<GameQuizPage> {
         .where((quiz) =>
             quiz.selectedAnswer.toLowerCase() == quiz.meaning.toLowerCase())
         .length;
-    final gold = correct ~/ 5 + // minWordInTopicToPlay  is 5
+    final gold = correct ~/
+            AppValueConst.minWordInBagToPlay + // minWordInTopicToPlay  is 5
         (correct == quizs.length ? 2 : 0);
 
-    quizs.forEach((quiz) {
-      logger.i(quiz.word);
-      logger.i(quiz.answers);
-      logger.i(quiz.question);
-      logger.i(quiz.selectedAnswer);
-      logger.i(quiz.meaning);
-      logger.d("next");
-    });
-    logger.f(correct); // Đảm bảo đây là số câu trả lời đúng
-    logger.f(gold);
+    // quizs.forEach((quiz) {
+    //   logger.i(quiz.word);
+    //   logger.i(quiz.answers);
+    //   logger.i(quiz.question);
+    //   logger.i(quiz.selectedAnswer);
+    //   logger.i(quiz.meaning);
+    //   logger.d("next");
+    // });
+    logger.i("points: ${correct}"); // Đảm bảo đây là số câu trả lời đúng
+    logger.i("Gold: ${gold}");
+    // logger.f(FirebaseAuth.instance.currentUser);
 
-    // final uid = context.read<AuthBloc>().state.user?.uid;
-    // if (uid != null) {
-    //   await context.read<GameQuizCubit>().calculateResult(
-    //         uid: uid,
-    //         point: correct,
-    //         gold: gold,
-    //       );
-    // }
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      await context.read<GameQuizCubit>().calculateResult(
+            uid: uid,
+            point: correct,
+            gold: gold,
+          );
+    }
   }
 
   void _onNextQuiz(BuildContext context, int current) {
@@ -234,30 +248,154 @@ class _GameQuizPageState extends State<GameQuizPage> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
-      onPopInvoked: (_) => _onBack(context), // Xử lý việc quay lại màn hình
-      child: Scaffold(
-        appBar: _buildAppBar(context),
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+        canPop: false,
+        onPopInvoked: (_) => _onBack(context), // Xử lý việc quay lại màn hình
+        child: BlocProvider(
+            create: (_) => sl<GameQuizCubit>(),
+            child: Builder(builder: (context) {
+              return StatusBar(child: BlocBuilder<GameQuizCubit, GameQuizState>(
+                builder: (context, state) {
+                  if (state.status == GameQuizStatus.loading) {
+                    return Scaffold(
+                      backgroundColor: const Color.fromARGB(255, 174, 174, 174),
+                      body: const LoadingIndicatorPage(),
+                    );
+                  }
+                  if (state.status == GameQuizStatus.error) {
+                    return Scaffold(
+                      backgroundColor: const Color.fromARGB(255, 175, 172, 172),
+                      body: ErrorPage(text: state.message ?? ''),
+                    );
+                  }
+                  if (state.status == GameQuizStatus.success) {
+                    final correct =
+                        quizs.where((e) => e.selectedAnswer == e.meaning).length;
+
+                    return _buildSuccess(context, correct);
+                  }
+                  return Scaffold(
+                    appBar: _buildAppBar(context),
+                    body: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: currentQuestionIndex,
+                              builder: (context, value, _) {
+                                return LinearProgressIndicator(
+                                  value: (value + 1) / quizs.length,
+                                  color: Colors.green,
+                                  backgroundColor: Colors.grey.withOpacity(.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                  minHeight: 12,
+                                );
+                              },
+                            ),
+                            const Gap(height: 20),
+                            _buildCardQuestionAnswer(context),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ));
+            })));
+  }
+
+  Widget _buildSuccess(BuildContext context, int correct) {
+    final gold = correct ~/ AppValueConst.minWordInBagToPlay +
+        (correct == quizs.length ? 2 : 0);
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 54, 80, 93),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        child: Center(
+          child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ValueListenableBuilder(
-                  valueListenable: currentQuestionIndex,
-                  builder: (context, value, _) {
-                    return LinearProgressIndicator(
-                      value: (value + 1) / quizs.length,
-                      color: Colors.green,
-                      backgroundColor: Colors.grey.withOpacity(.15),
-                      borderRadius: BorderRadius.circular(8),
-                      minHeight: 12,
-                    );
-                  },
+                LottieBuilder.asset(
+                  "assets/jsons/trophy.json",
+                  height: MediaQuery.of(context).size.height / 4,
+                ),
+                TextCustom(
+                  "$correct/${quizs.length} correct answers",
+                  style: TextStyle(
+                    // h5 -> headline
+                    fontFamily: AppTheme.fontName,
+                    fontWeight: FontWeight.normal,
+                    fontSize: 18,
+                    letterSpacing: 0.30,
+                    color: Colors.white,
+                  ),
+                ),
+                const Gap(height: 15),
+                TextCustom(
+                  "Congratlation! You got",
+                  style: TextStyle(
+                    // h5 -> headline
+                    fontFamily: AppTheme.fontName,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 22,
+                    letterSpacing: 0.30,
+                    color: Colors.white,
+                  ),
+                  maxLines: 2,
+                ),
+                const Gap(height: 10),
+                TextCustom(
+                  "${correct} points",
+                  style: TextStyle(
+                    // h5 -> headline
+                    fontFamily: AppTheme.fontName,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 22,
+                    letterSpacing: 0.30,
+                    color: Colors.green,
+                  ),
+                ),
+                if (correct ~/ AppValueConst.minWordInBagToPlay > 0) ...[
+                  const Gap(height: 10),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/icons/gold.svg",
+                        height: 30,
+                        width: 30,
+                      ),
+                      const Gap(width: 5),
+                      TextCustom(
+                        "+$gold",
+                        style: TextStyle(
+                          // h5 -> headline
+                          fontFamily: AppTheme.fontName,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 18,
+                          letterSpacing: 0.30,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                const Gap(height: 20),
+                PushableButton(
+                  onPressed: () =>
+                      Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => GameQuizSummeryPage(quizs: quizs),
+                  )),
+                  text: "View result",
                 ),
                 const Gap(height: 20),
-                _buildCardQuestionAnswer(context),
+                PushableButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  text: "Back",
+                  type: PushableButtonType.white,
+                ),
               ],
             ),
           ),
@@ -279,7 +417,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
         child: Row(
           children: [
             SvgPicture.asset(
-              "./assets/icons/question_mark.svg",
+              "assets/icons/question_mark.svg",
               height: 30,
               width: 30,
             ),

@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
 
-import 'text.dart';
-
 class TimeCountDownWidget extends StatefulWidget {
   const TimeCountDownWidget({
     super.key,

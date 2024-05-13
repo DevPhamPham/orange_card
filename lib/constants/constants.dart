@@ -13,3 +13,15 @@ class AppStringConst {
   static const notificationMethodChannel =
       "com.example.orange_card/notification_service";
 }
+
+
+class AppValueConst{
+  AppValueConst._();
+
+  static const maxImgUploadSize = 5242880;
+  static const maxItemLoad = 50;
+  static const minWordInBagToPlay = 5;
+  static const timeForQuiz = 30; // seconds
+  static const attendancePoint = 1;
+  static const attendanceGold = 1;
+}

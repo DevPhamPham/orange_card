@@ -259,7 +259,8 @@ class _TopicDetailState extends State<TopicDetail> {
                             MaterialPageRoute(
                                 builder: (context) => GameQuizPage(
                                     topicViewModel: topicViewModel,
-                                    words: topicViewModel.words)),
+                                    words: topicViewModel.words)
+                            ),
                           );
                         },
                         child: const Column(
