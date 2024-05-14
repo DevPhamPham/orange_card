@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/TTSService.dart';
 import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
-import 'package:orange_card/constants/constants.dart';
 
 class WordItem extends StatefulWidget {
   final Word word;

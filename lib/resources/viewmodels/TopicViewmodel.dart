@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orange_card/resources/repositories/folderRepository.dart';
 import 'package:orange_card/resources/repositories/topicRepository.dart';
 import 'package:orange_card/resources/repositories/wordRepository.dart';
 import 'package:orange_card/resources/utils/enum.dart';
@@ -9,6 +10,7 @@ import '../models/word.dart';
 class TopicViewModel extends ChangeNotifier {
   final TopicRepository _topicRepository = TopicRepository();
   final WordRepository _wordRepository = WordRepository();
+  final FolderRepository _folderRepository = FolderRepository();
   List<Topic> _topics = [];
   List<Topic> get topics => _topics;
   List<Topic> _topicsPublic = [];
@@ -112,6 +114,7 @@ class TopicViewModel extends ChangeNotifier {
     try {
       await _topicRepository.deleteTopic(topic.id!);
       _topics.remove(topic);
+
       loadTopics();
       notifyListeners();
     } catch (e) {

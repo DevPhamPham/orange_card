@@ -1,16 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
-import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/add_topic_screen.dart';
-import 'package:orange_card/ui/message/sucess_message.dart';
 import 'package:orange_card/ui/skelton/topic.dart';
 import 'package:provider/provider.dart';
 import '../../../../resources/viewmodels/TopicViewmodel.dart';
@@ -36,8 +35,10 @@ class _DetailFolderState extends State<DetailFolder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.folder.title),
+        title: Text("Folder : ${widget.folder.title}"),
         titleTextStyle: AppTheme.title_appbar,
+        backgroundColor: Colors.white,
+        iconTheme: IconThemeData(color: kPrimaryColor),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -60,14 +61,15 @@ class _DetailFolderState extends State<DetailFolder> {
   }
 
   Widget _buildTopicList() {
-    return widget.folderViewModel.isLoading
+    final folderViewMolde = Provider.of<FolderViewModel>(context);
+    return folderViewMolde.isLoading
         ? ListView.builder(
             itemCount: 10,
             itemBuilder: (context, index) {
               return TopicCardSkeleton();
             },
           )
-        : widget.folderViewModel.topics.isEmpty
+        : folderViewMolde.topics.isEmpty
             ? const Center(child: Text('Chưa có chủ đề nào'))
             : ListView.builder(
                 itemCount: widget.folderViewModel.topics.length,

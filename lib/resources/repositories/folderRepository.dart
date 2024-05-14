@@ -46,10 +46,8 @@ class FolderRepository {
       List<Topic> list = [];
       for (String id in topicId) {
         try {
-          Topic topic = await TopicRepository().getTopicByID(id) as Topic;
-          if (topic != null) {
-            list.add(topic);
-          }
+          Topic topic = await TopicRepository().getTopicByID(id);
+          list.add(topic);
         } catch (e) {
           print("Error fetching topic with ID $id: $e");
         }
@@ -89,6 +87,22 @@ class FolderRepository {
     } catch (e) {
       print('Error removing topic id: $e');
       // Handle error
+    }
+  }
+
+  Future<void> removeTopicInFolder(String topicId, String userId) async {
+    QuerySnapshot querySnapshot = await _foldersCollection
+        .where('userId', isEqualTo: userId)
+        .where('topicIds', arrayContains: topicId)
+        .get();
+
+    List<Folder> folders = querySnapshot.docs
+        .map(
+            (doc) => Folder.fromMap(doc.data() as Map<String, dynamic>, doc.id))
+        .toList();
+
+    for (Folder folder in folders) {
+      await removeTopicId(folder.id!, topicId);
     }
   }
 }

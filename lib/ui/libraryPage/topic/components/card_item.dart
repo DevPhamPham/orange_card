@@ -48,9 +48,9 @@ class _TopicCardItemState extends State<TopicCardItem> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10),
+      margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
       child: Card(
-        elevation: 4.0,
+        elevation: 6,
         color: Colors.white,
         shadowColor: kPrimaryColorBlur,
         shape: RoundedRectangleBorder(
