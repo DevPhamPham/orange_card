@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
-import 'package:orange_card/ui/auth/constants.dart';
 
 class FolderDialog extends StatefulWidget {
   final List<Folder> folders;
@@ -66,7 +66,8 @@ class _FolderDialogState extends State<FolderDialog> {
                   final folder = filteredFolders[index];
                   isHaveTopic = checkInFolder(folder);
                   return Card(
-                    margin: const EdgeInsets.only(left: 20, right: 20),
+                    margin: const EdgeInsets.only(
+                        left: 20, right: 20, top: 5, bottom: 5),
                     shape: BeveledRectangleBorder(
                         borderRadius: BorderRadius.circular(5)),
                     elevation: 6,

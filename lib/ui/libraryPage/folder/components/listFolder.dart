@@ -75,14 +75,8 @@ class _ListFolderState extends State<ListFolder> {
                   },
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
-                    child: GridView.builder(
+                    child: ListView.builder(
                       controller: _scrollController,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount:
-                            MediaQuery.of(context).size.width > 600 ? 4 : 2,
-                        crossAxisSpacing: 16.0,
-                        mainAxisSpacing: 16.0,
-                      ),
                       itemCount: folders.length,
                       itemBuilder: (context, index) {
                         return Card(
@@ -90,29 +84,31 @@ class _ListFolderState extends State<ListFolder> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.folder,
-                                  size: 64.0, color: kPrimaryColor),
-                              const SizedBox(height: 16.0),
-                              Text(
-                                folders[index].title,
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.folder,
+                                    size: 64.0, color: kPrimaryColor),
+                                const SizedBox(height: 16.0),
+                                Text(
+                                  folders[index].title,
+                                  style: const TextStyle(
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 8.0),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                '${folders[index].topicIds.length} chủ đề',
-                                style: const TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.grey,
+                                const SizedBox(height: 8.0),
+                                Text(
+                                  '${folders[index].topicIds.length} chủ đề',
+                                  style: const TextStyle(
+                                    fontSize: 14.0,
+                                    color: Colors.grey,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         );
                       },

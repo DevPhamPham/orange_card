@@ -88,11 +88,10 @@ class ResultFlashCard extends StatelessWidget {
               circularStrokeCap: CircularStrokeCap.butt,
               backgroundColor: const Color.fromARGB(188, 218, 218, 218),
               progressColor: notmasterWord == 0
-                  ? const Color.fromARGB(255, 255, 0, 0)
+                  ? const Color.fromARGB(255, 110, 255, 115)
                   : masterWord != (masterWord + notmasterWord)
-                      ? const Color.fromARGB(255, 255, 123,
-                          0) // Color for unlearned words (orange)
-                      : const Color.fromARGB(255, 110, 255, 115),
+                      ? const Color.fromARGB(255, 255, 123, 0)
+                      : Colors.red,
             ),
           ),
           Row(

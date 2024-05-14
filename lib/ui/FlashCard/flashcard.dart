@@ -3,9 +3,11 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/TTSService.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
 import 'package:orange_card/ui/FlashCard/components/bottomSheet.dart';
 import 'package:orange_card/ui/FlashCard/components/cardItem.dart';
 import 'package:orange_card/ui/FlashCard/components/results.dart';
@@ -15,9 +17,13 @@ import 'package:swipable_stack/swipable_stack.dart';
 class FlashCard extends StatefulWidget {
   final TopicViewModel topicViewModel;
   final List<Word> words;
+  final Topic topic;
 
   const FlashCard(
-      {super.key, required this.topicViewModel, required this.words});
+      {super.key,
+      required this.topicViewModel,
+      required this.words,
+      required this.topic});
 
   @override
   State<FlashCard> createState() => _FlashCardState();
@@ -163,6 +169,9 @@ class _FlashCardState extends State<FlashCard> {
                       final itemIndex = properties.index % currentWords.length;
                       final english = currentWords[itemIndex].english;
                       final vietnamese = currentWords[itemIndex].vietnamese;
+                      isFrontStartSelected = isBackStartSelected =
+                          WordViewModel()
+                              .checkMarked(currentWords[itemIndex].userMarked);
                       return FlipCard(
                         direction: FlipDirection.HORIZONTAL,
                         controller: _flipCardController,
@@ -177,7 +186,16 @@ class _FlashCardState extends State<FlashCard> {
                             await textToSpeechService.speak(widget
                                 .topicViewModel.words[itemIndex].english!);
                           },
-                          onTapStar: () {
+                          onTapStar: () async {
+                            bool isMarked = WordViewModel().checkMarked(
+                                currentWords[itemIndex].userMarked);
+                            if (isMarked) {
+                              await WordViewModel().markWord(widget.topic.id!,
+                                  currentWords[itemIndex].id!, false);
+                            } else {
+                              await WordViewModel().markWord(widget.topic.id!,
+                                  currentWords[itemIndex].id!, true);
+                            }
                             setState(() {
                               isFrontStartSelected = !isFrontStartSelected;
                             });
@@ -190,7 +208,16 @@ class _FlashCardState extends State<FlashCard> {
                           onTapSpeak: () async {
                             await textToSpeechService.speak(english);
                           },
-                          onTapStar: () {
+                          onTapStar: () async {
+                            bool isMarked = WordViewModel().checkMarked(
+                                currentWords[itemIndex].userMarked);
+                            if (isMarked) {
+                              await WordViewModel().markWord(widget.topic.id!,
+                                  currentWords[itemIndex].id!, false);
+                            } else {
+                              await WordViewModel().markWord(widget.topic.id!,
+                                  currentWords[itemIndex].id!, true);
+                            }
                             setState(() {
                               isBackStartSelected = !isBackStartSelected;
                             });
@@ -219,19 +246,23 @@ class _FlashCardState extends State<FlashCard> {
                       } else if (direction == SwipeDirection.right) {
                         _currentRightNumber.value += 1;
                       }
-                      _currentIndexNotifier.value += 1;
-                      if (_currentIndexNotifier.value > currentWords.length) {
+                      if (_currentIndexNotifier.value == currentWords.length) {
                         showDialog(
                             context: context,
-                            builder: ((_) => ResultFlashCard(
-                                  masterWord: _currentRightNumber.value,
-                                  notmasterWord: _currentLeftNumber.value,
-                                  onComplete: () {
-                                    Navigator.pop(context);
-                                  },
-                                  onLearnNotMaster: () {},
-                                  onReuse: () {},
+                            barrierDismissible: true,
+                            builder: ((_) => Center(
+                                  child: ResultFlashCard(
+                                    masterWord: _currentRightNumber.value,
+                                    notmasterWord: _currentLeftNumber.value,
+                                    onComplete: () {
+                                      Navigator.pop(context);
+                                    },
+                                    onLearnNotMaster: () {},
+                                    onReuse: () {},
+                                  ),
                                 )));
+                      } else {
+                        _currentIndexNotifier.value += 1;
                       }
                     },
                   ),

@@ -31,6 +31,19 @@ class FolderViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> getTopicInModel(List<String> listTopicId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+      _topics = await _folderRepository.getTopicInModel(listTopicId);
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> addFolder(String title) async {
     try {
       final folder = Folder(
@@ -74,14 +87,14 @@ class FolderViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> getTopicInModel(List<String> listTopicId) async {
+  Future<void> removeTopicInFolder(String topicId) async {
     try {
-      _isLoading = true;
+      await _folderRepository.removeTopicInFolder(
+          topicId, FirebaseAuth.instance.currentUser!.uid);
       notifyListeners();
-      _topics = await _folderRepository.getTopicInModel(listTopicId);
+      loadFolders();
     } catch (e) {
-      _isLoading = false;
-      notifyListeners();
+      print('Error removing topic id from folder: $e');
     }
   }
 }
