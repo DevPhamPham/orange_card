@@ -62,7 +62,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       _savedTime = TimeOfDay(hour: savedHour ?? 0, minute: savedMinute ?? 0);
 
       await _setScheduleNotification(_savedTime);
-    }
+    } else
+      _savedTime =
+          TimeOfDay(hour: DateTime.now().hour, minute: DateTime.now().minute);
   }
 
   Future<void> _saveNotificationStatus(bool status, TimeOfDay saveTime) async {
@@ -70,6 +72,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       await _prefs!.setBool('notification_on', status);
       await _prefs!.setInt('notification_hour', saveTime.hour);
       await _prefs!.setInt('notification_minute', saveTime.minute);
+      setState(() {
+        _savedTime = TimeOfDay(hour: saveTime.hour, minute: saveTime.minute);
+      });
     } else {
       // Xử lý khi _prefs là null
       // Có thể hiển thị thông báo lỗi hoặc thực hiện hành động thích hợp
@@ -106,7 +111,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         final result = await _setScheduleNotification(pickedTime);
 
         if (result) {
-          _saveNotificationStatus(true, pickedTime);
+          setState(() {
+            _saveNotificationStatus(true, pickedTime);
+          });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Notification set successfully!'),

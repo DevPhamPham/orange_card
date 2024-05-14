@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
-
 class FolderDialog extends StatefulWidget {
   final List<Folder> folders;
   final String topicId;
