@@ -41,6 +41,9 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
             },
             icon: const Icon(Icons.play_arrow),
             label: const Text('Vuốt tự động'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green
+            ),
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
@@ -50,6 +53,9 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
             },
             icon: const Icon(Icons.tap_and_play_rounded),
             label: const Text('Ngẫu nhiên'),
+                        style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green
+            ),
           ),
           const SizedBox(height: 12),
           ListTile(

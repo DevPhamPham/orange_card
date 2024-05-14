@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
-import 'package:orange_card/resources/models/QuizEntity.dart';
+import 'package:orange_card/resources/models/TypingEntity.dart';
 import 'package:orange_card/widgets/app_bar.dart';
 import 'package:orange_card/widgets/gap.dart';
 import 'package:orange_card/widgets/pushable_button.dart';
@@ -9,14 +9,14 @@ import 'package:orange_card/widgets/select_option_tile.dart';
 import 'package:orange_card/widgets/status_bar.dart';
 import 'package:orange_card/widgets/text.dart';
 
-class GameQuizSummeryPage extends StatelessWidget {
-  GameQuizSummeryPage({super.key, required this.quizs});
+class GameTypingSummeryPage extends StatelessWidget {
+  GameTypingSummeryPage({super.key, required this.typing});
 
-  final List<QuizEntity> quizs;
+  final List<TypingEntity> typing;
   final ValueNotifier<int> currentQuestion = ValueNotifier(0);
 
   void _onNextQuiz(BuildContext context, int current) {
-    if (current < quizs.length - 1) {
+    if (current < typing.length - 1) {
       currentQuestion.value++;
     } else {
       Navigator.of(context).pop();
@@ -39,7 +39,7 @@ class GameQuizSummeryPage extends StatelessWidget {
                   valueListenable: currentQuestion,
                   builder: (context, value, _) {
                     return LinearProgressIndicator(
-                      value: (value + 1) / quizs.length,
+                      value: (value + 1) / typing.length,
                       color: Colors.green,
                       backgroundColor: Colors.grey.withOpacity(.15),
                       borderRadius: BorderRadius.circular(8),
@@ -89,16 +89,16 @@ class GameQuizSummeryPage extends StatelessWidget {
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: (quizs[current].meaning.toLowerCase() ==
-                                  quizs[current].selectedAnswer.toLowerCase()
+                      color: (typing[current].meaning.toLowerCase() ==
+                                  typing[current].typingAnswer.toLowerCase()
                               ? Colors.green
                               : Colors.redAccent)
                           .withOpacity(.75),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
-                      quizs[current].meaning.toLowerCase() ==
-                              quizs[current].selectedAnswer.toLowerCase()
+                      typing[current].meaning.toLowerCase() ==
+                              typing[current].typingAnswer.toLowerCase()
                           ? "Correct"
                           : "Incorrect",
                       style: TextStyle(
@@ -115,35 +115,35 @@ class GameQuizSummeryPage extends StatelessWidget {
               ),
               const Gap(height: 10),
               TextCustom(
-                "${quizs[current].question}.",
+                "${typing[current].word}????.",
                 textAlign: TextAlign.justify,
                 maxLines: 10,
               ),
               const Gap(height: 15),
-              Column(
-                children: quizs[current]
-                    .answers
-                    .mapIndexed((index, e) => SelectOptionTileWidget(
-                          onTap: () {},
-                          isSelected: quizs[current].selectedAnswer == e ||
-                              quizs[current].meaning == e,
-                          style: TextStyle(
-                            fontFamily: AppTheme.fontName,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            letterSpacing: 0.27,
-                            color: Colors.white,
-                          ),
-                          text: e.toLowerCase(),
-                          color: quizs[current].meaning == e
-                              ? Colors.green
-                              : quizs[current].selectedAnswer == e
-                                  ? Colors.redAccent
-                                  : Color.fromARGB(255, 213, 213, 213)
-                                      .withOpacity(.3),
-                        ))
-                    .toList(),
-              ),
+              // Column(
+              //   children: typing[current]
+              //       .answers
+              //       .mapIndexed((index, e) => SelectOptionTileWidget(
+              //             onTap: () {},
+              //             isSelected: typing[current].selectedAnswer == e ||
+              //                 typing[current].meaning == e,
+              //             style: TextStyle(
+              //               fontFamily: AppTheme.fontName,
+              //               fontWeight: FontWeight.bold,
+              //               fontSize: 18,
+              //               letterSpacing: 0.27,
+              //               color: Colors.white,
+              //             ),
+              //             text: e.toLowerCase(),
+              //             color: typing[current].meaning == e
+              //                 ? Colors.green
+              //                 : typing[current].selectedAnswer == e
+              //                     ? Colors.redAccent
+              //                     : Color.fromARGB(255, 213, 213, 213)
+              //                         .withOpacity(.3),
+              //           ))
+              //       .toList(),
+              // ),
               const Gap(height: 15),
               _buildButtons(context, current),
             ],
@@ -185,8 +185,7 @@ class GameQuizSummeryPage extends StatelessWidget {
             child: PushableButton(
               onPressed: () => _onNextQuiz(context, current),
               width: MediaQuery.of(context).size.width / 3,
-              text: current == quizs.length - 1 ? "Done" : "Next",
-              type: PushableButtonType.quiz,
+              text: current == typing.length - 1 ? "Done" : "Next",
             ),
           ),
         ],
@@ -208,7 +207,7 @@ class GameQuizSummeryPage extends StatelessWidget {
         valueListenable: currentQuestion,
         builder: (context, value, _) {
           return Text(
-            "Question ${(value + 1).toString()}/${quizs.length.toString()}",
+            "Question ${(value + 1).toString()}/${typing.length.toString()}",
             style: TextStyle(
               fontFamily: AppTheme.fontName,
               fontWeight: FontWeight.bold,
@@ -220,7 +219,7 @@ class GameQuizSummeryPage extends StatelessWidget {
         },
       ),
       action: SizedBox(width: 50),
-      backgroundColor: Colors.purpleAccent
+      
     );
   }
 }

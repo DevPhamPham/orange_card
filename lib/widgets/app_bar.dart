@@ -28,10 +28,13 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
     this.centerTitle = true,
     this.enableShadow = true,
     this.transparent = false,
+    this.backgroundColor,
   });
 
   /// Transparent background of app bar.
   final bool transparent;
+
+  final backgroundColor;
 
   /// If this widget is null. By default, the app bar uses the [Row] widget
   /// with [leading], [title] and [action] to show the content of the appbar.
@@ -86,7 +89,7 @@ class AppBarCustom extends StatelessWidget implements PreferredSizeWidget {
       height: appBarHeight,
       padding: enablePadding ? EdgeInsets.symmetric(horizontal: 10) : null,
       decoration: BoxDecoration(
-        color: transparent ? Colors.transparent : AppTheme.kPrimaryColor,
+        color: transparent ? Colors.transparent : backgroundColor,
         boxShadow: enableShadow && !transparent
             ? [
                 BoxShadow(

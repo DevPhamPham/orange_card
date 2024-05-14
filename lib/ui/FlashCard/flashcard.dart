@@ -89,7 +89,7 @@ class _FlashCardState extends State<FlashCard> {
           "Flash Card",
           style: AppTheme.title_appbar2,
         ),
-        backgroundColor: kPrimaryColor,
+        backgroundColor: Colors.green,
         titleTextStyle: const TextStyle(color: Colors.white),
         leading: GestureDetector(
           onTap: () {
