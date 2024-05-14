@@ -35,8 +35,6 @@ class TopicDetail extends StatefulWidget {
 }
 
 class _TopicDetailState extends State<TopicDetail> {
-  late final TopicViewModel topicViewModel;
-
   // Future<void> setData() async {
   //   topicViewModel = Provider.of<TopicViewModel>(context);
   //   topicViewModel.loadDetailTopics(widget.topic.id!);
@@ -52,6 +50,7 @@ class _TopicDetailState extends State<TopicDetail> {
       );
     });
     final topicViewModel = Provider.of<TopicViewModel>(context);
+    print(topicViewModel.isLoading);
     final userViewModel = UserViewModel();
     bool auth = userViewModel.checkCurrentUser(widget.topic.user);
     return Scaffold(
@@ -226,6 +225,7 @@ class _TopicDetailState extends State<TopicDetail> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => FlashCard(
+                                    topic: widget.topic,
                                     topicViewModel: topicViewModel,
                                     words: topicViewModel.words)),
                           );

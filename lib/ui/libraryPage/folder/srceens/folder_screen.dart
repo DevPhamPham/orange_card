@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
-
-import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_folder/detail_folder_screen.dart';
-
 import 'package:orange_card/ui/libraryPage/folder/components/folder_carditem.dart';
 import 'package:orange_card/ui/libraryPage/folder/srceens/add_folder_screen.dart';
 import 'package:orange_card/ui/skelton/folder.dart';
+import 'package:provider/provider.dart';
 
 class FolderScreen extends StatefulWidget {
   final FolderViewModel folderViewModel;
@@ -53,7 +51,7 @@ class _FolderScreenState extends State<FolderScreen> {
                 },
               ),
             ),
-            Expanded(child: _buildFolderList()),
+            Expanded(child: _buildFolderList(context)),
           ],
         ),
       ),
@@ -71,7 +69,7 @@ class _FolderScreenState extends State<FolderScreen> {
     );
   }
 
-  Widget _buildFolderList() {
+  Widget _buildFolderList(BuildContext ScaffodContext) {
     return widget.folderViewModel.isLoading
         ? const FolderSkelton()
         : widget.folderViewModel.folders.isEmpty
@@ -79,7 +77,7 @@ class _FolderScreenState extends State<FolderScreen> {
             : GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount:
-                      MediaQuery.of(context).size.width > 600 ? 4 : 2,
+                      MediaQuery.of(ScaffodContext).size.width > 600 ? 4 : 2,
                   crossAxisSpacing: 16.0,
                   mainAxisSpacing: 16.0,
                 ),
@@ -88,13 +86,15 @@ class _FolderScreenState extends State<FolderScreen> {
                   final folder = widget.folderViewModel.folders[index];
                   return GestureDetector(
                     onTap: () async {
-                      await widget.folderViewModel
-                          .getTopicInModel(folder.topicIds);
-                      await Navigator.push(
-                        context,
+                      final FolderViewModel folderViewModel =
+                          Provider.of<FolderViewModel>(context, listen: false);
+                      await folderViewModel.getTopicInModel(folder.topicIds);
+                      print(folderViewModel.isLoading);
+                      Navigator.push(
+                        ScaffodContext,
                         MaterialPageRoute(
                           builder: (context) => DetailFolder(
-                            folderViewModel: widget.folderViewModel,
+                            folderViewModel: folderViewModel,
                             folder: folder,
                           ),
                         ),
@@ -103,7 +103,7 @@ class _FolderScreenState extends State<FolderScreen> {
                     child: FolderCardItem(
                       folder: folder,
                       onDelete: (folder) {
-                        _showDeleteConfirmation(folder);
+                        _showDeleteConfirmation(folder, context);
                       },
                       onEdit: (folder) {
                         _navigateToEditFolderScreen(context, folder);
@@ -128,9 +128,9 @@ class _FolderScreenState extends State<FolderScreen> {
     // Handle edit folder screen navigation
   }
 
-  void _showDeleteConfirmation(Folder folder) {
+  void _showDeleteConfirmation(Folder folder, BuildContext ScaffodContext) {
     showDialog(
-      context: context,
+      context: ScaffodContext,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Xác nhận Xóa"),

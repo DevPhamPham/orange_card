@@ -1,12 +1,11 @@
-import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/dialog_edit_topic.dart';
-
 class TopicItemInFolder extends StatefulWidget {
   final Topic topic;
   final Function(Topic)? onRemove;
@@ -47,7 +46,7 @@ class _TopicItemInFolderState extends State<TopicItemInFolder> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 10, right: 10),
+      margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
       child: Card(
         elevation: 4.0,
         color: Colors.white,

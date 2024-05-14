@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
+import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
@@ -156,7 +157,8 @@ class _TopicScreenState extends State<TopicScreen> {
   }
 
   Future<void> _deleteTopic(Topic topic) async {
-    await widget.topicViewModel.deleteTopic(topic);
+    widget.topicViewModel.deleteTopic(topic);
+    FolderViewModel().removeTopicInFolder(topic.id!);
     MessageUtils.showSuccessMessage(
       context,
       "Đã xóa thành công chủ đề ${topic.title}",
