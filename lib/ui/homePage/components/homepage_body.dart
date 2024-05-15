@@ -1,17 +1,196 @@
 // ignore_for_file: sort_child_properties_last
 
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:orange_card/constants/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/ui/FlashCard/flashcard.dart';
+import 'package:orange_card/ui/Quiz/game_quiz_setting_page.dart';
+import 'package:orange_card/ui/Typing/game_typing_setting_page.dart';
+import 'package:provider/provider.dart';
+
+import 'package:orange_card/resources/models/topic.dart';
+import 'package:orange_card/resources/models/user.dart';
+import 'package:orange_card/resources/models/word.dart';
+import 'package:orange_card/resources/repositories/topicRepository.dart';
+import 'package:orange_card/resources/repositories/wordRepository.dart';
+import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 
 class HomePageBody extends StatefulWidget {
-  const HomePageBody({super.key});
+  const HomePageBody({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<HomePageBody> createState() => _HomePageBodyState();
 }
 
 class _HomePageBodyState extends State<HomePageBody> {
+  late TopicRepository _topicRepository = TopicRepository();
+  late WordRepository _wordRepository = WordRepository();
+
+  late List<Topic> topicByUser;
+  late List<Topic> topicFromCommunity;
+  late List<List<Word>> eveWord;
+  late List<UserCurrent> listRankUsers;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    await getTopicByUser();
+    await getTopicFromCommunity();
+    await getWord();
+    // this.listRankUsers = getListRankUsers();
+  }
+
+  Future<void> getTopicByUser() async {
+    try {
+      this.topicByUser = await _topicRepository
+          .getAllTopicsByUserId(FirebaseAuth.instance.currentUser!.uid);
+    } catch (e) {
+      print('Error loading topics: $e');
+    }
+  }
+
+  Future<void> getTopicFromCommunity() async {
+    try {
+      this.topicFromCommunity = await _topicRepository.getTopicsPublic();
+    } catch (e) {
+      print('Error loading topics: $e');
+    }
+  }
+
+  Future<void> getWord() async {
+    List<List<Word>> allWords = [];
+    try {
+      for (var i = 0; i < this.topicByUser.length; i++) {
+        // Lấy danh sách từ của chủ đề hiện tại
+        List<Word> wordsInTopic =
+            await _wordRepository.getAllWords(this.topicByUser[i].id!);
+        // Lấy một từ ngẫu nhiên từ danh sách
+        // Word randomWord = wordsInTopic[Random().nextInt(wordsInTopic.length)];
+        // logger.f(wordsInTopic.length);
+        // Thêm từ ngẫu nhiên vào danh sách mới
+        allWords.add(wordsInTopic);
+      }
+
+      // Lọc ra id các chủ đề chưa có trong topicByUser
+      List<String> topicIds = topicFromCommunity
+          .where((topic) =>
+              !topicByUser.any((existingTopic) => existingTopic.id == topic.id))
+          .map((filteredTopic) => filteredTopic.id!)
+          .toList();
+
+      for (var id in topicIds) {
+        // Lấy danh sách từ của chủ đề hiện tại
+        List<Word> wordsInTopic = await _wordRepository.getAllWords(id);
+        // logger.f(wordsInTopic);
+        // Lấy một từ ngẫu nhiên từ danh sách
+        // Word randomWord = wordsInTopic[Random().nextInt(wordsInTopic.length)];
+        // Thêm từ ngẫu nhiên vào danh sách mới
+        allWords.add(wordsInTopic);
+      }
+
+      this.eveWord = allWords;
+      // logger.i(this.eveWord.length);
+    } catch (e) {
+      print('Error getting words: $e');
+    }
+  }
+
+  List<Topic> getRandomListTopic() {
+    List<Topic> allListTopic = [];
+
+    List<Topic> topicIds = topicFromCommunity
+        .where((topic) =>
+            !topicByUser.any((existingTopic) => existingTopic.id == topic.id))
+        .toList();
+
+    allListTopic.addAll(topicByUser);
+    allListTopic.addAll(topicIds);
+    allListTopic.shuffle();
+    return allListTopic.length > 7 ? allListTopic.sublist(0, 7) : allListTopic;
+  }
+
+  Future<void> _navigateToRandomTopic(BuildContext context, int which) async {
+    Topic topic = getRandomTopic();
+    final TopicViewModel topicViewModel =
+        Provider.of<TopicViewModel>(context, listen: false);
+
+    topicViewModel.clearTopic();
+    topicViewModel.loadDetailTopics(topic.id!);
+
+    if (which == 1) {
+      //quiz
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => GameQuizSettingsPage(
+                  topic: topic,
+                  topicViewModel: topicViewModel,
+                )),
+      );
+    } else if (which == 2) {
+      //typing
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => GameTypingSettingsPage(
+                  topicViewModel: topicViewModel,
+                  topic: topic,
+                )),
+      );
+    } else {
+      //flashcard
+
+      logger.i(topicViewModel.words);
+      logger.d(topicViewModel.isLoading);
+      logger.f(topic.title);
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => FlashCard(
+                topic: topic,
+                topicViewModel: topicViewModel,
+                words: topicViewModel.words)),
+      );
+    }
+  }
+
+  Topic getRandomTopic() {
+    List<Topic> allListTopic = [];
+
+    List<Topic> topicIds = topicFromCommunity
+        .where((topic) =>
+            !topicByUser.any((existingTopic) => existingTopic.id == topic.id))
+        .toList();
+
+    allListTopic.addAll(this.topicByUser);
+    allListTopic.addAll(topicIds);
+    int indexRandom = Random().nextInt(allListTopic.length);
+
+    return allListTopic[indexRandom];
+  }
+
+  Word getRandomEverydayWord() {
+    int indexRandom = Random().nextInt(this.eveWord.length);
+    List<Word> listWord = this.eveWord[indexRandom];
+    indexRandom = Random().nextInt(listWord.length);
+    return listWord[indexRandom];
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +207,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              listMenu(),
+              listMenu(context),
               const Text(
                 "Recommended For You",
                 style: TextStyle(
@@ -381,14 +560,16 @@ class _HomePageBodyState extends State<HomePageBody> {
     );
   }
 
-  Container listMenu() {
+  Container listMenu(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(left: 35, right: 35, top: 20, bottom: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           InkWell(
-            onTap: () {},
+            onTap: () {
+              _navigateToRandomTopic(context, 0);
+            },
             child: const Column(
               children: [
                 CircleAvatar(
@@ -412,7 +593,9 @@ class _HomePageBodyState extends State<HomePageBody> {
             ),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              _navigateToRandomTopic(context, 1);
+            },
             child: const Column(
               children: [
                 CircleAvatar(
@@ -436,7 +619,9 @@ class _HomePageBodyState extends State<HomePageBody> {
             ),
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              _navigateToRandomTopic(context, 2);
+            },
             child: const Column(
               children: [
                 CircleAvatar(

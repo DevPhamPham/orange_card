@@ -105,7 +105,7 @@ class GameTypingSummeryPage extends StatelessWidget {
                         // body2 -> body1
                         fontFamily: AppTheme.fontName,
                         fontWeight: FontWeight.w400,
-                        fontSize: 16,
+                        fontSize: 18,
                         letterSpacing: -0.05,
                         color: Colors.white,
                       ),
@@ -113,37 +113,22 @@ class GameTypingSummeryPage extends StatelessWidget {
                   ),
                 ],
               ),
-              const Gap(height: 10),
+              const Gap(height: 20),
               TextCustom(
-                "${typing[current].word}????.",
-                textAlign: TextAlign.justify,
+                "Question: ${typing[current].word}",
+                textAlign: TextAlign.start,
                 maxLines: 10,
               ),
-              const Gap(height: 15),
-              // Column(
-              //   children: typing[current]
-              //       .answers
-              //       .mapIndexed((index, e) => SelectOptionTileWidget(
-              //             onTap: () {},
-              //             isSelected: typing[current].selectedAnswer == e ||
-              //                 typing[current].meaning == e,
-              //             style: TextStyle(
-              //               fontFamily: AppTheme.fontName,
-              //               fontWeight: FontWeight.bold,
-              //               fontSize: 18,
-              //               letterSpacing: 0.27,
-              //               color: Colors.white,
-              //             ),
-              //             text: e.toLowerCase(),
-              //             color: typing[current].meaning == e
-              //                 ? Colors.green
-              //                 : typing[current].selectedAnswer == e
-              //                     ? Colors.redAccent
-              //                     : Color.fromARGB(255, 213, 213, 213)
-              //                         .withOpacity(.3),
-              //           ))
-              //       .toList(),
-              // ),
+              const Gap(height: 5),
+              Column(
+                children: [
+                  TextCustom(
+                    "Answer: ${typing[current].meaning}",
+                    textAlign: TextAlign.start,
+                    maxLines: 10,
+                  ),
+                ],
+              ),
               const Gap(height: 15),
               _buildButtons(context, current),
             ],
@@ -219,7 +204,7 @@ class GameTypingSummeryPage extends StatelessWidget {
         },
       ),
       action: SizedBox(width: 50),
-      
+      backgroundColor: Colors.blueAccent,
     );
   }
 }

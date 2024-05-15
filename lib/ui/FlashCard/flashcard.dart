@@ -20,10 +20,10 @@ class FlashCard extends StatefulWidget {
   final Topic topic;
 
   const FlashCard(
-      {super.key,
+      {Key? key,
       required this.topicViewModel,
       required this.words,
-      required this.topic});
+      required this.topic}):super(key:key);
 
   @override
   State<FlashCard> createState() => _FlashCardState();
@@ -44,8 +44,8 @@ class _FlashCardState extends State<FlashCard> {
   SwipableStackController _swipableStackController = SwipableStackController();
   @override
   void initState() {
-    currentWords = widget.words;
     super.initState();
+    currentWords = widget.words;
   }
 
   @override

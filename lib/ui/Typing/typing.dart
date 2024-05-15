@@ -721,6 +721,10 @@ class _GameTypingPageState extends State<GameTypingPage> {
     );
   }
 
+  void _handleSubmitted(String value,int current) {
+  typings[current].typingAnswer = value;
+}
+
   Widget _buildTypingQuestionAnswer(BuildContext context) {
     return Container(
       child: ValueListenableBuilder(
@@ -874,7 +878,7 @@ class _GameTypingPageState extends State<GameTypingPage> {
                               })
                             },
                             onSubmitted: (value) => {
-                              typings[current].typingAnswer = value,
+                              _handleSubmitted(value, current)
                             },
                           ),
                         ],
@@ -927,7 +931,12 @@ class _GameTypingPageState extends State<GameTypingPage> {
               return SizedBox(
                 width: MediaQuery.of(context).size.width / 3,
                 child: PushableButton(
-                  onPressed: () => _onNextQuiz(context, current, false),
+                  onPressed: () {
+                    if (typings[current].typingAnswer.isEmpty)
+                    _handleSubmitted(_textEditingController.text,current);
+                    _onNextQuiz(context, current, false);
+
+                  },
                   width: MediaQuery.of(context).size.width / 3,
                   type: answer.isNotEmpty ||
                           current == typings.length - 1 || typings[current].typingAnswer.isNotEmpty

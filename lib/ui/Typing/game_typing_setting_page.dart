@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/ui/Typing/typing.dart';
 import 'package:orange_card/widgets/gap.dart';
 
 class GameTypingSettingsPage extends StatefulWidget {
   final TopicViewModel topicViewModel;
+  final Topic topic;
 
   const GameTypingSettingsPage({
     Key? key,
     required this.topicViewModel,
+    required this.topic,
   }) : super(key: key);
 
   @override
@@ -24,16 +27,31 @@ class _GameTypingSettingsPageState extends State<GameTypingSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Choose your style'),backgroundColor: Colors.blueAccent,),
+      appBar: AppBar(
+        title: Text('Choose your style'),
+        backgroundColor: Colors.blueAccent,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Text(
+              "${widget.topic.title}",
+              style: TextStyle(
+                // body2 -> body1
+                fontFamily: AppTheme.fontName,
+                fontWeight: FontWeight.w400,
+                fontSize: 20,
+                letterSpacing: -0.05,
+                color: Colors.black,
+              ),
+            ),
             const Gap(height: 16),
             SwitchListTile(
               title: Text('Auto Mode'),
-              subtitle: Text('Get a response as soon as you answer a word and automatically move on to the next question in 1 second.'),
+              subtitle: Text(
+                  'Get a response as soon as you answer a word and automatically move on to the next question in 1 second.'),
               value: isAuto,
               onChanged: (value) {
                 setState(() {
@@ -102,7 +120,8 @@ class _GameTypingSettingsPageState extends State<GameTypingSettingsPage> {
                 );
               },
               child: Text('Start Typing Game'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
+              style:
+                  ElevatedButton.styleFrom(backgroundColor: Colors.blueAccent),
             ),
           ],
         ),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/userInTopic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
@@ -80,7 +81,7 @@ class TopicRepository {
   Future<Topic> getTopicByID(String id) async {
     final snapshot = await _topicsCollection.doc(id).get();
     final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-    print(data);
+    logger.i("data from topicRepository: ${data}");
     if (data != null) {
       final topic = Topic.fromMap(data, id);
       return topic;

@@ -260,6 +260,7 @@ class _TopicDetailState extends State<TopicDetail> {
                             MaterialPageRoute(
                                 builder: (context) => GameQuizSettingsPage(
                                       topicViewModel: topicViewModel,
+                                      topic: widget.topic
                                     )),
                           );
                         },
@@ -291,6 +292,7 @@ class _TopicDetailState extends State<TopicDetail> {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => GameTypingSettingsPage(
+                                      topic: widget.topic,
                                       topicViewModel: topicViewModel,
                                     )),
                           );
