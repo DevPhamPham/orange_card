@@ -40,6 +40,25 @@ class UserRepository {
     }
   }
 
+  Future<List<UserCurrent>> getAllUsers() async {
+    final querySnapshot = await _usersCollection.get();
+    final users = querySnapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return UserCurrent.fromMap(data);
+    }).toList();
+    return users;
+  }
+
+  Future<List<UserCurrent>> getRankedUsers() async {
+    List<UserCurrent> users = await getAllUsers();
+    users.sort((a, b) {
+      int aTotalPoints = (a.quiz_point ?? 0) + (a.typing_point ?? 0);
+      int bTotalPoints = (b.quiz_point ?? 0) + (b.typing_point ?? 0);
+      return bTotalPoints.compareTo(aTotalPoints);
+    });
+    return users;
+  }
+
   Future<void> updateAvatar(String userId, String newAvatar) async {
     await _usersCollection.doc(userId).update({
       'avatarUrl': newAvatar,
