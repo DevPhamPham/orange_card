@@ -71,7 +71,6 @@ class TopicRepository {
       final topicSnapshot = await _topicsCollection.doc(topicId).get();
       if (topicSnapshot.exists) {
         final topic = _fromSnapshot(topicSnapshot);
-        topic.id = topicId;
         topics.add(topic);
       }
     }
@@ -81,7 +80,6 @@ class TopicRepository {
   Future<Topic> getTopicByID(String id) async {
     final snapshot = await _topicsCollection.doc(id).get();
     final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
-    logger.i("data from topicRepository: ${data}");
     if (data != null) {
       final topic = Topic.fromMap(data, id);
       return topic;
@@ -131,16 +129,15 @@ class TopicRepository {
       if (!userDoc.exists) {
         return [];
       }
-
       final List<dynamic> topicIds = userDoc['topicIds'];
-
       final List<Topic> savedTopics = [];
       for (final topicId in topicIds) {
         final topicDoc = await _topicsCollection.doc(topicId).get();
         if (topicDoc.exists) {
           final topic = _fromSnapshot(topicDoc);
-          topic.id = topicId;
-          savedTopics.add(topic);
+          if (topic.status == STATUS.PUBLIC) {
+            savedTopics.add(topic);
+          }
         }
       }
       return savedTopics;

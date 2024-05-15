@@ -4,18 +4,22 @@ import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/constants/constants.dart';
-import 'package:orange_card/ui/libraryPage/topic/components/dialog_edit_topic.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 
 class TopicCardCommunityItem extends StatefulWidget {
   final Topic topic;
   final Function(Topic)? onEdit;
   final Function(Topic)? onDelete;
+  final bool like;
+  final UserViewModel userViewModel;
 
   const TopicCardCommunityItem({
     super.key,
     required this.topic,
     this.onEdit,
+    required this.like,
     this.onDelete,
+    required this.userViewModel,
   });
 
   @override
@@ -26,12 +30,13 @@ class TopicCardCommunityItem extends StatefulWidget {
 class __TopicCardCommunityItemState extends State<TopicCardCommunityItem> {
   String? _avatarUrl;
   String? _username;
-  bool? liked = false;
+  bool? liked;
 
   @override
   void initState() {
     super.initState();
     _fetchUserData();
+    liked = widget.like;
   }
 
   Future<void> _fetchUserData() async {
@@ -94,7 +99,7 @@ class __TopicCardCommunityItemState extends State<TopicCardCommunityItem> {
                             ),
                             const SizedBox(height: 4.0),
                             Text(
-                              '$_username' ?? "Loading ...",
+                              '$_username',
                               style: const TextStyle(
                                 fontSize: 12.0,
                                 color: Colors.grey,
@@ -116,7 +121,12 @@ class __TopicCardCommunityItemState extends State<TopicCardCommunityItem> {
                 ),
               ),
               IconButton(
-                onPressed: () {
+                onPressed: () async {
+                  if (liked!) {
+                    await widget.userViewModel.removeTopicId(widget.topic.id!);
+                  } else {
+                    await widget.userViewModel.addTopicId(widget.topic.id!);
+                  }
                   setState(() {
                     liked = !liked!;
                   });

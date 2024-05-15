@@ -24,10 +24,22 @@ class TopicScreen extends StatefulWidget {
 }
 
 class _TopicScreenState extends State<TopicScreen> {
+  late List<Topic> filteredTopics;
+
   @override
   void initState() {
     super.initState();
+    filteredTopics = widget.topicViewModel.topics;
+
     // setdata();
+  }
+
+  void _filterTopic(String query) {
+    setState(() {
+      filteredTopics = widget.topicViewModel.topics.where((topic) {
+        return topic.title!.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+    });
   }
 
   @override
@@ -37,7 +49,26 @@ class _TopicScreenState extends State<TopicScreen> {
         onRefresh: () async {
           await setdata();
         },
-        child: _buildTopicList(),
+        child: Column(
+          children: [
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+              child: TextField(
+                autofocus: false,
+                decoration: InputDecoration(
+                  hintText: 'Search...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                onChanged: _filterTopic,
+              ),
+            ),
+            _buildTopicList(),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
@@ -64,9 +95,9 @@ class _TopicScreenState extends State<TopicScreen> {
         : widget.topicViewModel.topics.isEmpty
             ? const Center(child: Text('Chưa có chủ đề nào'))
             : ListView.builder(
-                itemCount: widget.topicViewModel.topics.length,
+                itemCount: filteredTopics.length,
                 itemBuilder: (context, index) {
-                  final topic = widget.topicViewModel.topics[index];
+                  final topic = filteredTopics[index];
                   return GestureDetector(
                     onTap: () async {
                       final currentUser = UserCurrent(

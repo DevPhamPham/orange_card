@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/communityPage/components/mybag.dart';
 import 'package:orange_card/ui/communityPage/components/orthers.dart';
-import 'package:provider/provider.dart'; // Nếu cần import Word
+import 'package:provider/provider.dart';
 
 class CommunityPage extends StatefulWidget {
   final TopicViewModel topicViewModel;
-  const CommunityPage({super.key, required this.topicViewModel});
+  final UserViewModel userViewModel;
+  const CommunityPage(
+      {super.key, required this.topicViewModel, required this.userViewModel});
 
   @override
   _CommunityPageState createState() => _CommunityPageState();
@@ -36,18 +41,35 @@ class _CommunityPageState extends State<CommunityPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const TabBar(
+              TabBar(
                 tabs: [
                   Tab(text: 'Others'),
                   Tab(text: 'Your Bag'),
                 ],
+                indicatorWeight: 4,
+                labelColor: Colors.white,
+                labelStyle: AppTheme.title_tabbar,
+                unselectedLabelColor: kPrimaryColor,
+                indicatorColor: kPrimaryColor,
+                indicator: BoxDecoration(
+                  color: kPrimaryColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                indicatorPadding: const EdgeInsets.only(left: 20, right: 20),
+                indicatorSize: TabBarIndicatorSize.tab,
+                padding: const EdgeInsets.only(
+                    left: 20, right: 20, bottom: 5, top: 5),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: TabBarView(
                   children: [
-                    Orthers(topicViewModel: widget.topicViewModel),
-                    MyBags(topicViewModel: widget.topicViewModel)
+                    Orthers(
+                        topicViewModel: widget.topicViewModel,
+                        userViewModel: widget.userViewModel),
+                    MyBags(
+                        topicViewModel: widget.topicViewModel,
+                        userViewModel: widget.userViewModel)
                   ],
                 ),
               ),

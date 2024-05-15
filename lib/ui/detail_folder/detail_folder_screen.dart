@@ -7,6 +7,7 @@ import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
+import 'package:orange_card/ui/detail_folder/topicitem.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/add_topic_screen.dart';
@@ -35,7 +36,7 @@ class _DetailFolderState extends State<DetailFolder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Folder : ${widget.folder.title}"),
+        title: Text("Thư mục : ${widget.folder.title}"),
         titleTextStyle: AppTheme.title_appbar,
         backgroundColor: Colors.white,
         iconTheme: IconThemeData(color: kPrimaryColor),
@@ -45,17 +46,6 @@ class _DetailFolderState extends State<DetailFolder> {
           await setdata();
         },
         child: _buildTopicList(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // await _navigateToAddTopicScreen(context);
-          // await setdata();
-          setState(() {});
-        },
-        backgroundColor: kPrimaryColor,
-        foregroundColor: Colors.white,
-        shape: const CircleBorder(),
-        child: const Icon(Icons.add),
       ),
     );
   }
@@ -86,19 +76,16 @@ class _DetailFolderState extends State<DetailFolder> {
                       await _navigateToTopicDetailScreen(
                           context, topic, currentUser);
                     },
-                    child: TopicCardItem(
+                    child: TopicItemInFolder(
                       topic: topic,
+                      onRemove: (topic) async {
+                        await widget.folderViewModel
+                            .removeTopicInFolder(topic.id!);
+                      },
                     ),
                   );
                 },
               );
-  }
-
-  Future<void> _navigateToAddTopicScreen(BuildContext context) async {
-    await showDialog<List>(
-      context: context,
-      builder: (_) => const AddTopicScreen(),
-    );
   }
 
   Future<void> _navigateToTopicDetailScreen(
@@ -117,32 +104,6 @@ class _DetailFolderState extends State<DetailFolder> {
         builder: (context) => TopicDetail(
             topic: topic, user: userCurrent!, topicViewModel: topicViewModel),
       ),
-    );
-  }
-
-  void _showDeleteConfirmation(Topic topic) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Xác nhận Xóa"),
-          content: const Text("Bạn có chắc muốn xóa chủ đề này không?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text("Hủy"),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context);
-              },
-              child: const Text("Xóa"),
-            ),
-          ],
-        );
-      },
     );
   }
 
