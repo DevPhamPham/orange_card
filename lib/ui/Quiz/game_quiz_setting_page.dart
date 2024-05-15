@@ -37,7 +37,7 @@ class _GameQuizSettingsPageState extends State<GameQuizSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "${widget.topic.title}",
+              "Topic ${widget.topic.title}",
               style: TextStyle(
                 // body2 -> body1
                 fontFamily: AppTheme.fontName,

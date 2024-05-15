@@ -37,7 +37,7 @@ class _GameTypingSettingsPageState extends State<GameTypingSettingsPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "${widget.topic.title}",
+              "Topic ${widget.topic.title}",
               style: TextStyle(
                 // body2 -> body1
                 fontFamily: AppTheme.fontName,
