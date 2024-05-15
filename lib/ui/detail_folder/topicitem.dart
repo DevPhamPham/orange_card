@@ -4,8 +4,7 @@ import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
-import 'package:orange_card/constants/constants.dart';
-import 'package:orange_card/ui/libraryPage/topic/components/dialog_edit_topic.dart';
+
 class TopicItemInFolder extends StatefulWidget {
   final Topic topic;
   final Function(Topic)? onRemove;
@@ -90,7 +89,7 @@ class _TopicItemInFolderState extends State<TopicItemInFolder> {
                             ),
                             const SizedBox(height: 4.0),
                             Text(
-                              '$_username' ?? "Loading ...",
+                              '$_username',
                               style: const TextStyle(
                                 fontSize: 12.0,
                                 color: Colors.grey,
@@ -111,19 +110,27 @@ class _TopicItemInFolderState extends State<TopicItemInFolder> {
                   ),
                 ),
               ),
-              TextButton(
-                onPressed: () {
-                  widget.onRemove!(widget.topic);
-                },
-                child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      widget.onRemove!(widget.topic);
+                      setState(() {});
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        color: Colors.red),
-                    child: const Text(
-                      "Xóa",
-                      style: TextStyle(color: Colors.white),
-                    )),
+                        color: Colors.red,
+                      ),
+                      child: const Text(
+                        "Xóa",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

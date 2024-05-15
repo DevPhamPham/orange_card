@@ -11,7 +11,6 @@ import '../models/word.dart';
 class TopicViewModel extends ChangeNotifier {
   final TopicRepository _topicRepository = TopicRepository();
   final WordRepository _wordRepository = WordRepository();
-  final FolderRepository _folderRepository = FolderRepository();
   List<Topic> _topics = [];
   List<Topic> get topics => _topics;
   List<Topic> _topicsPublic = [];
@@ -68,7 +67,7 @@ class TopicViewModel extends ChangeNotifier {
       _isLoading = true;
       notifyListeners();
       _topcicsSaved = await _topicRepository
-          .getAllTopicsByUserId(FirebaseAuth.instance.currentUser!.uid);
+          .getTopicsSaved(FirebaseAuth.instance.currentUser!.uid);
     } catch (e) {
       print('Error loading topics: $e');
     } finally {

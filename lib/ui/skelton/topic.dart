@@ -4,59 +4,62 @@ import 'package:orange_card/constants/constants.dart';
 class TopicCardSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4.0,
-      color: Colors.white,
-      shadowColor: kPrimaryColorBlur,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8.0),
-        side: const BorderSide(color: Colors.grey, width: 2),
-      ),
-      child: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SizedBox(
-                height: 80,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 50,
-                      height: 50,
-                      child: Skeleton(),
-                    ),
-                    SizedBox(width: 8.0),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Skeleton(width: 150),
-                          SizedBox(height: 4.0),
-                          Skeleton(
-                            width: 150,
-                            height: 20,
-                          ),
-                          SizedBox(height: 4.0),
-                          Skeleton(
-                            width: 120,
-                            height: 13,
-                          ),
-                          SizedBox(height: 4.0),
-                          Skeleton(
-                            width: 50,
-                            height: 13,
-                          ),
-                        ],
+    return Container(
+      margin: const EdgeInsets.only(left: 10, right: 10, top: 5),
+      child: Card(
+        elevation: 4.0,
+        color: Colors.white,
+        shadowColor: kPrimaryColorBlur,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          side: const BorderSide(color: Colors.grey, width: 2),
+        ),
+        child: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 80,
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 50,
+                        height: 50,
+                        child: Skeleton(),
                       ),
-                    ),
-                  ],
+                      SizedBox(width: 8.0),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Skeleton(width: 150),
+                            SizedBox(height: 4.0),
+                            Skeleton(
+                              width: 150,
+                              height: 20,
+                            ),
+                            SizedBox(height: 4.0),
+                            Skeleton(
+                              width: 120,
+                              height: 13,
+                            ),
+                            SizedBox(height: 4.0),
+                            Skeleton(
+                              width: 50,
+                              height: 13,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
