@@ -579,6 +579,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   Container topics() {
     List<Topic> randomTopics = getRandomListTopic();
     late UserViewModel _userViewModel = UserViewModel();
+
     return Container(
       margin: const EdgeInsets.only(top: 15, bottom: 15),
       height: 200,
@@ -609,11 +610,12 @@ class _HomePageBodyState extends State<HomePageBody> {
                         width: 250,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20.0),
-                          image: const DecorationImage(
+                          image: DecorationImage(
                             image: AssetImage(
-                                "./assets/images/backgroundCard.jpg"),
+                                "assets/images/backgroundCard9.jpg"),
                             fit: BoxFit.cover,
                           ),
+                          color: Colors.black.withOpacity(0.9),
                         ),
                         child: Stack(
                           children: [
@@ -677,6 +679,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                     ),
                   ),
                 );
+              
               }
             },
           );
