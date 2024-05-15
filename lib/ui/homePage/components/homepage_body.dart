@@ -139,7 +139,7 @@ class _HomePageBodyState extends State<HomePageBody> {
       );
     } else if (which == 2) {
       //typing
-      await Navigator.push(
+      Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => GameTypingSettingsPage(
@@ -149,11 +149,10 @@ class _HomePageBodyState extends State<HomePageBody> {
       );
     } else {
       //flashcard
-
-      logger.i(topicViewModel.words);
+      logger.i(topicViewModel.topic.title);
       logger.d(topicViewModel.isLoading);
-      logger.f(topic.title);
-      await Navigator.push(
+      logger.f("topic : ${topic.title}");
+      Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => FlashCard(
