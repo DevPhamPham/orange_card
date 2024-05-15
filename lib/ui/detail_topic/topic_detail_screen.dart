@@ -10,7 +10,8 @@ import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
 import 'package:orange_card/constants/constants.dart';
-import 'package:orange_card/ui/Quiz/quiz.dart';
+import 'package:orange_card/ui/Quiz/game_quiz_setting_page.dart';
+import 'package:orange_card/ui/Typing/game_typing_setting_page.dart';
 import 'package:orange_card/ui/detail_topic/components/word_item.dart';
 import 'package:orange_card/ui/libraryPage/folder/components/dialog_folder.dart';
 import 'package:orange_card/ui/libraryPage/topic/screens/edit_topic.dart';
@@ -257,10 +258,10 @@ class _TopicDetailState extends State<TopicDetail> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => GameQuizPage(
-                                    topicViewModel: topicViewModel,
-                                    words: topicViewModel.words)
-                            ),
+                                builder: (context) => GameQuizSettingsPage(
+                                      topicViewModel: topicViewModel,
+                                      topic: widget.topic
+                                    )),
                           );
                         },
                         child: const Column(
@@ -286,12 +287,21 @@ class _TopicDetailState extends State<TopicDetail> {
                         ),
                       ),
                       InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => GameTypingSettingsPage(
+                                      topic: widget.topic,
+                                      topicViewModel: topicViewModel,
+                                    )),
+                          );
+                        },
                         child: const Column(
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundColor: Colors.blue,
+                              backgroundColor: Colors.blueAccent,
                               child: Icon(
                                 Icons.edit,
                                 color: Colors.white,

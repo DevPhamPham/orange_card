@@ -2,10 +2,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:collection/collection.dart';
+
+import 'package:orange_card/resources/services/TTSService.dart';
 
 import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/config/app_logger.dart';
@@ -29,12 +33,14 @@ import 'package:orange_card/ui/Quiz/cubits/game_quiz_cubit.dart';
 class GameQuizPage extends StatefulWidget {
   final TopicViewModel topicViewModel;
   final List<Word> words;
+  final Map<String, dynamic> settings;
 
-  const GameQuizPage({
-    Key? key,
-    required this.topicViewModel,
-    required this.words,
-  }) : super(key: key);
+  const GameQuizPage(
+      {Key? key,
+      required this.topicViewModel,
+      required this.words,
+      required this.settings})
+      : super(key: key);
 
   @override
   State<GameQuizPage> createState() => _GameQuizPageState();
@@ -45,23 +51,58 @@ class _GameQuizPageState extends State<GameQuizPage> {
   late int timeDuration;
   ValueNotifier<int> currentQuestionIndex = ValueNotifier(0);
   ValueNotifier<int> selectedIndex = ValueNotifier(-1);
+  final TTSService textToSpeechService = TTSService();
 
   @override
   void initState() {
     super.initState();
-    timeDuration = AppValueConst.timeForQuiz *
-        widget.words.length; // Example time duration
-    quizs = List<QuizEntity>.generate(
-      widget.words.length,
-      (index) {
-        return QuizEntity(
-            word: widget.words[index].english,
-            question: "What is the meaning of ${widget.words[index].english}?",
-            answers: _generateRandomAnswers(widget.words[index].vietnamese),
-            meaning: widget.words[index].vietnamese);
-      },
-    );
-    logger.i(quizs[0].answers);
+    if (widget.settings['autoEnabled'])
+      timeDuration = AppValueConst.timeForQuiz * widget.words.length +
+          widget.words.length; // Example time duration
+    else
+      timeDuration = AppValueConst.timeForQuiz * widget.words.length;
+    // Lấy giá trị từ biến settings
+    bool englishQuestions = widget.settings['englishQuestions'] ?? false;
+    bool shuffleEnabled = widget.settings['shuffleEnabled'] ?? false;
+
+    if (englishQuestions) {
+      quizs = List<QuizEntity>.generate(
+        widget.words.length,
+        (index) {
+          return QuizEntity(
+              word: widget.words[index].english,
+              question:
+                  "What is the meaning of \"${widget.words[index].english}\"",
+              answers:
+                  _generateRandomAnswers(widget.words[index].vietnamese, true),
+              meaning: widget.words[index].vietnamese);
+        },
+      );
+    } else {
+      quizs = List<QuizEntity>.generate(
+        widget.words.length,
+        (index) {
+          return QuizEntity(
+              word: widget.words[index].vietnamese,
+              question:
+                  "\"${widget.words[index].vietnamese}\" có từ Tiếng Anh là gì",
+              answers: _generateRandomAnswers(
+                  widget.words[index].english.toString(), false),
+              meaning: widget.words[index].english.toString());
+        },
+      );
+    }
+
+    if (shuffleEnabled) quizs = quizs..shuffle();
+
+    // quizs.forEach((quiz) {
+    //   logger.i(quiz.word);
+    //   logger.i(quiz.answers);
+    //   logger.i(quiz.question);
+    //   logger.i(quiz.selectedAnswer);
+    //   logger.i(quiz.meaning);
+    //   logger.d("next");
+    // });
   }
 
   @override
@@ -69,8 +110,12 @@ class _GameQuizPageState extends State<GameQuizPage> {
     super.dispose();
   }
 
-  List<String> _generateRandomAnswers(String correctAnswer) {
-    final answers = widget.words.map((word) => word.vietnamese).toList()
+  List<String> _generateRandomAnswers(
+      String correctAnswer, bool englishQuestions) {
+    final answers = widget.words
+        .map((word) =>
+            englishQuestions ? word.vietnamese : word.english.toString())
+        .toList()
       ..shuffle();
     answers.remove(correctAnswer);
     answers.shuffle();
@@ -109,7 +154,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
     }
   }
 
-  void _onNextQuiz(BuildContext context, int current) {
+  void _onNextQuiz(BuildContext context, int current, bool bnt) {
     if (current < quizs.length - 1) {
       if (quizs[current].selectedAnswer.isNotEmpty) {
         setState(() {
@@ -117,7 +162,10 @@ class _GameQuizPageState extends State<GameQuizPage> {
           selectedIndex.value = -1;
         });
       }
-    } else {
+    } else if (bnt == false && !widget.settings['autoEnabled']) {
+      _onCompleteQuiz(context);
+    }
+    if (bnt == true && (current == (quizs.length - 1))) {
       _onCompleteQuiz(context);
     }
   }
@@ -175,7 +223,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
               ),
               icon: showIcon
                   ? CircleAvatar(
-                      backgroundColor: AppTheme.kPrimaryColor,
+                      backgroundColor: Colors.purpleAccent,
                       radius: 25,
                       child: icon != null
                           ? SvgPicture.asset(
@@ -223,7 +271,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
                             onAccept?.call();
                           },
                           text: acceptText ?? "Yes of course",
-                          type: PushableButtonType.primary,
+                          type: PushableButtonType.quiz,
                           borderside: false,
                         ),
                       if (showCancel)
@@ -268,20 +316,20 @@ class _GameQuizPageState extends State<GameQuizPage> {
                     );
                   }
                   if (state.status == GameQuizStatus.success) {
-                    final correct =
-                        quizs.where((e) => e.selectedAnswer == e.meaning).length;
+                    final correct = quizs
+                        .where((e) => e.selectedAnswer == e.meaning)
+                        .length;
 
                     return _buildSuccess(context, correct);
                   }
                   return Scaffold(
                     appBar: _buildAppBar(context),
                     body: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ValueListenableBuilder(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: ValueListenableBuilder(
                               valueListenable: currentQuestionIndex,
                               builder: (context, value, _) {
                                 return LinearProgressIndicator(
@@ -293,10 +341,27 @@ class _GameQuizPageState extends State<GameQuizPage> {
                                 );
                               },
                             ),
-                            const Gap(height: 20),
-                            _buildCardQuestionAnswer(context),
-                          ],
-                        ),
+                          ),
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                // mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Gap(height: 20),
+                                  Center(
+                                    child: widget.settings['autoEnabled']
+                                        ? _buildCardQuestionAnswerAutoMode(
+                                            context)
+                                        : _buildCardQuestionAnswer(context),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -321,38 +386,39 @@ class _GameQuizPageState extends State<GameQuizPage> {
                   "assets/jsons/trophy.json",
                   height: MediaQuery.of(context).size.height / 4,
                 ),
-                TextCustom(
+                Text(
                   "$correct/${quizs.length} correct answers",
                   style: TextStyle(
                     // h5 -> headline
                     fontFamily: AppTheme.fontName,
                     fontWeight: FontWeight.normal,
-                    fontSize: 18,
-                    letterSpacing: 0.30,
+                    decorationThickness: 1,
+                    fontSize: 16,
+                    letterSpacing: 0.3,
                     color: Colors.white,
                   ),
                 ),
                 const Gap(height: 15),
-                TextCustom(
+                Text(
                   "Congratlation! You got",
                   style: TextStyle(
                     // h5 -> headline
                     fontFamily: AppTheme.fontName,
                     fontWeight: FontWeight.w500,
-                    fontSize: 22,
+                    fontSize: 26,
                     letterSpacing: 0.30,
                     color: Colors.white,
                   ),
                   maxLines: 2,
                 ),
                 const Gap(height: 10),
-                TextCustom(
+                Text(
                   "${correct} points",
                   style: TextStyle(
                     // h5 -> headline
                     fontFamily: AppTheme.fontName,
                     fontWeight: FontWeight.w500,
-                    fontSize: 22,
+                    fontSize: 35,
                     letterSpacing: 0.30,
                     color: Colors.green,
                   ),
@@ -383,13 +449,17 @@ class _GameQuizPageState extends State<GameQuizPage> {
                   ),
                 ],
                 const Gap(height: 20),
-                PushableButton(
-                  onPressed: () =>
-                      Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => GameQuizSummeryPage(quizs: quizs),
-                  )),
-                  text: "View result",
-                ),
+                !widget.settings['autoEnabled']
+                    ? PushableButton(
+                        onPressed: () => Navigator.of(context)
+                            .pushReplacement(MaterialPageRoute(
+                          builder: (context) =>
+                              GameQuizSummeryPage(quizs: quizs),
+                        )),
+                        text: "View result",
+                        type: PushableButtonType.quiz,
+                      )
+                    : const Gap(height: 0),
                 const Gap(height: 20),
                 PushableButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -458,18 +528,43 @@ class _GameQuizPageState extends State<GameQuizPage> {
             children: [
               row!,
               const Gap(height: 10),
-              Text(
-                "${quizs[current].question}?",
-                textAlign: TextAlign.justify,
-                maxLines: 10,
-                style: TextStyle(
-                  // h5 -> headline
-                  fontFamily: AppTheme.fontName,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                  letterSpacing: 0.27,
-                  color: Colors.white,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          right: 40), // Để giữ khoảng cách với icon
+                      child: Text(
+                        "${quizs[current].question}?",
+                        textAlign: TextAlign.justify,
+                        maxLines: 10,
+                        overflow: TextOverflow
+                            .visible, // Cho phép hiển thị nhiều dòng
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontName,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          letterSpacing: 0.27,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      widget.settings['englishQuestions']
+                          ? await textToSpeechService
+                              .speak(quizs[current].word.toString())
+                          : await textToSpeechService
+                              .speak(quizs[current].meaning.toString());
+                    },
+                    child: Icon(
+                      Icons.volume_up,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ],
               ),
               const Gap(height: 15),
               ValueListenableBuilder(
@@ -525,6 +620,171 @@ class _GameQuizPageState extends State<GameQuizPage> {
     );
   }
 
+  Widget _buildCardQuestionAnswerAutoMode(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(12),
+        color: AppTheme.lightText,
+      ),
+      child: ValueListenableBuilder(
+        valueListenable: currentQuestionIndex,
+        child: Row(
+          children: [
+            SvgPicture.asset(
+              "assets/icons/question_mark.svg",
+              height: 30,
+              width: 30,
+            ),
+            const Gap(width: 8),
+            Expanded(
+              child: Text(
+                "Select your answer",
+                style: TextStyle(
+                  // Caption -> caption
+                  fontFamily: AppTheme.fontName,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 12,
+                  letterSpacing: 0.2,
+                  color: Color.fromARGB(255, 255, 255, 255), // was lightText
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 24, 210, 86),
+                borderRadius: BorderRadius.circular(6),
+              ),
+              child: TimeCountDownWidget(
+                onFinish: () {
+                  _onCompleteQuiz(context);
+                },
+                durationInSeconds: timeDuration,
+                style: AppTheme.caption,
+              ),
+            ),
+          ],
+        ),
+        builder: (context, current, row) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              row!,
+              const Gap(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.only(
+                          right: 40), // Để giữ khoảng cách với icon
+                      child: Text(
+                        "${quizs[current].question}?",
+                        textAlign: TextAlign.justify,
+                        maxLines: 10,
+                        overflow: TextOverflow
+                            .visible, // Cho phép hiển thị nhiều dòng
+                        style: TextStyle(
+                          fontFamily: AppTheme.fontName,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          letterSpacing: 0.27,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      widget.settings['englishQuestions']
+                          ? await textToSpeechService
+                              .speak(quizs[current].word.toString())
+                          : await textToSpeechService
+                              .speak(quizs[current].meaning.toString());
+                    },
+                    child: Icon(
+                      Icons.volume_up,
+                      color: Colors.white,
+                      size: 30,
+                    ),
+                  ),
+                ],
+              ),
+              const Gap(height: 15),
+              quizs[current].selectedAnswer == ''
+                  ? ValueListenableBuilder(
+                      valueListenable: selectedIndex,
+                      builder: (context, selected, _) {
+                        return Column(
+                          children: List.generate(quizs[current].answers.length,
+                              (index) {
+                            final answer = quizs[current].answers[index];
+                            return SelectOptionTileWidget(
+                              onTap: () {
+                                setState(() {
+                                  quizs[current].selectedAnswer = answer;
+                                  selectedIndex.value = index;
+                                });
+                                // không cho thay đổi kết quả
+                                //đếm thời gian 1s sau đó gọi hàm onNextQuiz()
+                                Future.delayed(Duration(milliseconds: 1000),
+                                    () {
+                                  _onNextQuiz(context, current,
+                                      false); // Gọi hàm khi hết thời gian 1 giây
+                                });
+                              },
+                              isSelected:
+                                  quizs[current].selectedAnswer == answer ||
+                                      selected == index,
+                              style: TextStyle(
+                                fontFamily: AppTheme.fontName,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                letterSpacing: 0.27,
+                                color: Colors.white,
+                              ),
+                              text: answer.toLowerCase(),
+                            );
+                          }),
+                        );
+                      },
+                    )
+                  : Column(
+                      children: quizs[current]
+                          .answers
+                          .mapIndexed((index, e) => SelectOptionTileWidget(
+                                onTap: () {},
+                                isSelected:
+                                    quizs[current].selectedAnswer == e ||
+                                        quizs[current].meaning == e,
+                                style: TextStyle(
+                                  fontFamily: AppTheme.fontName,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  letterSpacing: 0.27,
+                                  color: Colors.white,
+                                ),
+                                text: e.toLowerCase(),
+                                color: quizs[current].meaning == e
+                                    ? Colors.green
+                                    : quizs[current].selectedAnswer == e
+                                        ? Colors.redAccent
+                                        : Color.fromARGB(255, 213, 213, 213)
+                                            .withOpacity(.3),
+                              ))
+                          .toList(),
+                    ),
+              const Gap(height: 15),
+              _buildButtons(context, current),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildButtons(BuildContext context, int current) {
     return SizedBox(
       width: MediaQuery.of(context).size.width,
@@ -561,11 +821,11 @@ class _GameQuizPageState extends State<GameQuizPage> {
               return SizedBox(
                 width: MediaQuery.of(context).size.width / 3,
                 child: PushableButton(
-                  onPressed: () => _onNextQuiz(context, current),
+                  onPressed: () => _onNextQuiz(context, current, true),
                   width: MediaQuery.of(context).size.width / 3,
                   type: quizs[current].selectedAnswer.isNotEmpty ||
                           current == quizs.length - 1
-                      ? PushableButtonType.primary
+                      ? PushableButtonType.quiz
                       : PushableButtonType.grey,
                   text: current == quizs.length - 1 ? "Done" : "Next",
                 ),
@@ -583,7 +843,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
         "Question ${currentQuestionIndex.value + 1}/${quizs.length}",
         style: AppTheme.title_appbar2,
       ),
-      backgroundColor: AppTheme.kPrimaryColor,
+      backgroundColor: Colors.purpleAccent,
       leading: IconButton(
         icon: Icon(Icons.arrow_back),
         onPressed: () {

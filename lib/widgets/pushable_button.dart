@@ -8,7 +8,7 @@ import 'package:orange_card/app_theme.dart';
 // import '../themes/app_text_theme.dart';
 import 'text.dart';
 
-enum PushableButtonType { primary, success, accent, grey, white, disable }
+enum PushableButtonType { quiz, typing, primary, success, accent, grey, white, disable }
 
 class PushableButton extends StatefulWidget {
   const PushableButton({
@@ -16,6 +16,8 @@ class PushableButton extends StatefulWidget {
     required this.onPressed,
     this.child,
     this.type = PushableButtonType.primary,
+    this.quiz = PushableButtonType.quiz,
+    this.typing = PushableButtonType.typing,
     this.text = 'Button',
     this.height = 52,
     this.width,
@@ -37,6 +39,8 @@ class PushableButton extends StatefulWidget {
   final int duration;
   final TextStyle? textStyle;
   final PushableButtonType type;
+  final PushableButtonType quiz;
+  final PushableButtonType typing;
   final VoidCallback onPressed;
   final bool borderside;
 
@@ -62,6 +66,8 @@ class _PushableButtonState extends State<PushableButton> {
       PushableButtonType.grey => Colors.grey,
       PushableButtonType.white => AppTheme.dismissibleBackground,
       PushableButtonType.disable => Colors.grey,
+      PushableButtonType.quiz => Colors.purpleAccent,
+      PushableButtonType.typing => Colors.blueAccent,
     };
     return BoxDecoration(
       color: backgroundColor,

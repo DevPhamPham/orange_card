@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/userInTopic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';

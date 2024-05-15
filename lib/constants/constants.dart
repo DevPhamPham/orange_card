@@ -22,6 +22,7 @@ class AppValueConst{
   static const maxItemLoad = 50;
   static const minWordInBagToPlay = 5;
   static const timeForQuiz = 30; // seconds
+  static const timeForTyping = 15; // seconds
   static const attendancePoint = 1;
   static const attendanceGold = 1;
 }

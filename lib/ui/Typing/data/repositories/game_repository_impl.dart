@@ -1,21 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fpdart/fpdart.dart';
+
 import '../../../../core/failure.dart';
 import '../../../../core/typedefs.dart';
 import '../../domain/repositories/game_repository.dart';
 import '../data_sources/game_remote_data_source.dart';
 
-class GameRepositoryImpl implements GameRepository {
-  final GameRemoteDataSource _remoteDataSource;
+class TypingGameRepositoryImpl implements TypingGameRepository {
+  final TypingGameRemoteDataSource _remoteDataSource;
 
-  GameRepositoryImpl(this._remoteDataSource);
+  TypingGameRepositoryImpl(this._remoteDataSource);
 
   @override
   FutureEither<void> updateUserPoint(String uid, int point) async {
     try {
       return Right(
         await _remoteDataSource.updateUserPoint(uid, {
-          'quiz_point': FieldValue.increment(point),
+          'typing_point': FieldValue.increment(point),
         }),
       );
     } on FirebaseException catch (e) {
@@ -32,7 +33,7 @@ class GameRepositoryImpl implements GameRepository {
     try {
       return Right(
         await _remoteDataSource.updateUserGold(uid, {
-          'quiz_gold': FieldValue.increment(gold),
+          'typing_gold': FieldValue.increment(gold),
         }),
       );
     } on FirebaseException catch (e) {
