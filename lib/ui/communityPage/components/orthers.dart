@@ -3,14 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/communityPage/components/card_community_item.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:orange_card/ui/skelton/topic.dart';
 import 'package:provider/provider.dart';
 
 class Orthers extends StatefulWidget {
-  const Orthers({super.key, required this.topicViewModel});
+  const Orthers(
+      {super.key, required this.topicViewModel, required this.userViewModel});
   final TopicViewModel topicViewModel;
+  final UserViewModel userViewModel;
   @override
   State<Orthers> createState() => _OrthersState();
 }
@@ -18,34 +21,42 @@ class Orthers extends StatefulWidget {
 class _OrthersState extends State<Orthers> {
   @override
   Widget build(BuildContext context) {
-    return widget.topicViewModel.isLoading
-        ? ListView.builder(
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return TopicCardSkeleton();
-            },
-          )
-        : ListView.builder(
-            itemCount: widget.topicViewModel.topicsPublic.length,
-            itemBuilder: (context, index) {
-              final topic = widget.topicViewModel.topicsPublic[index];
-              return GestureDetector(
-                onTap: () async {
-                  final currentUser = UserCurrent(
-                    username:
-                        FirebaseAuth.instance.currentUser!.email.toString(),
-                    avatar: "",
-                    topicIds: [],
-                  );
-                  await _navigateToTopicDetailScreen(
-                      context, topic, currentUser);
-                },
-                child: TopicCardCommunityItem(
-                  topic: topic,
-                ),
-              );
-            },
-          );
+    return RefreshIndicator(
+      onRefresh: () async {
+        setdata();
+      },
+      child: widget.topicViewModel.isLoading
+          ? ListView.builder(
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return TopicCardSkeleton();
+              },
+            )
+          : ListView.builder(
+              itemCount: widget.topicViewModel.topicsPublic.length,
+              itemBuilder: (context, index) {
+                final topic = widget.topicViewModel.topicsPublic[index];
+                return GestureDetector(
+                  onTap: () async {
+                    final currentUser = UserCurrent(
+                      username:
+                          FirebaseAuth.instance.currentUser!.email.toString(),
+                      avatar: "",
+                      topicIds: [],
+                    );
+                    await _navigateToTopicDetailScreen(
+                        context, topic, currentUser);
+                  },
+                  child: TopicCardCommunityItem(
+                    topic: topic,
+                    userViewModel: widget.userViewModel,
+                    like: widget.userViewModel.userCurrent!.topicIds
+                        .contains(topic.id),
+                  ),
+                );
+              },
+            ),
+    );
   }
 
   Future<void> _navigateToTopicDetailScreen(
@@ -61,5 +72,9 @@ class _OrthersState extends State<Orthers> {
             topic: topic, user: user, topicViewModel: topicViewModel),
       ),
     );
+  }
+
+  Future<void> setdata() async {
+    await widget.topicViewModel.loadTopicsPublic();
   }
 }

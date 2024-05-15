@@ -50,9 +50,9 @@ class _LibraryPageScreenState extends State<LibraryPageScreen>
             Container(
               color: Colors.white,
               child: TabBar(
+                tabs: _listTab,
                 controller: _tabController,
                 indicatorWeight: 4,
-                tabs: _listTab,
                 labelColor: Colors.white,
                 labelStyle: AppTheme.title_tabbar,
                 unselectedLabelColor: kPrimaryColor,

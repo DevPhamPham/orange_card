@@ -29,9 +29,26 @@ class UserRepository {
     }
   }
 
+  Future<UserCurrent> getUserById(String userId) async {
+    final snapshot = await _usersCollection.doc(userId).get();
+    final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+    if (data != null) {
+      final user = UserCurrent.fromMap(data);
+      return user;
+    } else {
+      throw Exception("No data available for topic with ID $userId");
+    }
+  }
+
   Future<void> updateAvatar(String userId, String newAvatar) async {
     await _usersCollection.doc(userId).update({
       'avatarUrl': newAvatar,
+    });
+  }
+
+  Future<void> updateTopicIds(String userId, List<String> newTopicIds) async {
+    await _usersCollection.doc(userId).update({
+      'topicIds': newTopicIds,
     });
   }
 
@@ -126,6 +143,26 @@ class UserRepository {
     } catch (e) {
       print('Error getting image address: $e');
       return ''; // Return an empty string or null to signify failure
+    }
+  }
+
+  Future<void> addTopicId(String userId, String topicId) async {
+    try {
+      await _usersCollection.doc(userId).update({
+        'topicIds': FieldValue.arrayUnion([topicId]),
+      });
+    } catch (e) {
+      print('Error adding topic id: $e');
+    }
+  }
+
+  Future<void> removeTopicId(String userId, String topicId) async {
+    try {
+      await _usersCollection.doc(userId).update({
+        'topicIds': FieldValue.arrayRemove([topicId]),
+      });
+    } catch (e) {
+      print('Error removing topic id: $e');
     }
   }
 }

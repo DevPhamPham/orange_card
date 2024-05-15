@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
@@ -17,5 +18,34 @@ class UserViewModel extends ChangeNotifier {
 
   bool checkCurrentUser(DocumentReference<Object?>? user) {
     return userRepository.checkCurrentUser(user);
+  }
+
+  Future<void> getUserById() async {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      _userCurrent = await userRepository.getUserById(currentUser.uid);
+      notifyListeners();
+    } else {
+      throw Exception('No authenticated user found');
+    }
+    notifyListeners();
+  }
+
+  Future<void> addTopicId(String topicId) async {
+    try {
+      await userRepository.addTopicId(
+          FirebaseAuth.instance.currentUser!.uid, topicId);
+    } catch (e) {
+      print('Error adding topic id: $e');
+    }
+  }
+
+  Future<void> removeTopicId(String topicId) async {
+    try {
+      await userRepository.removeTopicId(
+          FirebaseAuth.instance.currentUser!.uid, topicId);
+    } catch (e) {
+      print('Error removing topic id: $e');
+    }
   }
 }

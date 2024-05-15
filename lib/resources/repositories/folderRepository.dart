@@ -41,10 +41,10 @@ class FolderRepository {
     }
   }
 
-  Future<List<Topic>> getTopicInModel(List<String> topicId) async {
+  Future<List<Topic>> getTopicInModel(List<String> topicIds) async {
     try {
       List<Topic> list = [];
-      for (String id in topicId) {
+      for (String id in topicIds) {
         try {
           Topic topic = await TopicRepository().getTopicByID(id);
           list.add(topic);
