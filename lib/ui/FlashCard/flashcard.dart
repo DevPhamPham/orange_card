@@ -11,7 +11,6 @@ import 'package:orange_card/resources/viewmodels/WordViewModel.dart';
 import 'package:orange_card/ui/FlashCard/components/bottomSheet.dart';
 import 'package:orange_card/ui/FlashCard/components/cardItem.dart';
 import 'package:orange_card/ui/FlashCard/components/results.dart';
-import 'package:orange_card/constants/constants.dart';
 import 'package:swipable_stack/swipable_stack.dart';
 
 class FlashCard extends StatefulWidget {
@@ -23,7 +22,8 @@ class FlashCard extends StatefulWidget {
       {Key? key,
       required this.topicViewModel,
       required this.words,
-      required this.topic}):super(key:key);
+      required this.topic})
+      : super(key: key);
 
   @override
   State<FlashCard> createState() => _FlashCardState();
@@ -257,7 +257,9 @@ class _FlashCardState extends State<FlashCard> {
                                     onComplete: () {
                                       Navigator.pop(context);
                                     },
-                                    onLearnNotMaster: () {},
+                                    onLearnNotMaster: () {
+                                      setState(() {});
+                                    },
                                     onReuse: () {},
                                   ),
                                 )));

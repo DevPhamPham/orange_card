@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
@@ -66,7 +68,7 @@ class _TopicScreenState extends State<TopicScreen> {
                 onChanged: _filterTopic,
               ),
             ),
-            _buildTopicList(),
+            Expanded(child: _buildTopicList()),
           ],
         ),
       ),

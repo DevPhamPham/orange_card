@@ -140,7 +140,7 @@ class ResultFlashCard extends StatelessWidget {
                       ),
                       onPressed: () {
                         onComplete();
-                        Navigator.of(context).pop(); // Close the dialog
+                        Navigator.of(context).pop();
                       },
                       child: const Text('Hoàn Thành'),
                     ),
