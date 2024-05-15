@@ -125,7 +125,7 @@ class _HomePageBodyState extends State<HomePageBody> {
         Provider.of<TopicViewModel>(context, listen: false);
 
     topicViewModel.clearTopic();
-    topicViewModel.loadDetailTopics(topic.id!);
+    await topicViewModel.loadDetailTopics(topic.id!);
 
     if (which == 1) {
       //quiz
