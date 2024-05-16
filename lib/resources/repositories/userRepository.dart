@@ -59,6 +59,15 @@ class UserRepository {
     return users;
   }
 
+  Future<Map<String,int>> getAchievementUsersById(String userId) async {
+    UserCurrent users = await getUserById(userId);
+      Map<String,int> res = {
+        "point": (users.quiz_point ?? 0) + (users.typing_point ?? 0),
+        "gold": (users.quiz_gold ?? 0) + (users.typing_gold ?? 0)
+      };
+    return res;
+  }
+
   Future<void> updateAvatar(String userId, String newAvatar) async {
     await _usersCollection.doc(userId).update({
       'avatarUrl': newAvatar,

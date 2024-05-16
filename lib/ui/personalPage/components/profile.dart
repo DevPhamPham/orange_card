@@ -3,7 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
@@ -16,6 +18,8 @@ import 'package:orange_card/constants/constants.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 // import 'dart:typed_data';
 import 'package:orange_card/resources/services/notification_service.dart';
+import 'package:orange_card/widgets/gap.dart';
+import 'package:orange_card/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -45,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   SharedPreferences? _prefs;
 
   late UserRepository _userRepository = UserRepository();
+  late Map<String, int> achievements;
   late Future<void> _initDataFuture;
 
   @override
@@ -162,6 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     if (user != null) {
       userDB = await _userRepository.getUserById(user.uid);
+      achievements = await _userRepository.getAchievementUsersById(user.uid);
     }
     String username = userDB?.username ?? "";
     _displayName = user?.displayName != null && user!.displayName!.isNotEmpty
@@ -188,7 +194,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   Future<void> _refreshData(BuildContext context) async {
-
     // Set state để rebuild giao diện
     setState(() {
       _initDataFuture = initializeData();
@@ -516,11 +521,12 @@ class _ProfileScreenState extends State<ProfileScreen>
                               children: [
                                 CircleAvatar(
                                   radius: 50,
-                                  backgroundImage: _avatarUrl.isNotEmpty
-                                      ? Image.network(_avatarUrl).image
-                                      : AssetImage(
-                                          "assets/images/default_avatar.jpg",
-                                        ),
+                                  backgroundImage:
+                                      _avatarUrl != '' || _avatarUrl.isNotEmpty
+                                          ? Image.network(_avatarUrl).image
+                                          : AssetImage(
+                                              "assets/images/default_avatar.jpg",
+                                            ),
                                 ),
                                 if (_isLoading)
                                   Center(
@@ -529,7 +535,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ],
                             ),
                           ),
-                    
+
                           const SizedBox(height: 16.0),
                           Row(
                             children: [
@@ -563,7 +569,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ],
                           ),
-                    
+
                           // TabBar for profile sections
                           TabBar(
                             controller: _tabController,
@@ -578,7 +584,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                         ],
                       ),
                     ),
-                
+
                     // TabBarView to display corresponding content
                     Expanded(
                       child: TabBarView(
@@ -659,7 +665,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ),
                           ),
-                
+
                           // Cài đặt tab
                           SingleChildScrollView(
                             child: Container(
@@ -739,7 +745,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ),
                           ),
-                
+
                           // Thành tựu tab
                           SingleChildScrollView(
                             child: Center(
@@ -748,36 +754,92 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      'Thành tựu',
-                                      style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 24),
-                                    _buildAchievementCard(
-                                      title: 'Personal achievements',
-                                      content: [
-                                        'Flutter: 15 / 30 topics',
-                                        'Firebase: 10 / 25 topics',
-                                        'Dart: 20 / 40 topics',
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Thành tựu',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ],
                                     ),
-                                    SizedBox(height: 24),
-                                    _buildAchievementCard(
-                                      title: 'Community Achievements',
-                                      content: [
-                                        'Rank tổng thể: Top 10%',
-                                        'Flutter: #3',
-                                        'Firebase: #5',
-                                        'Dart: #1',
+                                    const Gap(
+                                      height: 14,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 5,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "You got",
+                                                style: AppTheme.headline,
+                                                // overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                              Text(
+                                                "${achievements["point"]}",
+                                                style: TextStyle(
+                                                  fontSize: 30,
+                                                  color: Colors.yellow[900],
+                                                ),
+                                              ),
+                                              Text(
+                                                "points",
+                                                style: AppTheme.headline,
+                                              ),
+                                              const Gap(height: 32),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    "assets/icons/gold.svg",
+                                                    height: 30,
+                                                    width: 30,
+                                                  ),
+                                                  const Gap(width: 5),
+                                                  Text(
+                                                    "x${achievements["gold"]}",
+                                                    style: TextStyle(
+                                                      // h5 -> headline
+                                                      fontFamily:
+                                                          AppTheme.fontName,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                      letterSpacing: 0.30,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 10,
+                                          child: Transform.scale(
+                                            scale: 1.2,
+                                            child: SvgPicture.asset(
+                                              'assets/icons/to_the_goals.svg', // Đường dẫn đến file SVG của bạn
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -788,33 +850,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           }
         });
   }
-}
-
-Widget _buildAchievementCard(
-    {required String title, required List<String> content}) {
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12.0),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Divider(color: Colors.grey[300], thickness: 1, height: 24),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: content.map((item) => Text(item)).toList(),
-          ),
-        ],
-      ),
-    ),
-  );
 }
 
 class ProfileItem extends StatelessWidget {

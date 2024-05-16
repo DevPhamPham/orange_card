@@ -15,6 +15,7 @@ import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
 import 'package:orange_card/ui/Quiz/game_quiz_setting_page.dart';
 import 'package:orange_card/ui/Typing/game_typing_setting_page.dart';
+import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'package:orange_card/resources/models/topic.dart';
@@ -179,9 +180,9 @@ class _HomePageBodyState extends State<HomePageBody> {
       );
     } else {
       //flashcard
-      logger.i(topicViewModel.topic.title);
-      logger.d(topicViewModel.isLoading);
-      logger.f("topic : ${topic.title}");
+      // logger.i(topicViewModel.topic.title);
+      // logger.d(topicViewModel.isLoading);
+      // logger.f("topic : ${topic.title}");
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -191,6 +192,25 @@ class _HomePageBodyState extends State<HomePageBody> {
                 words: topicViewModel.words)),
       );
     }
+  }
+
+  Future<void> _navigateToTopicDetailScreen(
+      BuildContext context, Topic topic, UserCurrent user) async {
+    final TopicViewModel topicViewModel =
+        Provider.of<TopicViewModel>(context, listen: false);
+    final UserViewModel userViewModel =
+        Provider.of<UserViewModel>(context, listen: false);
+    UserCurrent? userCurrent =
+        await userViewModel.getUserByDocumentReference(topic.user);
+    topicViewModel.clearTopic();
+    topicViewModel.loadDetailTopics(topic.id!);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TopicDetail(
+            topic: topic, user: userCurrent!, topicViewModel: topicViewModel),
+      ),
+    );
   }
 
   Topic getRandomTopic() {
@@ -401,13 +421,13 @@ class _HomePageBodyState extends State<HomePageBody> {
   Widget myRanks() {
     // Bỏ qua 3 phần tử đầu và lấy 6 phần tử tiếp theo
     List<UserCurrent> topUsers = this.listUser.skip(3).take(6).toList();
-    for (UserCurrent t in topUsers) {
-      logger.f(t.username);
-      logger.i(t.quiz_gold);
-      logger.i(t.quiz_point);
-      logger.i(t.typing_gold);
-      logger.i(t.typing_point);
-    }
+    // for (UserCurrent t in topUsers) {
+    //   logger.f(t.username);
+    //   logger.i(t.quiz_gold);
+    //   logger.i(t.quiz_point);
+    //   logger.i(t.typing_gold);
+    //   logger.i(t.typing_point);
+    // }
     return ListView.builder(
       shrinkWrap: true, // Đảm bảo ListView không chiếm toàn bộ không gian
       physics: NeverScrollableScrollPhysics(), // Không cuộn bên trong ListView
@@ -597,7 +617,10 @@ class _HomePageBodyState extends State<HomePageBody> {
               } else {
                 UserCurrent? user = snapshot.data;
                 return InkWell(
-                  onTap: () {},
+                  onTap: () async{
+                    await _navigateToTopicDetailScreen(
+                          context, topic, user);
+                  },
                   child: Container(
                     margin: const EdgeInsets.only(right: 10.0),
                     child: Card(
