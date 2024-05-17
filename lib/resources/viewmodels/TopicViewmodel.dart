@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/config/app_logger.dart';
-import 'package:orange_card/resources/repositories/folderRepository.dart';
 import 'package:orange_card/resources/repositories/topicRepository.dart';
 import 'package:orange_card/resources/repositories/wordRepository.dart';
 import 'package:orange_card/resources/utils/enum.dart';

@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class ResultFlashCard extends StatelessWidget {
@@ -111,6 +109,7 @@ class ResultFlashCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   onLearnNotMaster();
+                  Navigator.of(context).pop();
                 },
                 child: const Text('Học các từ chưa thuộc'),
               ),
@@ -125,6 +124,7 @@ class ResultFlashCard extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         onReuse();
+                        Navigator.of(context).pop();
                       },
                       child: const Text('Làm lại'),
                     ),

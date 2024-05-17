@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';
@@ -11,7 +12,6 @@ import 'package:file_picker/file_picker.dart';
 
 class CSVService {
   CSVService();
-
   Future<String?> makeFile(
       BuildContext context, List<Word> words, String name) async {
     try {
@@ -24,15 +24,11 @@ class CSVService {
           return null;
         }
       }
-
-      // Permission granted, proceed with file creation
       List<List<dynamic>> rows = [];
       rows.add(['English', 'Vietnamese']);
       for (var word in words) {
         rows.add([word.english, word.vietnamese]);
       }
-
-      // Get the directory for saving the file
       Directory directory;
       if (Platform.isAndroid) {
         directory = Directory("/storage/emulated/0/Download");
@@ -47,8 +43,6 @@ class CSVService {
       if (!(await orangecardDirectory.exists())) {
         await orangecardDirectory.create(recursive: true);
       }
-
-      // Create the file and write data to it
       String csvFilePath = '$orangecardPath/${name.replaceAll(" ", "")}.csv';
       File csvFile = File(csvFilePath);
       String csvData = const ListToCsvConverter().convert(rows);
@@ -62,9 +56,8 @@ class CSVService {
 
   Future<List<Word>> loadCSV(FilePickerResult filePickerResult) async {
     List<Word> words = [];
-
     try {
-      if (filePickerResult != null && filePickerResult.files.isNotEmpty) {
+      if (filePickerResult.files.isNotEmpty) {
         PlatformFile csvFile = filePickerResult.files.first;
         if (csvFile.extension == 'csv') {
           final input = File(csvFile.path!).openRead();
@@ -72,6 +65,7 @@ class CSVService {
               .transform(utf8.decoder)
               .transform(const CsvToListConverter())
               .toList();
+          logger.d(fields);
           for (var i = 1; i < fields.length; i++) {
             String english = fields[i][0];
             String vietnamese = fields[i][1];

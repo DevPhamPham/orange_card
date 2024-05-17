@@ -1,7 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
@@ -30,10 +28,8 @@ class _TopicScreenState extends State<TopicScreen> {
 
   @override
   void initState() {
-    super.initState();
     filteredTopics = widget.topicViewModel.topics;
-
-    // setdata();
+    super.initState();
   }
 
   void _filterTopic(String query) {
@@ -46,10 +42,13 @@ class _TopicScreenState extends State<TopicScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // filteredTopics = widget.topicViewModel.topics;
+
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: () async {
           await setdata();
+          setState(() {});
         },
         child: Column(
           children: [
@@ -89,7 +88,7 @@ class _TopicScreenState extends State<TopicScreen> {
   Widget _buildTopicList() {
     return widget.topicViewModel.isLoading
         ? ListView.builder(
-            itemCount: 5, // Adjust the number of skeleton cards as needed
+            itemCount: 5,
             itemBuilder: (context, index) {
               return TopicCardSkeleton();
             },
@@ -102,14 +101,7 @@ class _TopicScreenState extends State<TopicScreen> {
                   final topic = filteredTopics[index];
                   return GestureDetector(
                     onTap: () async {
-                      final currentUser = UserCurrent(
-                        username:
-                            FirebaseAuth.instance.currentUser!.email.toString(),
-                        avatar: "",
-                        topicIds: [],
-                      );
-                      await _navigateToTopicDetailScreen(
-                          context, topic, currentUser);
+                      await _navigateToTopicDetailScreen(context, topic);
                     },
                     child: TopicCardItem(
                       topic: topic,
@@ -133,7 +125,7 @@ class _TopicScreenState extends State<TopicScreen> {
   }
 
   Future<void> _navigateToTopicDetailScreen(
-      BuildContext context, Topic topic, UserCurrent user) async {
+      BuildContext context, Topic topic) async {
     final TopicViewModel topicViewModel =
         Provider.of<TopicViewModel>(context, listen: false);
     final UserViewModel userViewModel =
