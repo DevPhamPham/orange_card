@@ -9,8 +9,6 @@ import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/detail_folder/topicitem.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
-import 'package:orange_card/ui/libraryPage/topic/components/card_item.dart';
-import 'package:orange_card/ui/libraryPage/topic/screens/add_topic_screen.dart';
 import 'package:orange_card/ui/skelton/topic.dart';
 import 'package:provider/provider.dart';
 import '../../../../resources/viewmodels/TopicViewmodel.dart';

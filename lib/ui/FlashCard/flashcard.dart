@@ -3,6 +3,7 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/TTSService.dart';
@@ -36,6 +37,8 @@ class _FlashCardState extends State<FlashCard> {
   bool isFrontStartSelected = false;
   bool isBackStartSelected = false;
   List<Word> currentWords = [];
+  List<Word> leflWords = [];
+  List<Word> rightWords = [];
   ValueNotifier<bool> _isFlipped = ValueNotifier<bool>(false);
   FlipCardController _flipCardController = FlipCardController();
   ValueNotifier<int> _currentIndexNotifier = ValueNotifier<int>(1);
@@ -243,8 +246,10 @@ class _FlashCardState extends State<FlashCard> {
                     onSwipeCompleted: (index, direction) {
                       if (direction == SwipeDirection.left) {
                         _currentLeftNumber.value += 1;
+                        leflWords.add(currentWords[index]);
                       } else if (direction == SwipeDirection.right) {
                         _currentRightNumber.value += 1;
+                        rightWords.add(currentWords[index]);
                       }
                       if (_currentIndexNotifier.value == currentWords.length) {
                         showDialog(
@@ -258,9 +263,13 @@ class _FlashCardState extends State<FlashCard> {
                                       Navigator.pop(context);
                                     },
                                     onLearnNotMaster: () {
-                                      setState(() {});
+                                      logger.i(leflWords.length);
+                                      resetData(leflWords);
+                                      logger.i(currentWords.length);
                                     },
-                                    onReuse: () {},
+                                    onReuse: () {
+                                      resetData(widget.words);
+                                    },
                                   ),
                                 )));
                       } else {
@@ -319,5 +328,18 @@ class _FlashCardState extends State<FlashCard> {
         ],
       ),
     );
+  }
+
+  void resetData(List<Word> words) {
+    setState(() {
+      currentWords = List.from(words);
+      leflWords.clear();
+      rightWords.clear();
+      _currentIndexNotifier.value = 1;
+      _currentLeftNumber.value = 0;
+      _currentRightNumber.value = 0;
+      _isFlipped.value = false;
+      _swipableStackController.currentIndex = 0;
+    });
   }
 }

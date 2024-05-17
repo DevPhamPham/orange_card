@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
@@ -34,12 +35,13 @@ class _TopicCardItemState extends State<TopicCardItem> {
 
   Future<void> _fetchUserData() async {
     try {
-      UserCurrent? user = await UserRepository().userFromDocumentReference(
-          widget.topic.user as DocumentReference<Map<String, dynamic>>?);
+      UserCurrent? user =
+          await UserRepository().getUserByDocumentReference(widget.topic.user);
       setState(() {
         _avatarUrl = user?.avatar;
         _username = user?.username;
       });
+      logger.d(user);
     } catch (e) {
       print("Error fetching user data: $e");
     }
