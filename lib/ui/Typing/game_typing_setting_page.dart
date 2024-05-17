@@ -25,6 +25,63 @@ class _GameTypingSettingsPageState extends State<GameTypingSettingsPage> {
   late bool isShuffleEnabled = false;
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkWordCount();
+    });
+  }
+
+  void _checkWordCount() {
+    if ((widget.topic.numberOfChildren!) < 4) {
+      Future.delayed(Duration.zero, () {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return WillPopScope(
+              onWillPop: () async {
+                // Cho phép quay lại màn hình trước khi ấn nút "Quit"
+                return true;
+              },
+              child: AlertDialog(
+                title: Text(
+                  'Insufficient Words',
+                  style: TextStyle(color: Colors.red),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'The topic must have at least 4 words to start the quiz.',
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    SizedBox(height: 20),
+                    Align(
+                      alignment: Alignment.center,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Đóng dialog
+                          Navigator.pop(context); // Quay lại màn hình trước đó
+                        },
+                        child: Text('Quit'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -100,24 +157,72 @@ class _GameTypingSettingsPageState extends State<GameTypingSettingsPage> {
             const Gap(height: 16),
             ElevatedButton(
               onPressed: () {
-                // Lưu các tùy chọn vào biến settings
-                var settings = {
-                  "autoEnabled": isAuto,
-                  "englishQuestions": isEnglishQuestions,
-                  "shuffleEnabled": isShuffleEnabled,
-                };
+                if ((widget.topic.numberOfChildren!) < 4) {
+                  Future.delayed(Duration.zero, () {
+                    showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return WillPopScope(
+                          onWillPop: () async {
+                            // Cho phép quay lại màn hình trước khi ấn nút "Quit"
+                            return true;
+                          },
+                          child: AlertDialog(
+                            title: Text(
+                              'Insufficient Words',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'The topic must have at least 4 words to start the quiz.',
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                SizedBox(height: 20),
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.pop(context); // Đóng dialog
+                                      Navigator.pop(
+                                          context); // Quay lại màn hình trước đó
+                                    },
+                                    child: Text('Quit'),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  });
+                } else {
+                  // Lưu các tùy chọn vào biến settings
+                  var settings = {
+                    "autoEnabled": isAuto,
+                    "englishQuestions": isEnglishQuestions,
+                    "shuffleEnabled": isShuffleEnabled,
+                  };
 
-                // Chuyển đến GameTypingPage và truyền settings
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => GameTypingPage(
-                      settings: settings,
-                      topicViewModel: widget.topicViewModel,
-                      words: widget.topicViewModel.words,
+                  // Chuyển đến GameTypingPage và truyền settings
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => GameTypingPage(
+                        settings: settings,
+                        topicViewModel: widget.topicViewModel,
+                        words: widget.topicViewModel.words,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               },
               child: Text('Start Typing Game'),
               style:

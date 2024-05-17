@@ -236,13 +236,11 @@ class _HomePageBodyState extends State<HomePageBody> {
   }
 
   Future<void> _refreshData(BuildContext context) async {
-    // Gọi lại các phương thức lấy dữ liệu của bạn
-    await getTopicByUser();
-    await getTopicFromCommunity();
-    await getWord();
 
     // Set state để rebuild giao diện
-    setState(() {});
+      await initializeData();
+    setState(() {
+    });
 
     // Hoàn thành refresh
     ScaffoldMessenger.of(context).showSnackBar(
