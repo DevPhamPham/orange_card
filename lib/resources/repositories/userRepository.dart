@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/user.dart';
 
 class UserRepository {
@@ -109,12 +110,13 @@ class UserRepository {
   Future<UserCurrent?> getUserByDocumentReference(
       DocumentReference? userRef) async {
     if (userRef == null) {
-      return null; // Return null if the user reference is null
+      return null;
     }
 
     try {
       DocumentSnapshot<Object?> snapshot = await userRef.get();
       if (snapshot.exists) {
+        logger.e(snapshot.data());
         return UserCurrent.fromMap(snapshot.data()! as Map<String, dynamic>);
       } else {
         print('User document does not exist');

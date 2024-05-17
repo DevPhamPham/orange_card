@@ -7,6 +7,7 @@ class MessageUtils {
         content: Text(message),
         backgroundColor: Colors.green,
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating, // Thêm dòng này để tăng kích thước
       ),
     );
   }
@@ -17,6 +18,7 @@ class MessageUtils {
         content: Text(message),
         backgroundColor: Colors.red,
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating, // Thêm dòng này để tăng kích thước
       ),
     );
   }
@@ -27,6 +29,7 @@ class MessageUtils {
         content: Text(message),
         backgroundColor: Colors.amber,
         duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating, // Thêm dòng này để tăng kích thước
       ),
     );
   }

@@ -11,7 +11,7 @@ class DetailTopicSkeletonLoading extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Container(
-          margin: const EdgeInsets.all(5),
+          margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
           child: Card(
             color: Colors.grey[300],
             elevation: 5,
@@ -84,7 +84,7 @@ class DetailTopicSkeletonLoading extends StatelessWidget {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: 5, // Number of skeletons for word items
+            itemCount: 8, // Number of skeletons for word items
             itemBuilder: (context, index) {
               return WordItemSkeleton();
             },

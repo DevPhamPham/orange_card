@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
@@ -255,14 +256,19 @@ class _TopicDetailState extends State<TopicDetail> {
                       ),
                       InkWell(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => GameQuizSettingsPage(
+                          logger.d(widget.topic.numberOfChildren);
+                          if (widget.topic.numberOfChildren! < 4) {
+                            MessageUtils.showWarningMessage(context,
+                                "Chủ đề này cần phải có 4 từ vựng mới tham gia Quiz ");
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => GameQuizSettingsPage(
                                       topicViewModel: topicViewModel,
-                                      topic: widget.topic
-                                    )),
-                          );
+                                      topic: widget.topic)),
+                            );
+                          }
                         },
                         child: const Column(
                           children: [

@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:orange_card/app_theme.dart';
@@ -49,14 +48,7 @@ class _MyBagsState extends State<MyBags> {
                 final topic = widget.topicViewModel.topcicsSaved[index];
                 return GestureDetector(
                   onTap: () async {
-                    final currentUser = UserCurrent(
-                      username:
-                          FirebaseAuth.instance.currentUser!.email.toString(),
-                      avatar: "",
-                      topicIds: [],
-                    );
-                    await _navigateToTopicDetailScreen(
-                        context, topic, currentUser);
+                    await _navigateToTopicDetailScreen(context, topic);
                   },
                   child: TopicCardCommunityItem(
                     topic: topic,
@@ -71,16 +63,20 @@ class _MyBagsState extends State<MyBags> {
   }
 
   Future<void> _navigateToTopicDetailScreen(
-      BuildContext context, Topic topic, UserCurrent user) async {
+      BuildContext context, Topic topic) async {
     final TopicViewModel topicViewModel =
         Provider.of<TopicViewModel>(context, listen: false);
+    final UserViewModel userViewModel =
+        Provider.of<UserViewModel>(context, listen: false);
+    UserCurrent? owner =
+        await userViewModel.getUserByDocumentReference(topic.user);
     topicViewModel.clearTopic();
     topicViewModel.loadDetailTopics(topic.id!);
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => TopicDetail(
-            topic: topic, user: user, topicViewModel: topicViewModel),
+            topic: topic, user: owner!, topicViewModel: topicViewModel),
       ),
     );
   }

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/userInTopic.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
@@ -14,75 +13,87 @@ class TopicRepository {
       FirebaseFirestore.instance.collection('topics');
 
   Future<void> addTopic(Topic topic, List<Word> words) async {
-    topic.user = _usersCollection.doc(FirebaseAuth.instance.currentUser!.uid);
-    DocumentReference documentReference =
-        await _topicsCollection.add(topic.toMap());
-    CollectionReference wordCollection = FirebaseFirestore.instance
-        .collection("topics/${documentReference.id}/words");
-    for (Word word in words) {
-      await wordCollection.add(word.toMap());
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    try {
+      DocumentReference topicRef = _topicsCollection.doc();
+      batch.set(topicRef, topic.toMap());
+      batch.update(topicRef, {
+        'user': _usersCollection.doc(FirebaseAuth.instance.currentUser!.uid)
+      });
+      CollectionReference wordCollection = topicRef.collection('words');
+      for (var word in words) {
+        batch.set(wordCollection.doc(), word.toMap());
+      }
+      await batch.commit();
+    } catch (e) {
+      print('Error adding topic: $e');
+      throw e;
     }
   }
 
   Future<void> deleteTopic(String id) async {
-    try {
-      final userCollection = _usersCollection
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('topics');
+    WriteBatch batch = FirebaseFirestore.instance.batch();
 
-      final querySnapshot =
-          await userCollection.where('id', isEqualTo: id).get();
-      for (final doc in querySnapshot.docs) {
-        await doc.reference.delete();
+    try {
+      final topicRef = _topicsCollection.doc(id);
+      final wordSnapshots = await topicRef.collection('words').get();
+
+      for (final doc in wordSnapshots.docs) {
+        batch.delete(doc.reference);
       }
-      await _topicsCollection.doc(id).delete();
+
+      batch.delete(topicRef);
+      await batch.commit();
     } catch (e) {
       print('Error deleting topic: $e');
+      throw e;
     }
   }
 
   Future<void> updateTopic(Topic topic, List<Word> words) async {
     WriteBatch batch = FirebaseFirestore.instance.batch();
-    batch.update(_topicsCollection.doc(topic.id), topic.toMap());
-    QuerySnapshot wordSnapshot = await FirebaseFirestore.instance
-        .collection("topics/${topic.id}/words")
-        .get();
-    for (DocumentSnapshot doc in wordSnapshot.docs) {
-      batch.delete(doc.reference);
+
+    try {
+      final topicRef = _topicsCollection.doc(topic.id);
+      batch.update(topicRef, topic.toMap());
+      final wordCollection = topicRef.collection('words');
+      final wordSnapshots = await wordCollection.get();
+      for (final doc in wordSnapshots.docs) {
+        batch.delete(doc.reference);
+      }
+
+      for (var word in words) {
+        batch.set(wordCollection.doc(), word.toMap());
+      }
+      batch.update(topicRef, {'numberOfChildren': words.length});
+      await batch.commit();
+    } catch (e) {
+      print('Error updating topic: $e');
+      throw e;
     }
-    for (Word word in words) {
-      batch.set(
-          FirebaseFirestore.instance
-              .collection("topics/${topic.id}/words")
-              .doc(),
-          word.toMap());
-    }
-    await batch.commit();
   }
 
   Future<List<Topic>> getAllTopicsByUserId(String userId,
       {int limit = 10, DocumentSnapshot? startAfter}) async {
     final userRef = FirebaseFirestore.instance.doc("/users/$userId");
-    final snapshot =
-        await _topicsCollection.where("user", isEqualTo: userRef).get();
-    final List<Topic> topics = [];
-    for (final topicDoc in snapshot.docs) {
-      final topicId = topicDoc.id;
-      final topicSnapshot = await _topicsCollection.doc(topicId).get();
-      if (topicSnapshot.exists) {
-        final topic = _fromSnapshot(topicSnapshot);
-        topics.add(topic);
-      }
+    Query query =
+        _topicsCollection.where("user", isEqualTo: userRef).limit(limit);
+
+    if (startAfter != null) {
+      query = query.startAfterDocument(startAfter);
     }
-    return topics;
+
+    final snapshot = await query.get();
+    return snapshot.docs.map((doc) => _fromSnapshot(doc)).toList();
   }
 
   Future<Topic> getTopicByID(String id) async {
     final snapshot = await _topicsCollection.doc(id).get();
-    final Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+    final data = snapshot.data() as Map<String, dynamic>?;
+
     if (data != null) {
-      final topic = Topic.fromMap(data, id);
-      return topic;
+      return Topic.fromMap(data, id);
     } else {
       throw Exception("No data available for topic with ID $id");
     }
@@ -91,12 +102,9 @@ class TopicRepository {
   Future<List<UserInTopic>> getRank(String topicId) async {
     final snapshot =
         await _topicsCollection.doc(topicId).collection('ranks').get();
-    final List<UserInTopic> listRank = [];
-    for (final rank in snapshot.docs) {
-      final user = UserInTopic.fromMap(rank.data(), rank.id);
-      listRank.add(user);
-    }
-    return listRank;
+    return snapshot.docs
+        .map((doc) => UserInTopic.fromMap(doc.data(), doc.id))
+        .toList();
   }
 
   Future<void> addRank(UserInTopic user, String topicId) async {
@@ -104,23 +112,10 @@ class TopicRepository {
   }
 
   Future<List<Topic>> getTopicsPublic() async {
-    final snapshot = await _topicsCollection.get();
-    final List<Topic> topics = [];
-
-    for (final topicDoc in snapshot.docs) {
-      final topicId = topicDoc.id;
-      final topicSnapshot = await _topicsCollection.doc(topicId).get();
-
-      if (topicSnapshot.exists) {
-        final topic = _fromSnapshot(topicSnapshot);
-        topic.id = topicId;
-        if (topic.status == STATUS.PUBLIC) {
-          topics.add(topic);
-        }
-      }
-    }
-
-    return topics;
+    final snapshot = await _topicsCollection
+        .where('status', isEqualTo: EnumToString.convertToString(STATUS.PUBLIC))
+        .get();
+    return snapshot.docs.map((doc) => _fromSnapshot(doc)).toList();
   }
 
   Future<List<Topic>> getTopicsSaved(String userId) async {
@@ -129,9 +124,11 @@ class TopicRepository {
       if (!userDoc.exists) {
         return [];
       }
+
       final List<dynamic> topicIds = userDoc['topicIds'];
       final List<Topic> savedTopics = [];
-      for (final topicId in topicIds) {
+
+      for (var topicId in topicIds) {
         final topicDoc = await _topicsCollection.doc(topicId).get();
         if (topicDoc.exists) {
           final topic = _fromSnapshot(topicDoc);
@@ -140,6 +137,7 @@ class TopicRepository {
           }
         }
       }
+
       return savedTopics;
     } catch (e) {
       print('Error fetching saved topics: $e');
@@ -149,14 +147,11 @@ class TopicRepository {
 
   Future<void> setStatusTopic(String status, String id) async {
     try {
-      DocumentReference topicRef =
-          FirebaseFirestore.instance.collection('topics').doc(id);
-      Map<String, dynamic> dataToUpdate = {
-        'status': status,
-      };
-      await topicRef.update(dataToUpdate);
+      final topicRef = _topicsCollection.doc(id);
+      await topicRef.update({'status': status});
     } catch (error) {
-      print(error.toString());
+      print('Error setting status: $error');
+      throw error;
     }
   }
 
@@ -168,9 +163,7 @@ class TopicRepository {
       creationTime: data['creationTime'],
       numberOfChildren: data['numberOfChildren'],
       learnedWords: data['learnedWords'],
-      status: data['status'] != null
-          ? EnumToString.fromString(STATUS.values, data['status'])
-          : null,
+      status: EnumToString.fromString(STATUS.values, data['status']),
       updateTime: data['updateTime'],
       user: data['user'] as DocumentReference?,
       views: data['views'],
