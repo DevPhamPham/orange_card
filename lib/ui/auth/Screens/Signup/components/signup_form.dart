@@ -113,7 +113,7 @@ class _SignUpFormState extends State<SignUpForm> {
                         email: _emailTextController.text,
                         password: _passwordTextController.text)
                     .then((value) async {
-                  await UserRepository().create("", "", []);
+                  await UserRepository().create(_emailTextController.text.split('@').first, "", []);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(

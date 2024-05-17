@@ -3,13 +3,19 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/resources/repositories/userRepository.dart';
+import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
 import 'package:orange_card/ui/Quiz/game_quiz_setting_page.dart';
 import 'package:orange_card/ui/Typing/game_typing_setting_page.dart';
+import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'package:orange_card/resources/models/topic.dart';
@@ -18,6 +24,7 @@ import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/repositories/topicRepository.dart';
 import 'package:orange_card/resources/repositories/wordRepository.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
+import 'package:orange_card/resources/utils/enum.dart';
 
 class HomePageBody extends StatefulWidget {
   const HomePageBody({
@@ -31,23 +38,46 @@ class HomePageBody extends StatefulWidget {
 class _HomePageBodyState extends State<HomePageBody> {
   late TopicRepository _topicRepository = TopicRepository();
   late WordRepository _wordRepository = WordRepository();
+  late UserRepository _userRepository = UserRepository();
+  late ValueNotifier<Word?> word = ValueNotifier<Word?>(null);
+  late Future<void> _initDataFuture;
 
-  late List<Topic> topicByUser;
-  late List<Topic> topicFromCommunity;
-  late List<List<Word>> eveWord;
-  late List<UserCurrent> listRankUsers;
+  late List<Topic> topicByUser = [];
+  late List<Topic> topicFromCommunity = [];
+  late List<List<Word>> eveWord = [];
+  late List<UserCurrent> listUser = [];
 
   @override
   void initState() {
     super.initState();
-    initializeData();
+    this._initDataFuture = initializeData();
+  }
+
+  // Hàm để cập nhật từ mới
+  Future<void> updateWord() async {
+    this.word.value = getRandomEverydayWord(); // Lấy từ mới ngẫu nhiên
   }
 
   Future<void> initializeData() async {
-    await getTopicByUser();
-    await getTopicFromCommunity();
-    await getWord();
-    // this.listRankUsers = getListRankUsers();
+    try {
+      await getTopicByUser();
+      await getTopicFromCommunity();
+      await getWord();
+      await updateWord();
+      this.listUser = await _userRepository.getRankedUsers();
+
+      // List<UserCurrent> test = await _userRepository.getRankedUsers();
+      // for (UserCurrent t in test) {
+      //   logger.f(t.username);
+      //   logger.i(t.quiz_gold);
+      //   logger.i(t.quiz_point);
+      //   logger.i(t.typing_gold);
+      //   logger.i(t.typing_point);
+      // }
+    } catch (e) {
+      // Xử lý nếu có lỗi xảy ra
+      print('Error initializing data: $e');
+    }
   }
 
   Future<void> getTopicByUser() async {
@@ -62,6 +92,7 @@ class _HomePageBodyState extends State<HomePageBody> {
   Future<void> getTopicFromCommunity() async {
     try {
       this.topicFromCommunity = await _topicRepository.getTopicsPublic();
+      setState(() {}); // Trigger a rebuild after data is loaded
     } catch (e) {
       print('Error loading topics: $e');
     }
@@ -149,9 +180,9 @@ class _HomePageBodyState extends State<HomePageBody> {
       );
     } else {
       //flashcard
-      logger.i(topicViewModel.topic.title);
-      logger.d(topicViewModel.isLoading);
-      logger.f("topic : ${topic.title}");
+      // logger.i(topicViewModel.topic.title);
+      // logger.d(topicViewModel.isLoading);
+      // logger.f("topic : ${topic.title}");
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -161,6 +192,25 @@ class _HomePageBodyState extends State<HomePageBody> {
                 words: topicViewModel.words)),
       );
     }
+  }
+
+  Future<void> _navigateToTopicDetailScreen(
+      BuildContext context, Topic topic, UserCurrent user) async {
+    final TopicViewModel topicViewModel =
+        Provider.of<TopicViewModel>(context, listen: false);
+    final UserViewModel userViewModel =
+        Provider.of<UserViewModel>(context, listen: false);
+    UserCurrent? userCurrent =
+        await userViewModel.getUserByDocumentReference(topic.user);
+    topicViewModel.clearTopic();
+    topicViewModel.loadDetailTopics(topic.id!);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TopicDetail(
+            topic: topic, user: userCurrent!, topicViewModel: topicViewModel),
+      ),
+    );
   }
 
   Topic getRandomTopic() {
@@ -185,6 +235,21 @@ class _HomePageBodyState extends State<HomePageBody> {
     return listWord[indexRandom];
   }
 
+  Future<void> _refreshData(BuildContext context) async {
+    // Gọi lại các phương thức lấy dữ liệu của bạn
+    await getTopicByUser();
+    await getTopicFromCommunity();
+    await getWord();
+
+    // Set state để rebuild giao diện
+    setState(() {});
+
+    // Hoàn thành refresh
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Refresh completed!')),
+    );
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -192,56 +257,71 @@ class _HomePageBodyState extends State<HomePageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Study With Random Topic",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+    return FutureBuilder(
+        future: _initDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Scaffold(
+              body: RefreshIndicator(
+                onRefresh: () => _refreshData(context),
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Study With Random Topic",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        listMenu(context),
+                        const Text(
+                          "Recommended For You",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        topics(),
+                        const Text(
+                          "Every Day A New Word",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        ValueListenableBuilder(
+                            valueListenable: this.word,
+                            builder: (context, value, _) {
+                              return newWord(value!);
+                            }),
+                        const Text(
+                          "Leaderboard",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            ranks(),
+                            myRanks(),
+                            const SizedBox(height: 20),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              listMenu(context),
-              const Text(
-                "Recommended For You",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              topics(),
-              const Text(
-                "Every Day A New Word",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              newWord(),
-              const Text(
-                "Leaderboard",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Column(
-                children: [
-                  ranks(),
-                  myRanks(),
-                  const SizedBox(height: 20),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
-    );
+            );
+          }
+        });
   }
 
   Container ranks() {
@@ -280,8 +360,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                       CrossAxisAlignment.center, // Canh chỉnh theo chiều dọc
                   children: [
                     const SizedBox(height: 30), // Điều chỉnh khoảng cách top
-                    _buildAvatarCircle(
-                        "User 1", "https://via.placeholder.com/150"),
+                    _buildAvatarCircle(listUser[1].username, listUser[1].avatar,
+                        listUser[1].quiz_point! + listUser[1].typing_point!),
                   ],
                 ),
               ),
@@ -291,8 +371,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                   crossAxisAlignment:
                       CrossAxisAlignment.center, // Canh chỉnh theo chiều dọc
                   children: [
-                    _buildAvatarCircle(
-                        "User 2", "https://via.placeholder.com/150"),
+                    _buildAvatarCircle(listUser[0].username, listUser[0].avatar,
+                        listUser[0].quiz_point! + listUser[0].typing_point!),
                   ],
                 ),
               ),
@@ -303,8 +383,8 @@ class _HomePageBodyState extends State<HomePageBody> {
                       CrossAxisAlignment.center, // Canh chỉnh theo chiều dọc
                   children: [
                     const SizedBox(height: 60), // Điều chỉnh khoảng cách top
-                    _buildAvatarCircle(
-                        "User 3", "https://via.placeholder.com/150"),
+                    _buildAvatarCircle(listUser[2].username, listUser[2].avatar,
+                        listUser[2].quiz_point! + listUser[2].typing_point!),
                   ],
                 ),
               ),
@@ -315,7 +395,7 @@ class _HomePageBodyState extends State<HomePageBody> {
     );
   }
 
-  Widget _buildAvatarCircle(String name, String imageUrl) {
+  Widget _buildAvatarCircle(String name, String imageUrl, int point) {
     return Column(
       children: [
         CircleAvatar(
@@ -330,81 +410,126 @@ class _HomePageBodyState extends State<HomePageBody> {
             fontWeight: FontWeight.bold,
           ),
         ),
+        Text(
+          "${point} point",
+          style: AppTheme.caption,
+        ),
       ],
     );
   }
 
   Widget myRanks() {
-    return Column(
-      children: [
-        _buildRankCard("User 1", "https://via.placeholder.com/150", 4),
-        const SizedBox(height: 10), // Khoảng cách giữa các card
-        _buildRankCard("User 2", "https://via.placeholder.com/150", 5),
-        const SizedBox(height: 10),
-        _buildRankCard("User 3", "https://via.placeholder.com/150", 6),
-        const SizedBox(height: 10),
-        _buildRankCard("You", "https://via.placeholder.com/150", 100),
-      ],
+    // Bỏ qua 3 phần tử đầu và lấy 6 phần tử tiếp theo
+    List<UserCurrent> topUsers = this.listUser.skip(3).take(6).toList();
+    // for (UserCurrent t in topUsers) {
+    //   logger.f(t.username);
+    //   logger.i(t.quiz_gold);
+    //   logger.i(t.quiz_point);
+    //   logger.i(t.typing_gold);
+    //   logger.i(t.typing_point);
+    // }
+    return ListView.builder(
+      shrinkWrap: true, // Đảm bảo ListView không chiếm toàn bộ không gian
+      physics: NeverScrollableScrollPhysics(), // Không cuộn bên trong ListView
+      itemCount: topUsers.length,
+      itemBuilder: (context, index) {
+        UserCurrent user = topUsers[index];
+        // logger.i(user.username);
+        return Column(
+          children: [
+            _buildRankCard(user.username, user.avatar,
+                (user.quiz_point ?? 0) + (user.typing_point ?? 0), index),
+            const SizedBox(height: 10), // Khoảng cách giữa các card
+          ],
+        );
+      },
     );
   }
 
-  Widget _buildRankCard(String name, String imageUrl, int rank) {
+  Widget _buildRankCard(String name, String imageUrl, int point, int index) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
-        // side: BorderSide(color: Colors.transparent, width: 0), // Border đen rõ
       ),
       child: Container(
-        height: 200,
+        height: 150,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 74, 56, 40), // Nền đen
+          color: AppTheme.lightText, // Đổi màu nền để thấy rõ hơn
           borderRadius: BorderRadius.circular(20.0),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.5), // Màu shadow
+              color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: const Offset(0, 2), // Di chuyển shadow
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundImage: NetworkImage(imageUrl),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              name,
-              style: const TextStyle(color: Colors.white), // Chữ trắng
-            ),
-            const Spacer(), // Đẩy về cuối container
-            Container(
-              width: double.infinity, // Đảm bảo vòng tròn lấp đầy width
-              alignment: Alignment.center,
-              child: CircleAvatar(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Avatar và Text name
+              CircleAvatar(
+                radius: 30,
+                backgroundImage:
+                    imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
+                child: imageUrl.isEmpty
+                    ? ClipOval(
+                        child: Image.asset(
+                          "assets/images/default_avatar.jpg",
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 8), // Khoảng cách giữa avatar và text
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Canh chỉnh giữa nguyên
+                  children: [
+                    Text(
+                      name.isEmpty ? "(No Name)" : name,
+                      style: const TextStyle(color: Colors.white),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4), // Khoảng cách giữa 2 Text widget
+                    Text(
+                      "${point} point",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                  width: 8), // Khoảng cách giữa text và circle avatar
+              // Circle Avatar với index+4 ở giữa theo chiều dọc
+              CircleAvatar(
                 radius: 12,
                 backgroundColor: Colors.blue,
                 child: Text(
-                  rank.toString(),
+                  "${index + 4}",
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Container newWord() {
+  Container newWord(Word word) {
+    String eng = word.english!;
+    String vie = word.vietnamese;
     return Container(
       margin: const EdgeInsets.only(top: 15, bottom: 15),
       height: 75,
@@ -429,37 +554,34 @@ class _HomePageBodyState extends State<HomePageBody> {
                         Icons.edit_note,
                       ),
                     ),
-                    title: const Text(
-                      "Book",
+                    title: Text(
+                      eng,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    subtitle: const Text("Sách"),
+                    subtitle: Text(vie),
                   ),
                   Positioned(
                     top: 8,
                     bottom: 8,
                     right: 8,
-                    width: 120,
+                    width: 80,
                     child: Padding(
-                      padding: const EdgeInsets.all(2),
+                      padding: const EdgeInsets.all(0),
                       child: ElevatedButton(
                         onPressed: () {
-                          // Xử lý khi nhấn nút "New Word"
+                          updateWord(); // Gọi hàm cập nhật từ mới khi nhấn nút "New Word"
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Màu nền của nút
+                          backgroundColor:
+                              AppTheme.kPrimaryColor, // Màu nền của nút
                         ),
-                        child: const Row(
+                        child: Row(
                           mainAxisSize: MainAxisSize
                               .min, // Kích thước của Row phụ thuộc vào nội dung
                           children: [
-                            Text(
-                              'New Word',
-                              style: TextStyle(fontSize: 12),
-                            ),
-                            Icon(Icons.arrow_forward, size: 12), // Icon mũi tên
+                            Icon(Icons.refresh, size: 22), // Icon refresh
                           ],
                         ),
                       ),
@@ -475,84 +597,114 @@ class _HomePageBodyState extends State<HomePageBody> {
   }
 
   Container topics() {
+    List<Topic> randomTopics = getRandomListTopic();
+    late UserViewModel _userViewModel = UserViewModel();
+
     return Container(
       margin: const EdgeInsets.only(top: 15, bottom: 15),
       height: 200,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: 7,
+        itemCount: randomTopics.length,
         itemBuilder: (context, index) {
-          return InkWell(
-            onTap: () {},
-            child: Container(
-                margin: const EdgeInsets.only(right: 10.0),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  ),
+          Topic topic = randomTopics[index];
+          return FutureBuilder<UserCurrent?>(
+            future: _userViewModel.getUserByDocumentReference(topic.user),
+            builder:
+                (BuildContext context, AsyncSnapshot<UserCurrent?> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return CircularProgressIndicator(); // Hiển thị indicator khi đang tải dữ liệu
+              } else {
+                UserCurrent? user = snapshot.data;
+                return InkWell(
+                  onTap: () async{
+                    await _navigateToTopicDetailScreen(
+                          context, topic, user);
+                  },
                   child: Container(
-                    height: 200,
-                    width: 250,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20.0),
-                      image: const DecorationImage(
-                        image: AssetImage("./assets/images/backgroundCard.jpg"),
-                        fit: BoxFit.cover,
+                    margin: const EdgeInsets.only(right: 10.0),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
                       ),
-                    ),
-                    child: const Stack(
-                      children: [
-                        Positioned(
-                          top: 20,
-                          left: 20,
-                          child: Text(
-                            "Topic Name",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              fontSize: 20,
-                            ),
+                      child: Container(
+                        height: 200,
+                        width: 250,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20.0),
+                          image: DecorationImage(
+                            image: AssetImage(
+                                "assets/images/backgroundCard9.jpg"),
+                            fit: BoxFit.cover,
                           ),
+                          color: Colors.black.withOpacity(0.9),
                         ),
-                        Positioned(
-                          bottom: 20,
-                          left: 20,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '10 thuật ngữ',
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              top: 20,
+                              left: 20,
+                              child: Text(
+                                topic.title!, // Hiển thị tên chủ đề
                                 style: TextStyle(
+                                  fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  fontSize: 15,
+                                  fontSize: 20,
                                 ),
                               ),
-                              SizedBox(height: 5),
-                              Row(
+                            ),
+                            Positioned(
+                              bottom: 20,
+                              left: 20,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(
-                                    Icons.account_circle,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  SizedBox(width: 5),
                                   Text(
-                                    "creator",
+                                    '${topic.numberOfChildren} words', // Số lượng từ trong chủ đề
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 15,
                                     ),
                                   ),
+                                  SizedBox(height: 5),
+                                  Row(
+                                    children: [
+                                      user!.avatar != "" &&
+                                              user.avatar.isNotEmpty
+                                          ? CircleAvatar(
+                                              backgroundImage:
+                                                  NetworkImage(user.avatar),
+                                              radius:
+                                                  10, // Điều chỉnh kích thước avatar tùy ý
+                                            )
+                                          : Icon(
+                                              Icons.account_circle,
+                                              color: Colors.white,
+                                              size: 18,
+                                            ),
+                                      SizedBox(width: 5),
+                                      Text(
+                                        user.username, // Tên người tạo
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                )),
+                );
+              
+              }
+            },
           );
         },
       ),

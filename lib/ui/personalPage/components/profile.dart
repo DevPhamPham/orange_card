@@ -3,7 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/resources/models/user.dart';
+import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/Screens/Login/login_screen.dart';
 import 'package:orange_card/ui/auth/Screens/ResetPassword/reset_password.dart';
 import 'package:orange_card/ui/message/sucess_message.dart';
@@ -13,6 +18,8 @@ import 'package:orange_card/constants/constants.dart';
 // import 'package:flutter_svg/flutter_svg.dart';
 // import 'dart:typed_data';
 import 'package:orange_card/resources/services/notification_service.dart';
+import 'package:orange_card/widgets/gap.dart';
+import 'package:orange_card/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -41,10 +48,14 @@ class _ProfileScreenState extends State<ProfileScreen>
   late TimeOfDay _savedTime;
   SharedPreferences? _prefs;
 
+  late UserRepository _userRepository = UserRepository();
+  late Map<String, int> achievements;
+  late Future<void> _initDataFuture;
+
   @override
   void initState() {
     super.initState();
-    initializeData();
+    this._initDataFuture = initializeData();
     _tabController = TabController(length: 3, vsync: this);
     WidgetsFlutterBinding.ensureInitialized();
     setAndLoadSharedPreferences();
@@ -152,8 +163,16 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Future<void> initializeData() async {
     final user = _auth.currentUser;
-    // print(user);
-    _displayName = user?.displayName ?? '';
+    UserCurrent? userDB;
+
+    if (user != null) {
+      userDB = await _userRepository.getUserById(user.uid);
+      achievements = await _userRepository.getAchievementUsersById(user.uid);
+    }
+    String username = userDB?.username ?? "";
+    _displayName = user?.displayName != null && user!.displayName!.isNotEmpty
+        ? user.displayName!
+        : username;
     _preDisplayName = _displayName;
     _email = user?.email ?? '';
     _avatarUrl = '';
@@ -172,6 +191,18 @@ class _ProfileScreenState extends State<ProfileScreen>
         _avatarUrl = ''; // Xử lý khi không có URL ảnh đại diện
       });
     }
+  }
+
+  Future<void> _refreshData(BuildContext context) async {
+    // Set state để rebuild giao diện
+    setState(() {
+      _initDataFuture = initializeData();
+    });
+
+    // Hoàn thành refresh
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Refresh completed!')),
+    );
   }
 
   Future<void> _updateDisplayName() async {
@@ -463,309 +494,362 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  if (!_isLoading) {
-                    _updateAvatar();
-                  }
-                },
-                child: Stack(
+    return FutureBuilder(
+        future: _initDataFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else {
+            return Scaffold(
+              body: RefreshIndicator(
+                onRefresh: () => _refreshData(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundImage: _avatarUrl.isNotEmpty
-                          ? Image.network(_avatarUrl).image
-                          : AssetImage(
-                              "assets/images/default_avatar.jpg",
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              if (!_isLoading) {
+                                _updateAvatar();
+                              }
+                            },
+                            child: Stack(
+                              children: [
+                                CircleAvatar(
+                                  radius: 50,
+                                  backgroundImage:
+                                      _avatarUrl != '' || _avatarUrl.isNotEmpty
+                                          ? Image.network(_avatarUrl).image
+                                          : AssetImage(
+                                              "assets/images/default_avatar.jpg",
+                                            ),
+                                ),
+                                if (_isLoading)
+                                  Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                              ],
                             ),
-                    ),
-                    if (_isLoading)
-                      Center(
-                        child: CircularProgressIndicator(),
+                          ),
+
+                          const SizedBox(height: 16.0),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    labelText: _displayName.isEmpty
+                                        ? 'Display Name'
+                                        : 'Your Name',
+                                    suffixIcon: IconButton(
+                                      icon: _displayName != _preDisplayName
+                                          ? const Icon(Icons.update,
+                                              color: Colors.green)
+                                          : const Icon(Icons.check,
+                                              color: Colors.green),
+                                      onPressed: _displayName.isNotEmpty &&
+                                              _displayName != _preDisplayName
+                                          ? _updateDisplayName
+                                          : null,
+                                    ),
+                                  ),
+                                  initialValue: _displayName.isNotEmpty
+                                      ? _displayName
+                                      : null,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _displayName = value;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          // TabBar for profile sections
+                          TabBar(
+                            controller: _tabController,
+                            isScrollable: true,
+                            indicatorColor: kPrimaryColor,
+                            tabs: const [
+                              Tab(text: 'Informations'),
+                              Tab(text: 'Settings'),
+                              Tab(text: 'Achievements'),
+                            ],
+                          ),
+                        ],
                       ),
+                    ),
+
+                    // TabBarView to display corresponding content
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        children: [
+                          // Thông tin tab
+                          SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 16.0),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.mail), // Icon label text
+                                      const SizedBox(
+                                        width: 8.0,
+                                      ), // Khoảng cách giữa icon và nội dung email
+                                      Expanded(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: Colors.grey,
+                                              ), // Border dưới cho email
+                                            ),
+                                          ),
+                                          child: TextFormField(
+                                            readOnly: true,
+                                            initialValue:
+                                                _email, // Giá trị ban đầu của email
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  'Email', // Label text cho TextFormField
+                                              filled:
+                                                  false, // Không sử dụng màu nền
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Icon(Icons
+                                          .calendar_today), // Icon label text
+                                      const SizedBox(
+                                        width: 8.0,
+                                      ), // Khoảng cách giữa icon và nội dung email
+                                      Expanded(
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                              bottom: BorderSide(
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ),
+                                          child: TextFormField(
+                                            readOnly: true,
+                                            initialValue: formatCreationTime(
+                                                _creationTime), // data
+                                            decoration: InputDecoration(
+                                              labelText:
+                                                  'Creation time', // Label text cho TextFormField
+                                              filled:
+                                                  false, // Không sử dụng màu nền
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Cài đặt tab
+                          SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  ProfileItem(
+                                    title: 'Forget Password',
+                                    icon: Icons.lock,
+                                    onPressed: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ResetPassword(),
+                                      ),
+                                    ),
+                                  ),
+                                  ProfileItem(
+                                    title: 'Change Password',
+                                    icon: Icons.lock_open,
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return ChangePasswordDialog();
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    title: Text('Turn on Notification'),
+                                    leading: Icon(Icons.notifications),
+                                    subtitle: _isNotificationOn
+                                        ? Text(
+                                            'Remind at: ${_savedTime.format(context)}') // Hiển thị giá trị thời gian nhắc nhở khi _isNotificationOn là true
+                                        : null, // Không hiển thị subtitle khi _isNotificationOn là false
+                                    trailing: Switch(
+                                      value: _isNotificationOn,
+                                      onChanged: (value) {
+                                        print(value);
+                                        setState(() {
+                                          _isNotificationOn = value;
+                                          _onSetNotification(
+                                              _isNotificationOn, context);
+                                        });
+                                      },
+                                    ),
+                                    onTap: () {},
+                                  ),
+                                  const SizedBox(height: 16.0),
+                                  Text(
+                                    'Danger Zone',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.0,
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 10.0),
+                                    height: 2.0,
+                                    color: Colors
+                                        .red, // Màu sắc của ranh giới "danger zone"
+                                  ),
+                                  ProfileItem(
+                                    title: 'Logout',
+                                    icon: Icons.logout,
+                                    onPressed: _confirmLogout,
+                                  ),
+                                  ProfileItem(
+                                    title: 'Delete Account',
+                                    icon: Icons.delete,
+                                    onPressed: _confirmDeleteAccount,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          // Thành tựu tab
+                          SingleChildScrollView(
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          'Thành tựu',
+                                          style: TextStyle(
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const Gap(
+                                      height: 14,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          flex: 5,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                "You got",
+                                                style: AppTheme.headline,
+                                                // overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                              Text(
+                                                "${achievements["point"]}",
+                                                style: TextStyle(
+                                                  fontSize: 30,
+                                                  color: Colors.yellow[900],
+                                                ),
+                                              ),
+                                              Text(
+                                                "points",
+                                                style: AppTheme.headline,
+                                              ),
+                                              const Gap(height: 32),
+                                              Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  SvgPicture.asset(
+                                                    "assets/icons/gold.svg",
+                                                    height: 30,
+                                                    width: 30,
+                                                  ),
+                                                  const Gap(width: 5),
+                                                  Text(
+                                                    "x${achievements["gold"]}",
+                                                    style: TextStyle(
+                                                      // h5 -> headline
+                                                      fontFamily:
+                                                          AppTheme.fontName,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                      letterSpacing: 0.30,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 10,
+                                          child: Transform.scale(
+                                            scale: 1.2,
+                                            child: SvgPicture.asset(
+                                              'assets/icons/to_the_goals.svg', // Đường dẫn đến file SVG của bạn
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: 16.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText:
-                            _displayName.isEmpty ? 'Display Name' : 'Your Name',
-                        suffixIcon: IconButton(
-                          icon: _displayName != _preDisplayName
-                              ? const Icon(Icons.update, color: Colors.green)
-                              : const Icon(Icons.check, color: Colors.green),
-                          onPressed: _displayName.isNotEmpty &&
-                                  _displayName != _preDisplayName
-                              ? _updateDisplayName
-                              : null,
-                        ),
-                      ),
-                      initialValue:
-                          _displayName.isNotEmpty ? _displayName : null,
-                      onChanged: (value) {
-                        setState(() {
-                          _displayName = value;
-                        });
-                      },
-                    ),
-                  ),
-                ],
-              ),
-
-              // TabBar for profile sections
-              TabBar(
-                controller: _tabController,
-                isScrollable: true,
-                indicatorColor: kPrimaryColor,
-                tabs: const [
-                  Tab(text: 'Informations'),
-                  Tab(text: 'Settings'),
-                  Tab(text: 'Achievements'),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        // TabBarView to display corresponding content
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              // Thông tin tab
-              SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16.0),
-                      Row(
-                        children: [
-                          Icon(Icons.mail), // Icon label text
-                          const SizedBox(
-                            width: 8.0,
-                          ), // Khoảng cách giữa icon và nội dung email
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey,
-                                  ), // Border dưới cho email
-                                ),
-                              ),
-                              child: TextFormField(
-                                readOnly: true,
-                                initialValue:
-                                    _email, // Giá trị ban đầu của email
-                                decoration: InputDecoration(
-                                  labelText:
-                                      'Email', // Label text cho TextFormField
-                                  filled: false, // Không sử dụng màu nền
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.calendar_today), // Icon label text
-                          const SizedBox(
-                            width: 8.0,
-                          ), // Khoảng cách giữa icon và nội dung email
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ),
-                              child: TextFormField(
-                                readOnly: true,
-                                initialValue:
-                                    formatCreationTime(_creationTime), // data
-                                decoration: InputDecoration(
-                                  labelText:
-                                      'Creation time', // Label text cho TextFormField
-                                  filled: false, // Không sử dụng màu nền
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Cài đặt tab
-              SingleChildScrollView(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ProfileItem(
-                        title: 'Forget Password',
-                        icon: Icons.lock,
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ResetPassword(),
-                          ),
-                        ),
-                      ),
-                      ProfileItem(
-                        title: 'Change Password',
-                        icon: Icons.lock_open,
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return ChangePasswordDialog();
-                            },
-                          );
-                        },
-                      ),
-                      ListTile(
-                        title: Text('Turn on Notification'),
-                        leading: Icon(Icons.notifications),
-                        subtitle: _isNotificationOn
-                            ? Text(
-                                'Remind at: ${_savedTime.format(context)}') // Hiển thị giá trị thời gian nhắc nhở khi _isNotificationOn là true
-                            : null, // Không hiển thị subtitle khi _isNotificationOn là false
-                        trailing: Switch(
-                          value: _isNotificationOn,
-                          onChanged: (value) {
-                            print(value);
-                            setState(() {
-                              _isNotificationOn = value;
-                              _onSetNotification(_isNotificationOn, context);
-                            });
-                          },
-                        ),
-                        onTap: () {},
-                      ),
-                      const SizedBox(height: 16.0),
-                      Text(
-                        'Danger Zone',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 10.0),
-                        height: 2.0,
-                        color:
-                            Colors.red, // Màu sắc của ranh giới "danger zone"
-                      ),
-                      ProfileItem(
-                        title: 'Logout',
-                        icon: Icons.logout,
-                        onPressed: _confirmLogout,
-                      ),
-                      ProfileItem(
-                        title: 'Delete Account',
-                        icon: Icons.delete,
-                        onPressed: _confirmDeleteAccount,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Thành tựu tab
-              SingleChildScrollView(
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Thành tựu',
-                          style: TextStyle(
-                              fontSize: 24, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 24),
-                        _buildAchievementCard(
-                          title: 'Personal achievements',
-                          content: [
-                            'Flutter: 15 / 30 topics',
-                            'Firebase: 10 / 25 topics',
-                            'Dart: 20 / 40 topics',
-                          ],
-                        ),
-                        SizedBox(height: 24),
-                        _buildAchievementCard(
-                          title: 'Community Achievements',
-                          content: [
-                            'Rank tổng thể: Top 10%',
-                            'Flutter: #3',
-                            'Firebase: #5',
-                            'Dart: #1',
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
-      ],
-    );
+            );
+          }
+        });
   }
-}
-
-Widget _buildAchievementCard(
-    {required String title, required List<String> content}) {
-  return Card(
-    elevation: 4,
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12.0),
-    ),
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          Divider(color: Colors.grey[300], thickness: 1, height: 24),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: content.map((item) => Text(item)).toList(),
-          ),
-        ],
-      ),
-    ),
-  );
 }
 
 class ProfileItem extends StatelessWidget {
