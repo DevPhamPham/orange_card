@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
@@ -58,6 +59,13 @@ class _HomePageBodyState extends State<HomePageBody> {
       await getWord();
       await updateWord();
       this.listUser = await _userRepository.getRankedUsers();
+      // for (var user in this.listUser) {
+      //   logger.f(user.username);
+      //   logger.f(user.quiz_point);
+      //   logger.f(user.typing_point);
+      //   logger.f(user.quiz_gold);
+      //   logger.f(user.typing_gold);
+      // }
     } catch (e) {
       // Xử lý nếu có lỗi xảy ra
       print('Error initializing data: $e');

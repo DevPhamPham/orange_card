@@ -52,12 +52,29 @@ class UserRepository {
 
   Future<List<UserCurrent>> getRankedUsers() async {
     List<UserCurrent> users = await getAllUsers();
-    users.sort((a, b) {
-      int aTotalPoints = (a.quiz_point ?? 0) + (a.typing_point ?? 0);
-      int bTotalPoints = (b.quiz_point ?? 0) + (b.typing_point ?? 0);
+    List<UserCurrent> modifiedUsers = [];
+
+    // Tạo một bản sao của mỗi người dùng và cập nhật giá trị quiz_point và typing_point
+    for (var user in users) {
+      UserCurrent modifiedUser = UserCurrent(
+        // Copy các thuộc tính từ user
+        username: user.username,
+        avatar: user.avatar,
+        topicIds: user.topicIds,
+        // Cập nhật giá trị quiz_point và typing_point, nếu null thì đặt thành 0
+        quiz_point: user.quiz_point ?? 0,
+        typing_point: user.typing_point ?? 0,
+      );
+      modifiedUsers.add(modifiedUser);
+    }
+
+    modifiedUsers.sort((a, b) {
+      // Tính tổng điểm của mỗi người dùng
+      int aTotalPoints = a.quiz_point! + a.typing_point!;
+      int bTotalPoints = b.quiz_point! + b.typing_point!;
       return bTotalPoints.compareTo(aTotalPoints);
     });
-    return users;
+    return modifiedUsers;
   }
 
   Future<Map<String, int>> getAchievementUsersById(String userId) async {
