@@ -633,7 +633,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                           borderRadius: BorderRadius.circular(20.0),
                           image: DecorationImage(
                             image: AssetImage(
-                                "assets/images/backgroundCard9.jpg"),
+                                "assets/images/backgroundCard.jpg"),
                             fit: BoxFit.cover,
                           ),
                           color: Colors.black.withOpacity(0.9),
