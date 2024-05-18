@@ -118,7 +118,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       _emailTextController.text.split('@').first, "", []);
 
                   // logger.i(value);
-                  // await FirebaseAuth.instance.signOut(); //không được thêm vào vì đã thêm ở ReturnScreen
+                  await FirebaseAuth.instance.signOut(); //không được thêm vào vì đã thêm ở ReturnScreen
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(

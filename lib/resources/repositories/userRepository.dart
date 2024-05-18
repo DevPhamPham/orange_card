@@ -20,13 +20,11 @@ class UserRepository {
     User? firebaseUser = _auth.currentUser;
     if (firebaseUser != null) {
       String uid = firebaseUser.uid;
-      DocumentReference userDocRef = _usersCollection.doc(uid);
       await _usersCollection.doc(uid).set({
         'displayName': username,
         'avatarUrl': avatar,
         'topicIds': topicIds,
       });
-      CollectionReference wordCollection = userDocRef.collection('topicPoint');
     } else {
       throw Exception('User is not authenticated');
     }
