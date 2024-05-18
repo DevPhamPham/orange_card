@@ -34,12 +34,15 @@ class GameQuizPage extends StatefulWidget {
   final TopicViewModel topicViewModel;
   final List<Word> words;
   final Map<String, dynamic> settings;
+  final String topicId;
 
   const GameQuizPage(
       {Key? key,
       required this.topicViewModel,
       required this.words,
-      required this.settings})
+      required this.settings,
+      required this.topicId
+      })
       : super(key: key);
 
   @override
@@ -150,6 +153,7 @@ class _GameQuizPageState extends State<GameQuizPage> {
             uid: uid,
             point: correct,
             gold: gold,
+            topicId: widget.topicId
           );
     }
   }
