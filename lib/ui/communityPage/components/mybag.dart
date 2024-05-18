@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:orange_card/app_theme.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
@@ -22,43 +24,83 @@ class MyBags extends StatefulWidget {
 
 class _MyBagsState extends State<MyBags> {
   @override
+  void initState() {
+    logger.e(widget.topicViewModel.topcicsSaved.length);
+
+    super.initState();
+  }
+
+  void _filterTopic(String query) async {
+    widget.topicViewModel.searchTopicSaved(query);
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        setdata();
-      },
-      child: widget.topicViewModel.topcicsSaved.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(
-                    'assets/icons/empty_bag.svg',
-                    width: 200,
-                    // height: 100,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Danh sách trống...', style: AppTheme.caption),
-                ],
+    Provider.of<TopicViewModel>(context);
+    Provider.of<UserViewModel>(context, listen: true);
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            padding:
+                const EdgeInsets.symmetric(vertical: 8.0, horizontal: 20.0),
+            child: TextField(
+              autofocus: false,
+              decoration: InputDecoration(
+                hintText: 'Search...',
+                fillColor: Colors.white,
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
               ),
-            )
-          : ListView.builder(
-              itemCount: widget.topicViewModel.topcicsSaved.length,
-              itemBuilder: (context, index) {
-                final topic = widget.topicViewModel.topcicsSaved[index];
-                return GestureDetector(
-                  onTap: () async {
-                    await _navigateToTopicDetailScreen(context, topic);
-                  },
-                  child: TopicCardCommunityItem(
-                    topic: topic,
-                    like: widget.userViewModel.userCurrent!.topicIds
-                        .contains(topic.id),
-                    userViewModel: widget.userViewModel,
-                  ),
-                );
-              },
+              onChanged: _filterTopic,
             ),
+          ),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await setdata();
+              },
+              child: widget.topicViewModel.topcicsSaved.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SvgPicture.asset(
+                            'assets/icons/empty_bag.svg',
+                            width: 200,
+                            // height: 100,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text('Danh sách trống...',
+                              style: AppTheme.caption),
+                        ],
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: widget.topicViewModel.topcicsSaved.length,
+                      itemBuilder: (context, index) {
+                        final topic = widget.topicViewModel.topcicsSaved[index];
+                        return GestureDetector(
+                          onTap: () async {
+                            await _navigateToTopicDetailScreen(context, topic);
+                          },
+                          child: TopicCardCommunityItem(
+                            topic: topic,
+                            like: widget.userViewModel.userCurrent!.topicIds
+                                .contains(topic.id),
+                            userViewModel: widget.userViewModel,
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

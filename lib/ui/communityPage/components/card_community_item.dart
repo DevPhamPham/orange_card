@@ -37,6 +37,7 @@ class __TopicCardCommunityItemState extends State<TopicCardCommunityItem> {
     super.initState();
     _fetchUserData();
     liked = widget.like;
+    print(liked);
   }
 
   Future<void> _fetchUserData() async {

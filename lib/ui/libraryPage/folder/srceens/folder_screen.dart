@@ -25,6 +25,11 @@ class _FolderScreenState extends State<FolderScreen> {
     // setdata();
   }
 
+  void _filterFolder(String query) async {
+    widget.folderViewModel.searchFolder(query);
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,14 +46,14 @@ class _FolderScreenState extends State<FolderScreen> {
                 autofocus: false,
                 decoration: InputDecoration(
                   hintText: 'Search...',
+                  fillColor: Colors.white,
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
                     borderRadius: BorderRadius.circular(8.0),
                   ),
                 ),
-                onChanged: (value) {
-                  // Implement your search logic here
-                },
+                onChanged: _filterFolder,
               ),
             ),
             Expanded(child: _buildFolderList(context)),

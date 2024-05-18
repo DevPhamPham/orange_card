@@ -60,12 +60,12 @@ class UserRepository {
     return users;
   }
 
-  Future<Map<String,int>> getAchievementUsersById(String userId) async {
+  Future<Map<String, int>> getAchievementUsersById(String userId) async {
     UserCurrent users = await getUserById(userId);
-      Map<String,int> res = {
-        "point": (users.quiz_point ?? 0) + (users.typing_point ?? 0),
-        "gold": (users.quiz_gold ?? 0) + (users.typing_gold ?? 0)
-      };
+    Map<String, int> res = {
+      "point": (users.quiz_point ?? 0) + (users.typing_point ?? 0),
+      "gold": (users.quiz_gold ?? 0) + (users.typing_gold ?? 0)
+    };
     return res;
   }
 
@@ -178,21 +178,33 @@ class UserRepository {
 
   Future<void> addTopicId(String userId, String topicId) async {
     try {
-      await _usersCollection.doc(userId).update({
-        'topicIds': FieldValue.arrayUnion([topicId]),
-      });
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      batch.update(
+        _usersCollection.doc(userId),
+        {
+          'topicIds': FieldValue.arrayUnion([topicId])
+        },
+      );
+      await batch.commit();
     } catch (e) {
       print('Error adding topic id: $e');
+      throw e; // Rethrow the caught exception
     }
   }
 
   Future<void> removeTopicId(String userId, String topicId) async {
     try {
-      await _usersCollection.doc(userId).update({
-        'topicIds': FieldValue.arrayRemove([topicId]),
-      });
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      batch.update(
+        _usersCollection.doc(userId),
+        {
+          'topicIds': FieldValue.arrayRemove([topicId])
+        },
+      );
+      await batch.commit();
     } catch (e) {
       print('Error removing topic id: $e');
+      throw e; // Rethrow the caught exception
     }
   }
 }
