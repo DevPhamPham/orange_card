@@ -6,7 +6,8 @@ import 'package:orange_card/resources/repositories/userRepository.dart';
 import '../../../../core/exception.dart';
 
 abstract class GameRemoteDataSource {
-  Future<void> updateUserPoint(String uid, Map<String, dynamic> map, String topicId,int point);
+  Future<void> updateUserPoint(
+      String uid, Map<String, dynamic> map, String topicId, int point);
   Future<void> updateUserGold(String uid, Map<String, dynamic> map);
 }
 
@@ -19,7 +20,8 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
   GameRemoteDataSourceImpl(this._db);
 
   @override
-  Future<void> updateUserPoint(String uid, Map<String, dynamic> map, String topicId, int point) async {
+  Future<void> updateUserPoint(
+      String uid, Map<String, dynamic> map, String topicId, int point) async {
     try {
       await _db.collection(_users).doc(uid).update(map);
 
@@ -31,7 +33,8 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
 
       if (topicDocSnapshot.exists) {
         // Nếu tài liệu topicRank đã tồn tại, cập nhật hoặc thêm mới người dùng
-        TopicRank topicRank = TopicRank.fromMap(topicDocSnapshot.data() as Map<String, dynamic>);
+        TopicRank topicRank =
+            TopicRank.fromMap(topicDocSnapshot.data() as Map<String, dynamic>);
         List<Map<String, dynamic>> users = topicRank.users ?? [];
 
         // Kiểm tra xem uid đã tồn tại trong danh sách users chưa
@@ -42,6 +45,8 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
               user['maxPoint'] = point;
               user['avatar'] = userCurrent.avatar;
               user['username'] = userCurrent.username;
+              users.sort(
+                  (a, b) => (a['maxPoint'] ?? 0).compareTo(b['maxPoint'] ?? 0));
             }
             userExists = true;
             break;
@@ -50,12 +55,28 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
 
         // Nếu uid chưa tồn tại trong danh sách users, thêm mới người dùng
         if (!userExists) {
-          users.add({
-            'userId': uid,
-            'maxPoint': point,
-            'avatar': userCurrent.avatar,
-            'username': userCurrent.username,
-          });
+          if (users.length < 3) {
+            users.add({
+              'userId': uid,
+              'maxPoint': point,
+              'avatar': userCurrent.avatar,
+              'username': userCurrent.username,
+            });
+            users.sort(
+                (a, b) => (a['maxPoint'] ?? 0).compareTo(b['maxPoint'] ?? 0));
+          } else {
+            // Nếu có đủ 3 người dùng, tìm người dùng có điểm thấp nhất
+            users.sort(
+                (a, b) => (a['maxPoint'] ?? 0).compareTo(b['maxPoint'] ?? 0));
+            if ((users[0]['maxPoint'] ?? 0) < point) {
+              users[0] = {
+                'userId': uid,
+                'maxPoint': point,
+                'avatar': userCurrent.avatar,
+                'username': userCurrent.username,
+              };
+            }
+          }
         }
 
         // Cập nhật tài liệu topicRank
@@ -75,7 +96,6 @@ class GameRemoteDataSourceImpl implements GameRemoteDataSource {
           ],
         });
       }
-
     } on FirebaseException {
       rethrow;
     } on UnimplementedError catch (e) {

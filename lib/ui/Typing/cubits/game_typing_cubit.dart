@@ -19,10 +19,12 @@ class GameTypingCubit extends Cubit<GameTypingState> {
     required String uid,
     required int point,
     required int gold,
+    required String topicId,
+
   }) async {
     emit(state.copyWith(status: GameTypingStatus.loading));
 
-    final resultPoint = await updateUserPointUsecase((uid, point));
+    final resultPoint = await updateUserPointUsecase((uid, point,topicId));
     await resultPoint.fold(
       (failure) async => emit(state.copyWith(
         status: GameTypingStatus.error,

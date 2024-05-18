@@ -219,6 +219,8 @@ class _GameTypingSettingsPageState extends State<GameTypingSettingsPage> {
                         settings: settings,
                         topicViewModel: widget.topicViewModel,
                         words: widget.topicViewModel.words,
+                        topicId: widget.topic.id.toString(),
+
                       ),
                     ),
                   );

@@ -32,12 +32,15 @@ class GameTypingPage extends StatefulWidget {
   final TopicViewModel topicViewModel;
   final List<Word> words;
   final Map<String, dynamic> settings;
+  final String topicId;
 
   const GameTypingPage(
       {Key? key,
       required this.topicViewModel,
       required this.words,
-      required this.settings})
+      required this.settings,
+      required this.topicId
+      })
       : super(key: key);
 
   @override
@@ -130,6 +133,7 @@ class _GameTypingPageState extends State<GameTypingPage> {
             uid: uid,
             point: correct,
             gold: gold,
+            topicId: widget.topicId
           );
     }
   }
