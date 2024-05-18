@@ -219,6 +219,7 @@ class _GameQuizSettingsPageState extends State<GameQuizSettingsPage> {
                         settings: settings,
                         topicViewModel: widget.topicViewModel,
                         words: widget.topicViewModel.words,
+                        topicId: widget.topic.id.toString()
                       ),
                     ),
                   );

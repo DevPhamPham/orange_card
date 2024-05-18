@@ -11,12 +11,17 @@ class GameRepositoryImpl implements GameRepository {
   GameRepositoryImpl(this._remoteDataSource);
 
   @override
-  FutureEither<void> updateUserPoint(String uid, int point) async {
+  FutureEither<void> updateUserPoint(String uid, int point, String topicId) async {
     try {
       return Right(
-        await _remoteDataSource.updateUserPoint(uid, {
+        await _remoteDataSource.updateUserPoint(
+          uid, 
+          {
           'quiz_point': FieldValue.increment(point),
-        }),
+          },
+          topicId,
+          point
+        ),
       );
     } on FirebaseException catch (e) {
       return Left(
