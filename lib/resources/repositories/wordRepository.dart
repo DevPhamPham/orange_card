@@ -7,6 +7,7 @@ class WordRepository {
       FirebaseFirestore.instance.collection('words');
   final CollectionReference _topicsCollection =
       FirebaseFirestore.instance.collection('topics');
+      
   Future<List<Word>> getAllWords(String topicId) async {
     List<Word> words = [];
     CollectionReference wordCollection =

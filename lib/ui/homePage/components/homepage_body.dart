@@ -209,13 +209,11 @@ class _HomePageBodyState extends State<HomePageBody> {
   }
 
   Future<void> _refreshData(BuildContext context) async {
-    // Gọi lại các phương thức lấy dữ liệu của bạn
-    await getTopicByUser();
-    await getTopicFromCommunity();
-    await getWord();
 
     // Set state để rebuild giao diện
-    setState(() {});
+      await initializeData();
+    setState(() {
+    });
 
     // Hoàn thành refresh
     ScaffoldMessenger.of(context).showSnackBar(
@@ -605,6 +603,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                         width: 250,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20.0),
+
                           color: Colors.black.withOpacity(0.9),
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
