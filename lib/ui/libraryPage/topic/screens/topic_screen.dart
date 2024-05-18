@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
@@ -28,16 +27,12 @@ class _TopicScreenState extends State<TopicScreen> {
 
   @override
   void initState() {
-    filteredTopics = widget.topicViewModel.topics;
     super.initState();
   }
 
-  void _filterTopic(String query) {
-    setState(() {
-      filteredTopics = widget.topicViewModel.topics.where((topic) {
-        return topic.title!.toLowerCase().contains(query.toLowerCase());
-      }).toList();
-    });
+  void _filterTopic(String query) async {
+    widget.topicViewModel.searchTopic(query);
+    setState(() {});
   }
 
   @override
@@ -59,10 +54,12 @@ class _TopicScreenState extends State<TopicScreen> {
                 autofocus: false,
                 decoration: InputDecoration(
                   hintText: 'Search...',
+                  iconColor: kPrimaryColor,
+                  fillColor: Colors.white,
                   prefixIcon: const Icon(Icons.search),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
+                      borderRadius: BorderRadius.circular(8.0),
+                      borderSide: BorderSide(color: kPrimaryColor)),
                 ),
                 onChanged: _filterTopic,
               ),
@@ -74,7 +71,7 @@ class _TopicScreenState extends State<TopicScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await _navigateToAddTopicScreen(context);
-          await setdata();
+          Provider.of<TopicViewModel>(context);
           setState(() {});
         },
         backgroundColor: kPrimaryColor,
@@ -96,9 +93,9 @@ class _TopicScreenState extends State<TopicScreen> {
         : widget.topicViewModel.topics.isEmpty
             ? const Center(child: Text('Chưa có chủ đề nào'))
             : ListView.builder(
-                itemCount: filteredTopics.length,
+                itemCount: widget.topicViewModel.topics.length,
                 itemBuilder: (context, index) {
-                  final topic = filteredTopics[index];
+                  final topic = widget.topicViewModel.topics[index];
                   return GestureDetector(
                     onTap: () async {
                       await _navigateToTopicDetailScreen(context, topic);

@@ -61,6 +61,36 @@ class TopicViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> searchTopic(String query) async {
+    if (query.isEmpty) {
+      await loadTopics();
+    }
+    _topics = _topics.where((topic) {
+      return topic.title!.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    notifyListeners();
+  }
+
+  Future<void> searchTopicPublics(String query) async {
+    if (query.isEmpty) {
+      await loadTopicsPublic();
+    }
+    _topicsPublic = _topicsPublic.where((topic) {
+      return topic.title!.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    notifyListeners();
+  }
+
+  Future<void> searchTopicSaved(String query) async {
+    if (query.isEmpty) {
+      await loadTopicsSaved();
+    }
+    _topcicsSaved = _topcicsSaved.where((topic) {
+      return topic.title!.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    notifyListeners();
+  }
+
   Future<void> loadTopicsSaved() async {
     try {
       _isLoading = true;
@@ -102,7 +132,7 @@ class TopicViewModel extends ChangeNotifier {
         updateTime: DateTime.now().millisecondsSinceEpoch,
       );
       await _topicRepository.addTopic(topic, words);
-      loadTopics();
+      _topics.add(topic);
       notifyListeners();
     } catch (e) {
       print('Error adding topic: $e');
@@ -113,8 +143,6 @@ class TopicViewModel extends ChangeNotifier {
     try {
       await _topicRepository.deleteTopic(topic.id!);
       _topics.remove(topic);
-
-      loadTopics();
       notifyListeners();
     } catch (e) {
       print('Error deleting topic: $e');

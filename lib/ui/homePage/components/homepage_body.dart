@@ -1,15 +1,10 @@
-// ignore_for_file: sort_child_properties_last
-
 import 'dart:async';
 import 'dart:math';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:orange_card/app_theme.dart';
-import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/FlashCard/flashcard.dart';
@@ -17,14 +12,12 @@ import 'package:orange_card/ui/Quiz/game_quiz_setting_page.dart';
 import 'package:orange_card/ui/Typing/game_typing_setting_page.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
 import 'package:provider/provider.dart';
-
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/repositories/topicRepository.dart';
 import 'package:orange_card/resources/repositories/wordRepository.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
-import 'package:orange_card/resources/utils/enum.dart';
 
 class HomePageBody extends StatefulWidget {
   const HomePageBody({
@@ -65,15 +58,6 @@ class _HomePageBodyState extends State<HomePageBody> {
       await getWord();
       await updateWord();
       this.listUser = await _userRepository.getRankedUsers();
-
-      // List<UserCurrent> test = await _userRepository.getRankedUsers();
-      // for (UserCurrent t in test) {
-      //   logger.f(t.username);
-      //   logger.i(t.quiz_gold);
-      //   logger.i(t.quiz_point);
-      //   logger.i(t.typing_gold);
-      //   logger.i(t.typing_point);
-      // }
     } catch (e) {
       // Xử lý nếu có lỗi xảy ra
       print('Error initializing data: $e');
@@ -102,13 +86,8 @@ class _HomePageBodyState extends State<HomePageBody> {
     List<List<Word>> allWords = [];
     try {
       for (var i = 0; i < this.topicByUser.length; i++) {
-        // Lấy danh sách từ của chủ đề hiện tại
         List<Word> wordsInTopic =
             await _wordRepository.getAllWords(this.topicByUser[i].id!);
-        // Lấy một từ ngẫu nhiên từ danh sách
-        // Word randomWord = wordsInTopic[Random().nextInt(wordsInTopic.length)];
-        // logger.f(wordsInTopic.length);
-        // Thêm từ ngẫu nhiên vào danh sách mới
         allWords.add(wordsInTopic);
       }
 
@@ -120,17 +99,11 @@ class _HomePageBodyState extends State<HomePageBody> {
           .toList();
 
       for (var id in topicIds) {
-        // Lấy danh sách từ của chủ đề hiện tại
         List<Word> wordsInTopic = await _wordRepository.getAllWords(id);
-        // logger.f(wordsInTopic);
-        // Lấy một từ ngẫu nhiên từ danh sách
-        // Word randomWord = wordsInTopic[Random().nextInt(wordsInTopic.length)];
-        // Thêm từ ngẫu nhiên vào danh sách mới
         allWords.add(wordsInTopic);
       }
 
       this.eveWord = allWords;
-      // logger.i(this.eveWord.length);
     } catch (e) {
       print('Error getting words: $e');
     }
@@ -419,13 +392,6 @@ class _HomePageBodyState extends State<HomePageBody> {
   Widget myRanks() {
     // Bỏ qua 3 phần tử đầu và lấy 6 phần tử tiếp theo
     List<UserCurrent> topUsers = this.listUser.skip(3).take(6).toList();
-    // for (UserCurrent t in topUsers) {
-    //   logger.f(t.username);
-    //   logger.i(t.quiz_gold);
-    //   logger.i(t.quiz_point);
-    //   logger.i(t.typing_gold);
-    //   logger.i(t.typing_point);
-    // }
     return ListView.builder(
       shrinkWrap: true, // Đảm bảo ListView không chiếm toàn bộ không gian
       physics: NeverScrollableScrollPhysics(), // Không cuộn bên trong ListView
@@ -451,10 +417,17 @@ class _HomePageBodyState extends State<HomePageBody> {
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Container(
-        height: 150,
+        height: 100,
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: AppTheme.lightText, // Đổi màu nền để thấy rõ hơn
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.blue.withOpacity(0.8), //
+              Colors.greenAccent.withOpacity(1), // Start color
+            ],
+          ),
           borderRadius: BorderRadius.circular(20.0),
           boxShadow: [
             BoxShadow(
@@ -615,9 +588,8 @@ class _HomePageBodyState extends State<HomePageBody> {
               } else {
                 UserCurrent? user = snapshot.data;
                 return InkWell(
-                  onTap: () async{
-                    await _navigateToTopicDetailScreen(
-                          context, topic, user);
+                  onTap: () async {
+                    await _navigateToTopicDetailScreen(context, topic, user);
                   },
                   child: Container(
                     margin: const EdgeInsets.only(right: 10.0),
@@ -627,16 +599,20 @@ class _HomePageBodyState extends State<HomePageBody> {
                         borderRadius: BorderRadius.circular(20.0),
                       ),
                       child: Container(
-                        height: 200,
+                        height: 80,
                         width: 250,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20.0),
-                          image: DecorationImage(
-                            image: AssetImage(
-                                "assets/images/backgroundCard.jpg"),
-                            fit: BoxFit.cover,
-                          ),
+
                           color: Colors.black.withOpacity(0.9),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Colors.greenAccent.withOpacity(1), // Start color
+                              Colors.blue.withOpacity(0.8), // End color
+                            ],
+                          ),
                         ),
                         child: Stack(
                           children: [
@@ -648,7 +624,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 25,
                                 ),
                               ),
                             ),
@@ -662,7 +638,7 @@ class _HomePageBodyState extends State<HomePageBody> {
                                     '${topic.numberOfChildren} words', // Số lượng từ trong chủ đề
                                     style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 15,
+                                      fontSize: 20,
                                     ),
                                   ),
                                   SizedBox(height: 5),
@@ -673,20 +649,19 @@ class _HomePageBodyState extends State<HomePageBody> {
                                           ? CircleAvatar(
                                               backgroundImage:
                                                   NetworkImage(user.avatar),
-                                              radius:
-                                                  10, // Điều chỉnh kích thước avatar tùy ý
+                                              radius: 20,
                                             )
                                           : Icon(
                                               Icons.account_circle,
                                               color: Colors.white,
                                               size: 18,
                                             ),
-                                      SizedBox(width: 5),
+                                      SizedBox(width: 10),
                                       Text(
                                         user.username, // Tên người tạo
                                         style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 15,
+                                          fontSize: 20,
                                         ),
                                       ),
                                     ],
@@ -700,7 +675,6 @@ class _HomePageBodyState extends State<HomePageBody> {
                     ),
                   ),
                 );
-              
               }
             },
           );

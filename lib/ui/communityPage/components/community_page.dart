@@ -8,10 +8,7 @@ import 'package:orange_card/ui/communityPage/components/orthers.dart';
 import 'package:provider/provider.dart';
 
 class CommunityPage extends StatefulWidget {
-  final TopicViewModel topicViewModel;
-  final UserViewModel userViewModel;
-  const CommunityPage(
-      {super.key, required this.topicViewModel, required this.userViewModel});
+  const CommunityPage({super.key});
 
   @override
   _CommunityPageState createState() => _CommunityPageState();
@@ -32,7 +29,11 @@ class _CommunityPageState extends State<CommunityPage> {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<TopicViewModel>(context, listen: true);
+    final topicViewModel = Provider.of<TopicViewModel>(context, listen: false);
+    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
+    userViewModel.getUserById();
+    topicViewModel.loadTopicsPublic();
+    topicViewModel.loadTopicsSaved();
     return DefaultTabController(
       length: 2,
       child: Scaffold(
@@ -65,11 +66,11 @@ class _CommunityPageState extends State<CommunityPage> {
                 child: TabBarView(
                   children: [
                     Orthers(
-                        topicViewModel: widget.topicViewModel,
-                        userViewModel: widget.userViewModel),
+                        topicViewModel: topicViewModel,
+                        userViewModel: userViewModel),
                     MyBags(
-                        topicViewModel: widget.topicViewModel,
-                        userViewModel: widget.userViewModel)
+                        topicViewModel: topicViewModel,
+                        userViewModel: userViewModel)
                   ],
                 ),
               ),

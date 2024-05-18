@@ -20,15 +20,10 @@ class _CommunityPageScreenState extends State<CommunityPageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final topicViewModel = Provider.of<TopicViewModel>(context, listen: false);
-    final userViewModel = Provider.of<UserViewModel>(context, listen: false);
-    userViewModel.getUserById();
-    topicViewModel.loadTopicsPublic();
-    topicViewModel.loadTopicsSaved();
+    ();
     return Scaffold(
       appBar: const CommunityPageAppBar(),
-      body: CommunityPage(
-          topicViewModel: topicViewModel, userViewModel: userViewModel),
+      body: CommunityPage(),
     );
   }
 }

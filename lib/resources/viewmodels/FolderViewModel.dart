@@ -97,4 +97,14 @@ class FolderViewModel extends ChangeNotifier {
       print('Error removing topic id from folder: $e');
     }
   }
+
+  Future<void> searchFolder(String query) async {
+    if (query.isEmpty) {
+      await loadFolders();
+    }
+    _folders = _folders.where((folder) {
+      return folder.title.toLowerCase().contains(query.toLowerCase());
+    }).toList();
+    notifyListeners();
+  }
 }
