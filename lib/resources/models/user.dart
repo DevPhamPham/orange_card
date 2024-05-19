@@ -1,7 +1,7 @@
 class UserCurrent {
   final String username;
   final String avatar;
-  List<String> topicIds;
+  List<String>? topicIds;
   final int? quiz_gold;
   final int? typing_gold;
   final int? quiz_point;
@@ -14,7 +14,6 @@ class UserCurrent {
     this.typing_gold,
     this.quiz_point,
     this.typing_point,
-
   });
 
   factory UserCurrent.fromMap(Map<String, dynamic> map) => UserCurrent(

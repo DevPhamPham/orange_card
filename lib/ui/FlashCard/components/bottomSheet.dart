@@ -1,15 +1,19 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
 
 class BottomSheetContent extends StatefulWidget {
   final List<Word> words;
   final Function(List<Word>) onFilter;
+  final Function(bool) onAuto;
+  final Function(List<Word>) onRandom;
 
   const BottomSheetContent({
     super.key,
     required this.words,
+    required this.onAuto,
+    required this.onRandom,
     required this.onFilter,
   });
 
@@ -19,7 +23,7 @@ class BottomSheetContent extends StatefulWidget {
 
 class _BottomSheetContentState extends State<BottomSheetContent> {
   List<Word> currentWords = [];
-
+  bool isAuto = false;
   @override
   void initState() {
     currentWords = widget.words;
@@ -36,26 +40,27 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
         children: [
           ElevatedButton.icon(
             onPressed: () {
+              widget.onAuto(!isAuto);
+              setState(() {
+                isAuto = !isAuto;
+              });
               Navigator.pop(context);
-              // Call the function to start auto advance timer
             },
             icon: const Icon(Icons.play_arrow),
             label: const Text('Vuốt tự động'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           ),
           const SizedBox(height: 12),
           ElevatedButton.icon(
             onPressed: () {
               Navigator.pop(context);
+              currentWords.shuffle(Random());
+              widget.onRandom(currentWords);
               // Call the function to start auto advance timer
             },
             icon: const Icon(Icons.tap_and_play_rounded),
             label: const Text('Ngẫu nhiên'),
-                        style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           ),
           const SizedBox(height: 12),
           ListTile(

@@ -187,48 +187,6 @@ class _TopicDetailState extends State<TopicDetail> {
                               ],
                             ),
                           ),
-                          SizedBox(
-                            height: 60,
-                            child: CircularPercentIndicator(
-                              radius: 30.0,
-                              animation: true,
-                              animationDuration: 800,
-                              lineWidth: 5.0,
-                              percent: widget.topic.learnedWords! /
-                                  widget.topicViewModel.topic.numberOfChildren!,
-                              center: widget.topic.learnedWords !=
-                                      widget
-                                          .topicViewModel.topic.numberOfChildren
-                                  ? Text(
-                                      "${widget.topic.learnedWords}/${widget.topicViewModel.topic.numberOfChildren}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    )
-                                  : const Text(
-                                      "Great",
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                        color:
-                                            Color.fromARGB(255, 110, 255, 115),
-                                      ),
-                                    ),
-                              circularStrokeCap: CircularStrokeCap.butt,
-                              backgroundColor:
-                                  const Color.fromARGB(188, 218, 218, 218),
-                              progressColor: widget.topic.learnedWords == 0
-                                  ? const Color.fromARGB(255, 255, 0, 0)
-                                  : widget.topic.learnedWords !=
-                                          widget.topicViewModel.topic
-                                              .numberOfChildren
-                                      ? const Color.fromARGB(255, 255, 123,
-                                          0) // Color for unlearned words (orange)
-                                      : const Color.fromARGB(
-                                          255, 110, 255, 115),
-                            ),
-                          )
                         ],
                       ),
                     ),
@@ -441,7 +399,7 @@ class _TopicDetailState extends State<TopicDetail> {
                   margin: const EdgeInsets.only(left: 20, top: 20, bottom: 10),
                   child: const SizedBox(
                     child: Text(
-                      "Từ vựng",
+                      "word",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
@@ -494,7 +452,7 @@ class _TopicDetailState extends State<TopicDetail> {
             children: <Widget>[
               _buildActionIconWithText(
                 icon: Icons.save,
-                text: 'Tải về',
+                text: 'Download',
                 onPressed: () async {
                   String? filename = await CSVService().makeFile(context,
                       widget.topicViewModel.words, widget.topic.title!);
@@ -503,12 +461,12 @@ class _TopicDetailState extends State<TopicDetail> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: const Text('File Tải Thành Công'),
+                          title: const Text('Download File Complete'),
                           content: Column(
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Tên File: $filename'),
+                              Text('File name : $filename'),
                             ],
                           ),
                           actions: <Widget>[
@@ -517,13 +475,13 @@ class _TopicDetailState extends State<TopicDetail> {
                                 await OpenFile.open(filename);
                                 Navigator.of(context).pop(); // Close the dialog
                               },
-                              child: const Text('Mở File'),
+                              child: const Text('Open File'),
                             ),
                             TextButton(
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: const Text('Đóng'),
+                              child: const Text('Exit'),
                             ),
                           ],
                         );
@@ -531,14 +489,14 @@ class _TopicDetailState extends State<TopicDetail> {
                     );
                   } else {
                     MessageUtils.showFailureMessage(
-                        context, "Lỗi khi tải file");
+                        context, "Error Download file");
                   }
                 },
               ),
               auth
                   ? _buildActionIconWithText(
                       icon: Icons.edit,
-                      text: 'Chỉnh sửa',
+                      text: 'Edit',
                       onPressed: () async {
                         Navigator.push(
                           context,
@@ -556,7 +514,7 @@ class _TopicDetailState extends State<TopicDetail> {
               auth
                   ? _buildActionIconWithText(
                       icon: Icons.create_new_folder,
-                      text: 'Thêm vào Thư mục',
+                      text: 'Add into Topic',
                       onPressed: () async {
                         final folderViewModel = Provider.of<FolderViewModel>(
                             context,

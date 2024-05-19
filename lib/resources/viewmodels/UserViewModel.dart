@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
@@ -38,7 +39,7 @@ class UserViewModel extends ChangeNotifier {
       await userRepository.addTopicId(
           FirebaseAuth.instance.currentUser!.uid, topicId);
       topicViewModel.loadTopicsSaved();
-      _userCurrent!.topicIds.add(topicId);
+      _userCurrent!.topicIds!.add(topicId);
       notifyListeners();
     } catch (e) {
       print('Error adding topic id: $e');
@@ -50,7 +51,7 @@ class UserViewModel extends ChangeNotifier {
       await userRepository.removeTopicId(
           FirebaseAuth.instance.currentUser!.uid, topicId);
       topicViewModel.loadTopicsSaved();
-      _userCurrent!.topicIds.remove(topicId);
+      _userCurrent!.topicIds!.remove(topicId);
 
       notifyListeners();
     } catch (e) {

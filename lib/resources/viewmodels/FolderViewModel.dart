@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/repositories/folderRepository.dart';
@@ -72,7 +75,8 @@ class FolderViewModel extends ChangeNotifier {
   Future<void> addTopicIdToFolder(String folderId, String topicId) async {
     try {
       await _folderRepository.addTopicId(folderId, topicId);
-      loadFolders();
+      await loadFolders();
+      notifyListeners();
     } catch (e) {
       print('Error adding topic id to folder: $e');
     }
@@ -81,21 +85,28 @@ class FolderViewModel extends ChangeNotifier {
   Future<void> removeTopicIdFromFolder(String folderId, String topicId) async {
     try {
       await _folderRepository.removeTopicId(folderId, topicId);
-      loadFolders();
+      await loadFolders();
+      notifyListeners();
     } catch (e) {
       print('Error removing topic id from folder: $e');
     }
   }
 
-  Future<void> removeTopicInFolder(String topicId) async {
+  Future<void> removeTopicInFolder(Topic topic) async {
     try {
       await _folderRepository.removeTopicInFolder(
-          topicId, FirebaseAuth.instance.currentUser!.uid);
+          topic.id!, FirebaseAuth.instance.currentUser!.uid);
+      _topics.remove(topic);
       notifyListeners();
-      loadFolders();
     } catch (e) {
       print('Error removing topic id from folder: $e');
     }
+  }
+
+  bool checkInFolder(String folderId, String topicId) {
+    logger.f(_folders[0].topicIds.length);
+    Folder folder = _folders.firstWhere((folder) => folder.id == folderId);
+    return folder.topicIds.contains(topicId);
   }
 
   Future<void> searchFolder(String query) async {
@@ -106,5 +117,9 @@ class FolderViewModel extends ChangeNotifier {
       return folder.title.toLowerCase().contains(query.toLowerCase());
     }).toList();
     notifyListeners();
+  }
+
+  Folder getFolderById(List<Folder> folders, String folderId) {
+    return folders.firstWhere((folder) => folder.id == folderId);
   }
 }

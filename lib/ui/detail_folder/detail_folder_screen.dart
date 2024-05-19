@@ -9,6 +9,7 @@ import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/detail_folder/topicitem.dart';
 import 'package:orange_card/ui/detail_topic/topic_detail_screen.dart';
+import 'package:orange_card/ui/message/sucess_message.dart';
 import 'package:orange_card/ui/skelton/topic.dart';
 import 'package:provider/provider.dart';
 import '../../../../resources/viewmodels/TopicViewmodel.dart';
@@ -77,8 +78,9 @@ class _DetailFolderState extends State<DetailFolder> {
                     child: TopicItemInFolder(
                       topic: topic,
                       onRemove: (topic) async {
-                        await widget.folderViewModel
-                            .removeTopicInFolder(topic.id!);
+                        await widget.folderViewModel.removeTopicInFolder(topic);
+                        MessageUtils.showSuccessMessage(
+                            context, "Topic is removed");
                       },
                     ),
                   );

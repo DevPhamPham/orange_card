@@ -51,7 +51,7 @@ class ResultFlashCard extends StatelessWidget {
     return AlertDialog(
       title: const Center(
         child: Text(
-          'Chúc mừng',
+          'Congratulation',
           style: TextStyle(fontSize: 20),
         ),
       ),
@@ -95,8 +95,8 @@ class ResultFlashCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildCard('Đã thuộc', masterWord, Colors.green),
-              _buildCard('Chưa thuộc', notmasterWord, Colors.red),
+              _buildCard('Learned', masterWord, Colors.green),
+              _buildCard('Not Learn', notmasterWord, Colors.red),
             ],
           )
         ],
@@ -104,16 +104,18 @@ class ResultFlashCard extends StatelessWidget {
       actions: [
         Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: ElevatedButton(
-                onPressed: () {
-                  onLearnNotMaster();
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Học các từ chưa thuộc'),
-              ),
-            ),
+            notmasterWord != 0
+                ? Container(
+                    margin: EdgeInsets.only(left: 10, right: 10),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        onLearnNotMaster();
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('Learn unfamiliar words'),
+                    ),
+                  )
+                : Container(),
             Container(
               margin: EdgeInsets.all(10),
               padding: EdgeInsets.all(10),
@@ -126,7 +128,7 @@ class ResultFlashCard extends StatelessWidget {
                         onReuse();
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Làm lại'),
+                      child: const Text('Redo'),
                     ),
                   ),
                   SizedBox(
@@ -142,7 +144,7 @@ class ResultFlashCard extends StatelessWidget {
                         onComplete();
                         Navigator.of(context).pop();
                       },
-                      child: const Text('Hoàn Thành'),
+                      child: const Text('Complete'),
                     ),
                   ),
                 ],

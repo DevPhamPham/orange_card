@@ -14,11 +14,12 @@ class TopicRepository {
   final CollectionReference _topicsCollection =
       FirebaseFirestore.instance.collection('topics');
 
-  Future<void> addTopic(Topic topic, List<Word> words) async {
+  Future<String> addTopic(Topic topic, List<Word> words) async {
     WriteBatch batch = FirebaseFirestore.instance.batch();
 
     try {
       DocumentReference topicRef = _topicsCollection.doc();
+      String topicId = topicRef.id;
       batch.set(topicRef, topic.toMap());
       batch.update(topicRef, {
         'user': _usersCollection.doc(FirebaseAuth.instance.currentUser!.uid)
@@ -28,6 +29,7 @@ class TopicRepository {
         batch.set(wordCollection.doc(), word.toMap());
       }
       await batch.commit();
+      return topicId;
     } catch (e) {
       print('Error adding topic: $e');
       throw e;
@@ -44,7 +46,6 @@ class TopicRepository {
       for (final doc in wordSnapshots.docs) {
         batch.delete(doc.reference);
       }
-
       batch.delete(topicRef);
       await batch.commit();
     } catch (e) {
@@ -55,7 +56,6 @@ class TopicRepository {
 
   Future<void> updateTopic(Topic topic, List<Word> words) async {
     WriteBatch batch = FirebaseFirestore.instance.batch();
-
     try {
       final topicRef = _topicsCollection.doc(topic.id);
       batch.update(topicRef, topic.toMap());
