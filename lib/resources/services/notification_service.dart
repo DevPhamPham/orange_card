@@ -61,7 +61,7 @@ class NotificationService {
           presentBadge: true,
           presentSound: true,
         ),
-  );
+      );
 
   static Future showNotification({
     int id = 0,
