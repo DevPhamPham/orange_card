@@ -6,7 +6,6 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter_svg/svg.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:orange_card/app_theme.dart';
-import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/Screens/Login/login_screen.dart';
@@ -15,11 +14,8 @@ import 'package:orange_card/ui/message/sucess_message.dart';
 import 'package:orange_card/ui/personalPage/components/change_password.dart';
 import 'package:date_format/date_format.dart';
 import 'package:orange_card/constants/constants.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
-// import 'dart:typed_data';
 import 'package:orange_card/resources/services/notification_service.dart';
 import 'package:orange_card/widgets/gap.dart';
-import 'package:orange_card/widgets/text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -86,10 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       setState(() {
         _savedTime = TimeOfDay(hour: saveTime.hour, minute: saveTime.minute);
       });
-    } else {
-      // Xử lý khi _prefs là null
-      // Có thể hiển thị thông báo lỗi hoặc thực hiện hành động thích hợp
-    }
+    } else {}
   }
 
   Future<bool> _setScheduleNotification(TimeOfDay time) async {
@@ -519,14 +512,16 @@ class _ProfileScreenState extends State<ProfileScreen>
                             },
                             child: Stack(
                               children: [
-                                CircleAvatar(
-                                  radius: 50,
-                                  backgroundImage:
-                                      _avatarUrl != '' || _avatarUrl.isNotEmpty
-                                          ? Image.network(_avatarUrl).image
-                                          : AssetImage(
-                                              "assets/images/default_avatar.jpg",
-                                            ),
+                                Center(
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundImage: _avatarUrl != '' ||
+                                            _avatarUrl.isNotEmpty
+                                        ? Image.network(_avatarUrl).image
+                                        : AssetImage(
+                                            "assets/images/default_avatar.jpg",
+                                          ),
+                                  ),
                                 ),
                                 if (_isLoading)
                                   Center(
@@ -542,21 +537,30 @@ class _ProfileScreenState extends State<ProfileScreen>
                               Expanded(
                                 child: TextFormField(
                                   decoration: InputDecoration(
-                                    labelText: _displayName.isEmpty
-                                        ? 'Display Name'
-                                        : 'Your Name',
-                                    suffixIcon: IconButton(
-                                      icon: _displayName != _preDisplayName
-                                          ? const Icon(Icons.update,
-                                              color: Colors.green)
-                                          : const Icon(Icons.check,
-                                              color: Colors.green),
-                                      onPressed: _displayName.isNotEmpty &&
-                                              _displayName != _preDisplayName
-                                          ? _updateDisplayName
-                                          : null,
-                                    ),
-                                  ),
+                                      focusColor: kPrimaryColor,
+                                      focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          borderSide:
+                                              BorderSide(color: kPrimaryColor)),
+                                      labelStyle:
+                                          TextStyle(color: kPrimaryColor),
+                                      labelText: _displayName.isEmpty
+                                          ? 'Display Name'
+                                          : 'Your Name',
+                                      suffixIcon: IconButton(
+                                        icon: _displayName != _preDisplayName
+                                            ? const Icon(Icons.update,
+                                                color: Colors.green)
+                                            : const Icon(Icons.check,
+                                                color: Colors.green),
+                                        onPressed: _displayName.isNotEmpty &&
+                                                _displayName != _preDisplayName
+                                            ? _updateDisplayName
+                                            : null,
+                                      ),
+                                      fillColor: Colors.white,
+                                      border: OutlineInputBorder()),
                                   initialValue: _displayName.isNotEmpty
                                       ? _displayName
                                       : null,

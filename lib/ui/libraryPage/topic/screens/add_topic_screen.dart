@@ -113,7 +113,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
             ),
             validator: (value) {
               if (value!.isEmpty) {
-                return 'Vui lòng nhập tên';
+                return 'Please , enter your topic title';
               }
               return null;
             },
@@ -229,7 +229,7 @@ class _AddTopicScreenState extends State<AddTopicScreen> {
       _words,
       _isPublic,
     );
-    MessageUtils.showSuccessMessage(context, "Thêm thành công !");
+    MessageUtils.showSuccessMessage(context, "Add new topic : ${_topicName} !");
     Navigator.pop(context);
   }
 

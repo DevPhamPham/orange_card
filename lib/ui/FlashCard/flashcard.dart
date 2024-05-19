@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/material.dart';
@@ -57,11 +58,16 @@ class _FlashCardState extends State<FlashCard> {
   }
 
   void _startAutoAdvanceTimer(bool isAuto) async {
-    for (Word word in currentWords) {
-      if (_currentIndexNotifier.value <= currentWords.length) {
-        await Future.delayed(const Duration(seconds: 2));
-        _swipableStackController.next(swipeDirection: SwipeDirection.right);
+    if (isAuto) {
+      for (var word in currentWords) {
+        if (_currentIndexNotifier.value <= currentWords.length) {
+          await Future.delayed(const Duration(seconds: 2));
+          _swipableStackController.next(swipeDirection: SwipeDirection.right);
+        }
       }
+      setState(() {
+        isAuto = false;
+      });
     }
   }
 
@@ -171,11 +177,12 @@ class _FlashCardState extends State<FlashCard> {
                     allowVerticalSwipe: false,
                     builder: (context, properties) {
                       final itemIndex = properties.index % currentWords.length;
-                      final english = currentWords[itemIndex].english;
-                      final vietnamese = currentWords[itemIndex].vietnamese;
+                      Word word = currentWords[itemIndex];
+
+                      final english = word.english;
+                      final vietnamese = word.vietnamese;
                       isFrontStartSelected = isBackStartSelected =
-                          WordViewModel()
-                              .checkMarked(currentWords[itemIndex].userMarked);
+                          WordViewModel().checkMarked(word.userMarked);
                       return FlipCard(
                         direction: FlipDirection.HORIZONTAL,
                         controller: _flipCardController,
@@ -192,14 +199,18 @@ class _FlashCardState extends State<FlashCard> {
                                 .topicViewModel.words[itemIndex].english!);
                           },
                           onTapStar: () async {
-                            bool isMarked = WordViewModel().checkMarked(
-                                currentWords[itemIndex].userMarked);
+                            bool isMarked =
+                                WordViewModel().checkMarked(word.userMarked);
                             if (isMarked) {
-                              await WordViewModel().markWord(widget.topic.id!,
-                                  currentWords[itemIndex].id!, false);
+                              await WordViewModel()
+                                  .markWord(widget.topic.id!, word, false);
+                              word.userMarked.remove(
+                                  FirebaseAuth.instance.currentUser!.uid);
                             } else {
-                              await WordViewModel().markWord(widget.topic.id!,
-                                  currentWords[itemIndex].id!, true);
+                              await WordViewModel()
+                                  .markWord(widget.topic.id!, word, true);
+                              word.userMarked
+                                  .add(FirebaseAuth.instance.currentUser!.uid);
                             }
                             setState(() {
                               isFrontStartSelected = !isFrontStartSelected;
@@ -214,14 +225,18 @@ class _FlashCardState extends State<FlashCard> {
                             await textToSpeechService.speak(english);
                           },
                           onTapStar: () async {
-                            bool isMarked = WordViewModel().checkMarked(
-                                currentWords[itemIndex].userMarked);
+                            bool isMarked =
+                                WordViewModel().checkMarked(word.userMarked);
                             if (isMarked) {
-                              await WordViewModel().markWord(widget.topic.id!,
-                                  currentWords[itemIndex].id!, false);
+                              await WordViewModel()
+                                  .markWord(widget.topic.id!, word, false);
+                              word.userMarked.remove(
+                                  FirebaseAuth.instance.currentUser!.uid);
                             } else {
-                              await WordViewModel().markWord(widget.topic.id!,
-                                  currentWords[itemIndex].id!, true);
+                              await WordViewModel()
+                                  .markWord(widget.topic.id!, word, true);
+                              word.userMarked
+                                  .add(FirebaseAuth.instance.currentUser!.uid);
                             }
                             setState(() {
                               isBackStartSelected = !isBackStartSelected;

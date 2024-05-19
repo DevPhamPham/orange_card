@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/constants/constants.dart';
 
 class ResetPassword extends StatelessWidget {
   const ResetPassword({Key? key}) : super(key: key);
@@ -42,6 +43,8 @@ class ResetPassword extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Reset Password'),
+        titleTextStyle: TextStyle(color: Colors.white),
+        backgroundColor: kPrimaryColor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -52,6 +55,10 @@ class ResetPassword extends StatelessWidget {
               controller: _emailTextController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
+                labelStyle: TextStyle(color: kPrimaryColor),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: kPrimaryColor)),
+                border: OutlineInputBorder(),
                 labelText: 'Email',
                 prefixIcon: Icon(Icons.email),
                 helperText: 'Vui lòng nhập lại Email/Please re-enter Email',

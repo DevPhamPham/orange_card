@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
-import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/ui/skelton/folder.dart';
-import 'package:provider/provider.dart';
 
 class ListFolder extends StatefulWidget {
   final FolderViewModel folderViewModel;
@@ -101,7 +97,7 @@ class _ListFolderState extends State<ListFolder> {
                                 ),
                                 const SizedBox(height: 8.0),
                                 Text(
-                                  '${folders[index].topicIds.length} chủ đề',
+                                  '${folders[index].topicIds.length} topics',
                                   style: const TextStyle(
                                     fontSize: 14.0,
                                     color: Colors.grey,

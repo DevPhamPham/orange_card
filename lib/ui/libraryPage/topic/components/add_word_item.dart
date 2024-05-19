@@ -81,7 +81,7 @@ class _AddWordItemState extends State<AddWordItem> {
               TextFormField(
                 initialValue: _english,
                 decoration: const InputDecoration(
-                  labelText: 'Từ vựng',
+                  labelText: 'Word',
                   fillColor: Colors.white,
                   labelStyle: TextStyle(color: kPrimaryColor),
                   border: OutlineInputBorder(),
@@ -109,7 +109,7 @@ class _AddWordItemState extends State<AddWordItem> {
                 initialValue: _vietnamese,
                 decoration: const InputDecoration(
                   fillColor: Colors.white,
-                  labelText: 'Nghĩa',
+                  labelText: 'Define',
                   labelStyle: TextStyle(color: kPrimaryColor),
                   border: OutlineInputBorder(),
                   focusColor: kPrimaryColorBlur,

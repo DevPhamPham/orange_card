@@ -46,7 +46,7 @@ class FolderCardItem extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${folder.topicIds.length} Chủ đề',
+                    '${folder.topicIds.length} topics',
                     style: const TextStyle(
                       fontSize: 14.0,
                       color: Colors.grey,
