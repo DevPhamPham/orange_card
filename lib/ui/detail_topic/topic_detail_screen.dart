@@ -1,10 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
 import 'package:orange_card/app_theme.dart';
 import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/core/exception.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/models/topic.dart';
+import 'package:orange_card/resources/models/topicRank.dart';
 import 'package:orange_card/resources/models/user.dart';
+import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/resources/services/CSVService.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
@@ -41,20 +46,72 @@ class _TopicDetailState extends State<TopicDetail> {
   //   topicViewModel = Provider.of<TopicViewModel>(context);
   //   topicViewModel.loadDetailTopics(widget.topic.id!);
   // }
+  final uid = FirebaseAuth.instance.currentUser!.uid;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final String _topicRanks = "topicRanks";
+  // UserRepository _userRepository = new UserRepository();
+
+  List<Map<String, dynamic>> users = [];
+  // late UserCurrent? currentUser;
+  bool haveUser = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await getUser(widget.topic.id.toString());
+    // this.currentUser = await _userRepository.getUserById(uid);
+    setState(() {});
+  }
+
+  Future<void> getUser(String topicId) async {
+    try {
+      // Lấy tài liệu topicRank theo topicId
+      DocumentReference topicDocRef = _db.collection(_topicRanks).doc(topicId);
+      DocumentSnapshot topicDocSnapshot = await topicDocRef.get();
+
+      if (topicDocSnapshot.exists) {
+        TopicRank topicRank =
+            TopicRank.fromMap(topicDocSnapshot.data() as Map<String, dynamic>);
+        users = topicRank.users ?? [];
+        setState(() {
+          users.sort(
+              (a, b) => (b['maxPoint'] ?? 0).compareTo(a['maxPoint'] ?? 0));
+        });
+      } else {
+        setState(() {
+          users = [];
+        });
+      }
+    } on UnimplementedError catch (e) {
+      throw DatabaseException(e.message ?? '');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<UserCard> users = List.generate(3, (index) {
-      return UserCard(
-        avatarUrl:
-            "https://i.pinimg.com/736x/1c/b2/73/1cb2738b9cf909d4507298a6052c5761.jpg",
-        rank: index + 1,
-      );
-    });
+    // if (this.currentUser == null) {
+    //   return Scaffold(
+    //     body: Center(
+    //       child: CircularProgressIndicator(),
+    //     ),
+    //   );
+    // }
+
     final topicViewModel = Provider.of<TopicViewModel>(context);
     print(topicViewModel.isLoading);
     final userViewModel = UserViewModel();
     bool auth = userViewModel.checkCurrentUser(widget.topic.user);
+    for (var user in users) {
+      // logger.f(user["userId"]);
+      // logger.f(this.uid);
+      if (user["userId"].toString() == this.uid.toString()) {
+        this.haveUser = true;
+      }
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -138,41 +195,93 @@ class _TopicDetailState extends State<TopicDetail> {
                 Container(
                   margin: const EdgeInsets.only(
                       left: 10, right: 10, bottom: 15, top: 15),
-                  height: 130,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: users.length,
-                    itemBuilder: (context, index) {
-                      final user = users[index];
-                      return Card(
-                        elevation: 4,
-                        color: kPrimaryColorBlur,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              CircleAvatar(
-                                backgroundImage: NetworkImage(user.avatarUrl),
-                                radius: 30,
-                              ),
-                              const SizedBox(height: 5),
-                              const Text(
-                                'Name',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                'Top ${user.rank}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
+                  height: 150,
+                  child: users.isEmpty
+                      ? Center(
+                          child: Text(
+                            "No one has done this exercise yet",
+                            style: AppTheme.body2,
                           ),
+                        )
+                      : ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: users.length,
+                          itemBuilder: (context, index) {
+                            final user =
+                                index < users.length || users.length != 0
+                                    ? users[index]
+                                    : null;
+
+                            if (index != users.length && users.length != 0)
+                              return Card(
+                                elevation: 4,
+                                color: kPrimaryColorBlur,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundImage:
+                                            NetworkImage(user!["avatar"]),
+                                        radius: 30,
+                                      ),
+                                      const SizedBox(height: 5),
+                                      Text(
+                                        '${user["username"]}',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 3,
+                                      ),
+                                      Text(
+                                        'Top ${index + 1}',
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      Text(
+                                        '${user["maxPoint"]} points',
+                                        style: AppTheme.caption,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            // else if (!this.haveUser)
+                            //   return Card(
+                            //     margin: const EdgeInsets.only(left: 20),
+                            //     elevation: 1,
+                            //     color: AppTheme.chipBackground,
+                            //     child: Padding(
+                            //       padding: const EdgeInsets.all(8.0),
+                            //       child: Column(
+                            //         children: [
+                            //           CircleAvatar(
+                            //             backgroundImage:
+                            //                 NetworkImage(this.currentUser!.avatar),
+                            //             radius: 30,
+                            //           ),
+                            //           const SizedBox(height: 5),
+                            //           Text(
+                            //             'YOU',
+                            //             style: TextStyle(
+                            //               fontSize: 12,
+                            //               fontWeight: FontWeight.bold,
+                            //             ),
+                            //             maxLines: 3,
+                            //           ),
+                            //           Text(
+                            //             '${0} points',
+                            //             style: AppTheme.caption,
+                            //           ),
+                            //         ],
+                            //       ),
+                            //     ),
+                            //   );
+
+                            else
+                              return null;
+                          },
                         ),
-                      );
-                    },
-                  ),
                 ),
                 Container(
                   margin: const EdgeInsets.only(left: 10, right: 10),

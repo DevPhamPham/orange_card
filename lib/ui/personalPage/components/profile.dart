@@ -757,7 +757,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                     Row(
                                       children: [
                                         Text(
-                                          'Thành tựu',
+                                          'Achievements',
                                           style: TextStyle(
                                             fontSize: 24,
                                             fontWeight: FontWeight.bold,

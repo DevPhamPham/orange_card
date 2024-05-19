@@ -12,12 +12,17 @@ class TypingGameRepositoryImpl implements TypingGameRepository {
   TypingGameRepositoryImpl(this._remoteDataSource);
 
   @override
-  FutureEither<void> updateUserPoint(String uid, int point) async {
+  FutureEither<void> updateUserPoint(
+      String uid, int point, String topicId) async {
     try {
       return Right(
-        await _remoteDataSource.updateUserPoint(uid, {
-          'typing_point': FieldValue.increment(point),
-        }),
+        await _remoteDataSource.updateUserPoint(
+            uid,
+            {
+              'typing_point': FieldValue.increment(point),
+            },
+            topicId,
+            point),
       );
     } on FirebaseException catch (e) {
       return Left(
