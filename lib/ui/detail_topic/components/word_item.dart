@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/services/TTSService.dart';
@@ -65,15 +66,19 @@ class _WordItemState extends State<WordItem> {
                       if (isMarked) {
                         await WordViewModel().markWord(
                           widget.TopicId,
-                          widget.word.id!,
+                          widget.word,
                           false, // Unmark the word
                         );
+                        widget.word.userMarked
+                            .remove(FirebaseAuth.instance.currentUser!.uid);
                       } else {
                         await WordViewModel().markWord(
                           widget.TopicId,
-                          widget.word.id!,
+                          widget.word,
                           true, // Mark the word
                         );
+                        widget.word.userMarked
+                            .add(FirebaseAuth.instance.currentUser!.uid);
                       }
                       setState(() {
                         marked = !marked;

@@ -78,7 +78,7 @@ class _FolderScreenState extends State<FolderScreen> {
     return widget.folderViewModel.isLoading
         ? const FolderSkelton()
         : widget.folderViewModel.folders.isEmpty
-            ? const Center(child: Text('Chưa có thư mục nào'))
+            ? const Center(child: Text('List Folder is empty'))
             : GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount:
@@ -138,21 +138,21 @@ class _FolderScreenState extends State<FolderScreen> {
       context: ScaffodContext,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Xác nhận Xóa"),
-          content: const Text("Bạn có chắc muốn xóa thư mục này không?"),
+          title: const Text("Delete this folder"),
+          content: const Text("You definitely want to delete this folder?"),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text("Hủy"),
+              child: const Text("Cancel"),
             ),
             TextButton(
               onPressed: () async {
                 await _deleteFolder(folder);
                 Navigator.pop(context);
               },
-              child: const Text("Xóa"),
+              child: const Text("Delete"),
             ),
           ],
         );

@@ -192,18 +192,15 @@ class _TopicDetailState extends State<TopicDetail> {
                     ),
                   ),
                 ),
-                Container(
-                  margin: const EdgeInsets.only(
-                      left: 10, right: 10, bottom: 15, top: 15),
-                  height: 150,
-                  child: users.isEmpty
-                      ? Center(
-                          child: Text(
-                            "No one has done this exercise yet",
-                            style: AppTheme.body2,
-                          ),
-                        )
-                      : ListView.builder(
+                users.isEmpty
+                    ? Container(
+                        height: 20,
+                      )
+                    : Container(
+                        margin: const EdgeInsets.only(
+                            left: 10, right: 10, bottom: 15, top: 15),
+                        height: 150,
+                        child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: users.length,
                           itemBuilder: (context, index) {
@@ -282,7 +279,7 @@ class _TopicDetailState extends State<TopicDetail> {
                               return null;
                           },
                         ),
-                ),
+                      ),
                 Container(
                   margin: const EdgeInsets.only(left: 10, right: 10),
                   child: Row(
@@ -399,7 +396,7 @@ class _TopicDetailState extends State<TopicDetail> {
                   margin: const EdgeInsets.only(left: 20, top: 20, bottom: 10),
                   child: const SizedBox(
                     child: Text(
-                      "word",
+                      "List of word ",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),

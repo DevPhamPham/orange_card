@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/resources/utils/enum.dart';
@@ -47,7 +48,7 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               Navigator.pop(context);
             },
             icon: const Icon(Icons.play_arrow),
-            label: const Text('Vuốt tự động'),
+            label: const Text('AutoPlay'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           ),
           const SizedBox(height: 12),
@@ -59,12 +60,12 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
               // Call the function to start auto advance timer
             },
             icon: const Icon(Icons.tap_and_play_rounded),
-            label: const Text('Ngẫu nhiên'),
+            label: const Text('Ramdom'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           ),
           const SizedBox(height: 12),
           ListTile(
-            title: const Text('Lọc theo'),
+            title: const Text('Filter'),
             trailing: DropdownButton<String>(
               value: 'ALL', // Default value
               onChanged: (String? value) {
@@ -76,12 +77,14 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
                         break;
                       case 'MARKED':
                         currentWords = widget.words
-                            .where((word) => word.marked == STATUS.MARKED)
+                            .where((word) => word.userMarked.contains(
+                                FirebaseAuth.instance.currentUser!.uid))
                             .toList();
                         break;
                       case 'NOT_MARKED':
                         currentWords = widget.words
-                            .where((word) => word.marked == STATUS.NOT_MARKED)
+                            .where((word) => !word.userMarked.contains(
+                                FirebaseAuth.instance.currentUser!.uid))
                             .toList();
                         break;
                       default:
