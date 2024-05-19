@@ -3,17 +3,17 @@ import 'package:orange_card/resources/models/word.dart';
 import 'package:orange_card/constants/constants.dart';
 
 class AddWordItem extends StatefulWidget {
-  final VoidCallback onDelete;
+  final void Function() onDelete; // Specify function type directly
   final Word word;
   final Function(Word) onUpdateWord;
   final int number;
   const AddWordItem({
-    super.key,
+    super.key, // Fix the syntax for specifying the key
     required this.word,
     required this.onDelete,
     required this.onUpdateWord,
     required this.number,
-  });
+  }); // Fix the syntax for calling super constructor
 
   @override
   State<AddWordItem> createState() => _AddWordItemState();
@@ -23,6 +23,7 @@ class _AddWordItemState extends State<AddWordItem> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String _english;
   late String _vietnamese;
+
   @override
   void initState() {
     super.initState();
@@ -30,7 +31,6 @@ class _AddWordItemState extends State<AddWordItem> {
     _vietnamese = widget.word.vietnamese;
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -74,7 +74,9 @@ class _AddWordItemState extends State<AddWordItem> {
                   IconButton(
                     icon: const Icon(Icons.delete),
                     color: Colors.red,
-                    onPressed: widget.onDelete,
+                    onPressed: () {
+                      widget.onDelete(); // Call the function directly
+                    },
                   ),
                 ],
               ),

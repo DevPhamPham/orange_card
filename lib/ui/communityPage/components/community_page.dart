@@ -44,7 +44,7 @@ class _CommunityPageState extends State<CommunityPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TabBar(
-                tabs: [
+                tabs: const [
                   Tab(text: 'Others'),
                   Tab(text: 'Your Bag'),
                 ],

@@ -412,21 +412,21 @@ class _ProfileScreenState extends State<ProfileScreen>
     final user = _auth.currentUser;
     if (user != null) {
       try {
-        // Xóa ảnh đại diện từ Firebase Storage
-        if (_avatarUrl.isNotEmpty) {
-          final defaultAvatarPath = "assets/images/default_avatar.jpg";
-          if (_avatarUrl != defaultAvatarPath) {
-            // Trích xuất tên file từ URL
-            final fileName = _avatarUrl.split('/').last;
+        // // Xóa ảnh đại diện từ Firebase Storage
+        // if (_avatarUrl.isNotEmpty) {
+        //   final defaultAvatarPath = "assets/images/default_avatar.jpg";
+        //   if (_avatarUrl != defaultAvatarPath) {
+        //     // Trích xuất tên file từ URL
+        //     final fileName = _avatarUrl.split('/').last;
 
-            // Tham chiếu đến file trong thư mục 'avatars'
-            final firebase_storage.Reference avatarRef =
-                _storage.ref('avatars').child(user.uid).child(fileName);
+        //     // Tham chiếu đến file trong thư mục 'avatars'
+        //     final firebase_storage.Reference avatarRef =
+        //         _storage.ref('avatars').child(user.uid).child(fileName);
 
-            // Xóa file từ Firebase Storage
-            await avatarRef.delete();
-          }
-        }
+        //     // Xóa file từ Firebase Storage
+        //     await avatarRef.delete();
+        //   }
+        // }
 
         // Xóa tài khoản người dùng từ Firebase Authentication
         await user.delete();

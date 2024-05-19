@@ -18,17 +18,24 @@ class UserRepository {
   Future<void> create(
       String username, String avatar, List<String> topicIds) async {
     User? firebaseUser = _auth.currentUser;
+
     if (firebaseUser != null) {
       String uid = firebaseUser.uid;
-      UserCurrent userCurrent = UserCurrent(
+      DocumentSnapshot userDoc = await _usersCollection.doc(uid).get();
+      if (userDoc.exists) {
+        print('User already exists');
+      } else {
+        UserCurrent userCurrent = UserCurrent(
           username: username,
           avatar: avatar,
           topicIds: topicIds,
           quiz_gold: 0,
           quiz_point: 0,
           typing_gold: 0,
-          typing_point: 0);
-      await _usersCollection.doc(uid).set(userCurrent.toMap());
+          typing_point: 0,
+        );
+        await _usersCollection.doc(uid).set(userCurrent.toMap());
+      }
     } else {
       throw Exception('User is not authenticated');
     }

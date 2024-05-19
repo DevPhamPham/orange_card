@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/Screens/Return/return_screen.dart';
+import 'package:orange_card/ui/auth/auth_gate.dart';
 
 import '../../../components/already_have_an_account_acheck.dart';
 import '../../../../../constants/constants.dart';
@@ -114,11 +115,9 @@ class _SignUpFormState extends State<SignUpForm> {
                         email: _emailTextController.text,
                         password: _passwordTextController.text)
                     .then((value) async {
-                  await UserRepository().create(
-                      _emailTextController.text.split('@').first, "", []);
-
-                  // logger.i(value);
-                  await FirebaseAuth.instance.signOut(); //không được thêm vào vì đã thêm ở ReturnScreen
+                  // await UserRepository().create(
+                  //     _emailTextController.text.split('@').first, "", []);
+                  await FirebaseAuth.instance.signOut();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text(
@@ -131,7 +130,6 @@ class _SignUpFormState extends State<SignUpForm> {
                           .floating, // Hiển thị SnackBar ở dạng floating
                     ),
                   );
-
                   Navigator.push(
                       context,
                       MaterialPageRoute(
