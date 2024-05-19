@@ -31,11 +31,11 @@ class FlashCard extends StatefulWidget {
 }
 
 class _FlashCardState extends State<FlashCard> {
-  late Timer _timer;
   final TTSService textToSpeechService = TTSService();
   Color cardColor = Colors.white;
   bool isFrontStartSelected = false;
   bool isBackStartSelected = false;
+  bool isAuto = false;
   List<Word> currentWords = [];
   List<Word> leflWords = [];
   List<Word> rightWords = [];
@@ -56,36 +56,36 @@ class _FlashCardState extends State<FlashCard> {
     super.dispose();
   }
 
-  void _startAutoAdvanceTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 8), (_) {
-      if (_currentIndexNotifier.value < currentWords.length) {
-        Future.delayed(const Duration(seconds: 2), () {
-          _isFlipped.value = !_isFlipped.value;
-        });
-        Future.delayed(const Duration(seconds: 5), () {
-          _swipableStackController.next(swipeDirection: SwipeDirection.right);
-        });
-        _currentIndexNotifier.value++; // Tăng chỉ số hiện tại
-      } else {
-        _timer.cancel();
+  void _startAutoAdvanceTimer(bool isAuto) async {
+    for (Word word in currentWords) {
+      if (_currentIndexNotifier.value <= currentWords.length) {
+        await Future.delayed(const Duration(seconds: 2));
+        _swipableStackController.next(swipeDirection: SwipeDirection.right);
       }
-    });
+    }
   }
 
-  void _showBottomSheet(BuildContext context) {
+  void _showBottomSheet(BuildContext context, List<Word> words) {
     showModalBottomSheet(
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(15))),
       context: context,
       builder: (BuildContext context) {
         return BottomSheetContent(
-          words: widget.words,
-          onFilter: (filteredWords) {
-            setState(() {
-              currentWords = filteredWords;
+            words: words,
+            onFilter: (filteredWords) {
+              setState(() {
+                currentWords = filteredWords;
+              });
+            },
+            onRandom: (randomWords) {
+              setState(() {
+                currentWords = randomWords;
+              });
+            },
+            onAuto: (isAuto) {
+              _startAutoAdvanceTimer(isAuto);
             });
-          },
-        );
       },
     );
   }
@@ -112,7 +112,8 @@ class _FlashCardState extends State<FlashCard> {
         actions: [
           GestureDetector(
               child: const Icon(Icons.more_vert),
-              onTap: () => _showBottomSheet(context))
+              onDoubleTap: () {},
+              onTap: () => _showBottomSheet(context, currentWords))
         ],
       ),
       body: Stack(
@@ -135,7 +136,7 @@ class _FlashCardState extends State<FlashCard> {
                     valueListenable: _currentLeftNumber,
                     builder: (context, value, _) {
                       return Text(
-                        "Chưa thuộc $value",
+                        "Not Learn :  $value",
                         style: const TextStyle(color: Colors.red),
                       );
                     },
@@ -152,7 +153,7 @@ class _FlashCardState extends State<FlashCard> {
                     valueListenable: _currentRightNumber,
                     builder: (context, value, _) {
                       return Text(
-                        "Đã thuộc $value",
+                        "Learned : $value",
                         style: const TextStyle(color: Colors.blue),
                       );
                     },
@@ -180,6 +181,7 @@ class _FlashCardState extends State<FlashCard> {
                         controller: _flipCardController,
                         onFlip: () {
                           _isFlipped.value;
+                          logger.d(isFrontStartSelected);
                         },
                         front: CardItem(
                           color: Colors.white,
@@ -263,9 +265,7 @@ class _FlashCardState extends State<FlashCard> {
                                       Navigator.pop(context);
                                     },
                                     onLearnNotMaster: () {
-                                      logger.i(leflWords.length);
                                       resetData(leflWords);
-                                      logger.i(currentWords.length);
                                     },
                                     onReuse: () {
                                       resetData(widget.words);

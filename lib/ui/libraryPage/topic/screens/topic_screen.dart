@@ -71,8 +71,8 @@ class _TopicScreenState extends State<TopicScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await _navigateToAddTopicScreen(context);
-          Provider.of<TopicViewModel>(context);
           setState(() {});
+          setdata();
         },
         backgroundColor: kPrimaryColor,
         foregroundColor: Colors.white,
@@ -83,6 +83,7 @@ class _TopicScreenState extends State<TopicScreen> {
   }
 
   Widget _buildTopicList() {
+    Provider.of<TopicViewModel>(context, listen: true);
     return widget.topicViewModel.isLoading
         ? ListView.builder(
             itemCount: 5,
@@ -104,9 +105,6 @@ class _TopicScreenState extends State<TopicScreen> {
                       topic: topic,
                       onDelete: (topic) {
                         _showDeleteConfirmation(topic);
-                      },
-                      onEdit: (topic) {
-                        _navigateToEditTopicScreen(context, topic);
                       },
                     ),
                   );
@@ -140,17 +138,6 @@ class _TopicScreenState extends State<TopicScreen> {
     );
   }
 
-  Future<void> _navigateToEditTopicScreen(
-      BuildContext context, Topic topic) async {
-    final updatedTopic = await showDialog<Topic>(
-      context: context,
-      builder: (_) => EditTopicDialog(topic: topic),
-    );
-    if (updatedTopic != null) {
-      // widget.topicViewModel.updateTopic(updatedTopic,);
-    }
-  }
-
   void _showDeleteConfirmation(Topic topic) {
     showDialog(
       context: context,
@@ -180,7 +167,7 @@ class _TopicScreenState extends State<TopicScreen> {
 
   Future<void> _deleteTopic(Topic topic) async {
     widget.topicViewModel.deleteTopic(topic);
-    FolderViewModel().removeTopicInFolder(topic.id!);
+    FolderViewModel().removeTopicInFolder(topic);
     MessageUtils.showSuccessMessage(
       context,
       "Đã xóa thành công chủ đề ${topic.title}",

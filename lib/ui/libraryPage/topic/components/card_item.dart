@@ -1,21 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/constants/constants.dart';
-import 'package:orange_card/ui/libraryPage/topic/components/dialog_edit_topic.dart';
 
 class TopicCardItem extends StatefulWidget {
   final Topic topic;
-  final Function(Topic)? onEdit;
   final Function(Topic)? onDelete;
-
   const TopicCardItem({
     Key? key,
     required this.topic,
-    this.onEdit,
     this.onDelete,
   }) : super(key: key);
 
@@ -117,25 +112,11 @@ class _TopicCardItemState extends State<TopicCardItem> {
               ),
               PopupMenuButton<int>(
                 onSelected: (value) async {
-                  if (value == 0 && widget.onEdit != null) {
-                    final Topic? topicUpdated = await showDialog<Topic>(
-                      context: context,
-                      builder: (_) => EditTopicDialog(topic: widget.topic),
-                    );
-                    if (topicUpdated != null) {
-                      widget.onEdit!(topicUpdated);
-                    }
-                  } else if (value == 1 && widget.onDelete != null) {
+                  if (value == 1) {
                     widget.onDelete!(widget.topic);
                   }
                 },
                 itemBuilder: (context) => [
-                  if (widget.onEdit != null)
-                    const PopupMenuItem<int>(
-                      value: 0,
-                      child:
-                          Text('Edit', style: TextStyle(color: Colors.black)),
-                    ),
                   if (widget.onDelete != null)
                     const PopupMenuItem<int>(
                       value: 1,

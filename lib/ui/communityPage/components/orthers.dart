@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/user.dart';
 import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
@@ -22,12 +20,10 @@ class Orthers extends StatefulWidget {
 class _OrthersState extends State<Orthers> {
   @override
   void initState() {
-    logger.e(widget.userViewModel.userCurrent!.topicIds.length);
-
     super.initState();
   }
 
-  void _filterTopic(String query) async {
+  void _filterTopic(String query) {
     widget.topicViewModel.searchTopicPublics(query);
     setState(() {});
   }
@@ -79,7 +75,7 @@ class _OrthersState extends State<Orthers> {
                           child: TopicCardCommunityItem(
                             topic: topic,
                             userViewModel: widget.userViewModel,
-                            like: widget.userViewModel.userCurrent!.topicIds
+                            like: widget.userViewModel.userCurrent!.topicIds!
                                 .contains(topic.id),
                           ),
                         );

@@ -75,8 +75,7 @@ class _MyBagsState extends State<MyBags> {
                             // height: 100,
                           ),
                           const SizedBox(height: 16),
-                          const Text('Danh sách trống...',
-                              style: AppTheme.caption),
+                          const Text('Empty ...', style: AppTheme.caption),
                         ],
                       ),
                     )
@@ -90,7 +89,7 @@ class _MyBagsState extends State<MyBags> {
                           },
                           child: TopicCardCommunityItem(
                             topic: topic,
-                            like: widget.userViewModel.userCurrent!.topicIds
+                            like: widget.userViewModel.userCurrent!.topicIds!
                                 .contains(topic.id),
                             userViewModel: widget.userViewModel,
                           ),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
 import 'package:orange_card/constants/constants.dart';
 import 'package:orange_card/resources/models/folder.dart';
 import 'package:orange_card/resources/viewmodels/FolderViewModel.dart';
+
 class FolderDialog extends StatefulWidget {
   final List<Folder> folders;
   final String topicId;
@@ -22,20 +24,16 @@ class _FolderDialogState extends State<FolderDialog> {
   @override
   void initState() {
     super.initState();
-    filteredFolders = widget.folders;
   }
 
   void _filterFolders(String query) {
-    setState(() {
-      filteredFolders = widget.folders.where((folder) {
-        return folder.title.toLowerCase().contains(query.toLowerCase());
-      }).toList();
-    });
+    widget.folderViewModel.searchFolder(query);
   }
 
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
+
     return Dialog(
       child: Container(
         padding: const EdgeInsets.only(top: 20, right: 10, left: 10),
@@ -60,10 +58,12 @@ class _FolderDialogState extends State<FolderDialog> {
             ),
             Expanded(
               child: ListView.builder(
-                itemCount: filteredFolders.length,
+                itemCount: widget.folderViewModel.folders.length,
                 itemBuilder: (context, index) {
-                  final folder = filteredFolders[index];
-                  isHaveTopic = checkInFolder(folder);
+                  final folder = widget.folderViewModel.folders[index];
+                  isHaveTopic = widget.folderViewModel
+                      .checkInFolder(folder.id!, widget.topicId);
+                  logger.e(isHaveTopic);
                   return Card(
                     margin: const EdgeInsets.only(
                         left: 20, right: 20, top: 5, bottom: 5),
@@ -82,7 +82,7 @@ class _FolderDialogState extends State<FolderDialog> {
                         ),
                       ),
                       subtitle: Text(
-                        '${folder.topicIds.length} chủ đề',
+                        '${folder.topicIds.length} topics',
                         style: const TextStyle(
                           fontSize: 14.0,
                           color: Colors.grey,
@@ -92,13 +92,14 @@ class _FolderDialogState extends State<FolderDialog> {
                         onPressed: () async {
                           bool newIsHaveTopic;
                           if (isHaveTopic) {
-                            widget.folderViewModel.removeTopicIdFromFolder(
+                            await widget.folderViewModel
+                                .removeTopicIdFromFolder(
                               folder.id!,
                               widget.topicId,
                             );
                             newIsHaveTopic = false;
                           } else {
-                            widget.folderViewModel.addTopicIdToFolder(
+                            await widget.folderViewModel.addTopicIdToFolder(
                               folder.id!,
                               widget.topicId,
                             );
@@ -107,6 +108,7 @@ class _FolderDialogState extends State<FolderDialog> {
                           setState(() {
                             isHaveTopic = newIsHaveTopic;
                           });
+                          logger.d(isHaveTopic);
                         },
                         child: Container(
                             padding: const EdgeInsets.all(10),
@@ -115,11 +117,11 @@ class _FolderDialogState extends State<FolderDialog> {
                                 color: isHaveTopic ? Colors.red : Colors.blue),
                             child: isHaveTopic
                                 ? const Text(
-                                    "Xóa",
+                                    "Delete",
                                     style: TextStyle(color: Colors.white),
                                   )
                                 : const Text(
-                                    "Thêm",
+                                    "Add",
                                     style: TextStyle(color: Colors.white),
                                   )),
                       ),
@@ -133,9 +135,5 @@ class _FolderDialogState extends State<FolderDialog> {
         ),
       ),
     );
-  }
-
-  bool checkInFolder(Folder folder) {
-    return folder.topicIds.contains(widget.topicId);
   }
 }

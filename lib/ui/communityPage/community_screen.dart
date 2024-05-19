@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:orange_card/resources/viewmodels/TopicViewmodel.dart';
-import 'package:orange_card/resources/viewmodels/UserViewModel.dart';
 import 'package:orange_card/ui/communityPage/components/app_bar.dart';
 import 'package:orange_card/ui/communityPage/components/community_page.dart';
-import 'package:provider/provider.dart';
 
 class CommunityPageScreen extends StatefulWidget {
   const CommunityPageScreen({super.key});
