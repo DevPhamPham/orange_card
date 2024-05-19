@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/ui/auth/Screens/Login/login_screen.dart';
 import 'package:orange_card/ui/main/components/nav_bar.dart';
 import 'package:orange_card/ui/communityPage/community_screen.dart';
 import 'package:orange_card/ui/homePage/home_screen.dart';
@@ -14,6 +17,21 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    logger.d("sihjv8fuvbiosdfvb ${FirebaseAuth.instance.currentUser!.email}");
+    if (FirebaseAuth.instance.currentUser == null) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const LoginScreen(),
+        ),
+        (Route<dynamic> route) => false,
+      );
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

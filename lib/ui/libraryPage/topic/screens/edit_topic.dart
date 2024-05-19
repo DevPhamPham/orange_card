@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:orange_card/resources/models/topic.dart';
 import 'package:orange_card/resources/models/word.dart';
@@ -39,12 +40,14 @@ class _EditTopicState extends State<EditTopic> {
     setState(() {
       _words.removeAt(index);
     });
+    MessageUtils.showSuccessMessage(context, "Deteled word at ${index + 1}");
   }
 
   void updateWord(int index, Word updatedWord) {
     setState(() {
       _words[index] = updatedWord;
     });
+    MessageUtils.showSuccessMessage(context, "Updated word at ${index + 1}");
   }
 
   Word createEmptyWord() {
@@ -111,7 +114,7 @@ class _EditTopicState extends State<EditTopic> {
               _topicName = value;
             },
             decoration: const InputDecoration(
-              labelText: 'Tên',
+              labelText: 'Topic Title',
               border: OutlineInputBorder(),
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: kPrimaryColor),
@@ -119,7 +122,7 @@ class _EditTopicState extends State<EditTopic> {
             ),
             validator: (value) {
               if (value!.isEmpty) {
-                return 'Vui lòng nhập tên';
+                return 'Enter Topic Name';
               }
               return null;
             },

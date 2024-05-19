@@ -24,7 +24,8 @@ class UserViewModel extends ChangeNotifier {
   }
 
   Future<void> getUserById() async {
-    User? currentUser = FirebaseAuth.instance.currentUser;
+    logger.e(FirebaseAuth.instance.currentUser!.email);
+    User currentUser = FirebaseAuth.instance.currentUser!;
     if (currentUser != null) {
       _userCurrent = await userRepository.getUserById(currentUser.uid);
       notifyListeners();

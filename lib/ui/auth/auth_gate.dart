@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:flutter/material.dart';
+import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/Screens/Welcome/welcome_screen.dart';
 
 import 'package:orange_card/ui/main/main_screen.dart';
@@ -15,9 +17,7 @@ class AuthGate extends StatelessWidget {
         if (!snapshot.hasData) {
           return const WelcomeScreen();
         }
-        // Push MainScreen and remove all previous screens from the navigation stack
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          
           Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => const MainScreen()),
             (route) => false,

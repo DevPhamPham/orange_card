@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:orange_card/config/app_logger.dart';
+import 'package:orange_card/resources/repositories/userRepository.dart';
 import 'package:orange_card/ui/auth/auth_gate.dart';
 import '../../ResetPassword/reset_password.dart';
 
@@ -100,13 +102,17 @@ class _LoginFormState extends State<LoginForm> {
           ),
           const SizedBox(height: defaultPadding),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 FirebaseAuth.instance
                     .signInWithEmailAndPassword(
                         email: _emailTextController.text,
                         password: _passwordTextController.text)
-                    .then((value) {
+                    .then((value) async {
+                  logger.i("Login ${FirebaseAuth.instance.currentUser!.uid}");
+                  await UserRepository().create(
+                      FirebaseAuth.instance.currentUser!.email!.split("@")[0],
+                      "", []);
                   Navigator.push(
                       context,
                       MaterialPageRoute(
