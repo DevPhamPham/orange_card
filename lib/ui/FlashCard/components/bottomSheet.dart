@@ -9,6 +9,7 @@ class BottomSheetContent extends StatefulWidget {
   final Function(List<Word>) onFilter;
   final Function(bool) onAuto;
   final Function(List<Word>) onRandom;
+  final bool isAuto;
 
   const BottomSheetContent({
     super.key,
@@ -16,6 +17,7 @@ class BottomSheetContent extends StatefulWidget {
     required this.onAuto,
     required this.onRandom,
     required this.onFilter,
+    required this.isAuto,
   });
 
   @override
@@ -41,14 +43,14 @@ class _BottomSheetContentState extends State<BottomSheetContent> {
         children: [
           ElevatedButton.icon(
             onPressed: () {
-              widget.onAuto(!isAuto);
+              widget.onAuto(!widget.isAuto);
               setState(() {
                 isAuto = !isAuto;
               });
               Navigator.pop(context);
             },
-            icon: const Icon(Icons.play_arrow),
-            label: const Text('AutoPlay'),
+            icon: widget.isAuto ? Icon(Icons.pause) : Icon(Icons.play_arrow),
+            label: widget.isAuto ? Text('Pause') : Text('Play'),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
           ),
           const SizedBox(height: 12),

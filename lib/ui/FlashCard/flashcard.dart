@@ -36,7 +36,7 @@ class _FlashCardState extends State<FlashCard> {
   Color cardColor = Colors.white;
   bool isFrontStartSelected = false;
   bool isBackStartSelected = false;
-  bool isAuto = false;
+  bool _isAuto = false;
   List<Word> currentWords = [];
   List<Word> leflWords = [];
   List<Word> rightWords = [];
@@ -57,17 +57,17 @@ class _FlashCardState extends State<FlashCard> {
     super.dispose();
   }
 
-  void _startAutoAdvanceTimer(bool isAuto) async {
-    if (isAuto) {
-      for (var word in currentWords) {
-        if (_currentIndexNotifier.value <= currentWords.length) {
-          await Future.delayed(const Duration(seconds: 2));
-          _swipableStackController.next(swipeDirection: SwipeDirection.right);
-        }
+  void _startAutoAdvanceTimer() async {
+    if (_isAuto) {
+      if (_currentIndexNotifier.value <= currentWords.length) {
+        await Future.delayed(const Duration(seconds: 2));
+        _swipableStackController.next(swipeDirection: SwipeDirection.right);
+        _startAutoAdvanceTimer(); // Call the function recursively
+      } else {
+        setState(() {
+          _isAuto = false;
+        });
       }
-      setState(() {
-        isAuto = false;
-      });
     }
   }
 
@@ -78,19 +78,23 @@ class _FlashCardState extends State<FlashCard> {
       context: context,
       builder: (BuildContext context) {
         return BottomSheetContent(
+            isAuto: _isAuto,
             words: words,
             onFilter: (filteredWords) {
               setState(() {
-                currentWords = filteredWords;
+                resetData(filteredWords);
               });
             },
             onRandom: (randomWords) {
               setState(() {
-                currentWords = randomWords;
+                resetData(randomWords);
               });
             },
             onAuto: (isAuto) {
-              _startAutoAdvanceTimer(isAuto);
+              setState(() {
+                _isAuto = isAuto;
+              });
+              _startAutoAdvanceTimer();
             });
       },
     );
@@ -195,8 +199,7 @@ class _FlashCardState extends State<FlashCard> {
                           text: english!,
                           isStartSelected: isFrontStartSelected,
                           onTapSpeak: () async {
-                            await textToSpeechService.speak(widget
-                                .topicViewModel.words[itemIndex].english!);
+                            await textToSpeechService.speak(english);
                           },
                           onTapStar: () async {
                             bool isMarked =
