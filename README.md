@@ -38,4 +38,10 @@
       <img src="./public/z5511028148480_b0de9911ad4c4517c42276f426e113d0.jpg" width="200px" alt="typing">
 </div>
 
+### Others
+
+<div style="display: flex;">
+  <img src="./public/z5511028147776_1729cf710afffcc8e0dbd25531bb730c.jpg" width="200px" alt="topic">
+  <img src="./public/z5511028143149_60ab541463f355d509f8970f28c6e590.jpg" width="200px" alt="score">
+</div>
 
