@@ -1,17 +1,11 @@
-# orange_card
+# 🍊 orange_card: Học tiếng Anh hiệu quả với Flashcard
 
-A new Flutter project.
+## Màn hình giao diện
 
-## Getting Started
+### Authentication
 
-  - Get info user: 
-      mẫu lấy user trong đường dẫn <b>\orange_card\lib\ui\personalPage\components\profile.dart</b>
-
-          import 'package:firebase_auth/firebase_auth.dart';
-          final FirebaseAuth _auth = FirebaseAuth.instance;
-            final user = _auth.currentUser;
-          _displayName = user?.displayName ?? '';
-          _preDisplayName = _displayName;
-          _email = user?.email ?? '';
-          _avatarUrl = '';
-
+<div style="display: flex;">
+  <img src="./public/z5511028307856_b0ab3d0a5d68bfcb43ad41cfa2155a66.jpg" width="200px" alt="Welcome">
+  <img src="./public/z5511028304888_b3f6fff493823b8030d86688fa9443a4.jpg" width="200px" alt="Đăng ký">
+  <img src="./public/z5511028307656_c7244956a3106a5f979550b6da7f9e00.jpg" width="200px" alt="Đăng nhập">
+</div>
